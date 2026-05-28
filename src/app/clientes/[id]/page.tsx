@@ -36,7 +36,7 @@ export default async function ClienteDetallePage({ params }: { params: { id: str
         <p className="text-gray-400">Detalle del cliente y parque de extintores.</p>
       </div>
       
-      <ClienteDetalleClient cliente={cliente} initialExtintores={extintores || []} skus={skus || []} />
+      <ClienteDetalleClient cliente={cliente} initialExtintores={(extintores as any) || []} skus={skus || []} />
     </div>
   );
 }

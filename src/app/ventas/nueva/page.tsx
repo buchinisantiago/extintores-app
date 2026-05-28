@@ -22,7 +22,7 @@ export default async function NuevaVentaPage() {
         <p className="text-gray-400">Selecciona el cliente y los extintores recargados a facturar/entregar.</p>
       </div>
       
-      <NuevaVentaClient clientes={clientes || []} stock={stock_terminado || []} />
+      <NuevaVentaClient clientes={clientes || []} stock={(stock_terminado as any) || []} />
     </div>
   );
 }
