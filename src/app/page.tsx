@@ -1,65 +1,126 @@
-import Image from "next/image";
+import { supabase } from '@/lib/supabase';
+import { Flame, Package, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import Link from 'next/link';
 
-export default function Home() {
+export const revalidate = 0; // Disable caching for realtime dashboard
+
+export default async function Dashboard() {
+  // Fetch stats concurrently
+  const [
+    { count: extintoresVencidos },
+    { count: extintoresPorVencer },
+    { data: stockMateriaPrima },
+    { data: stockTerminado }
+  ] = await Promise.all([
+    supabase.from('extintores_view').select('*', { count: 'exact', head: true }).eq('estado', 'vencido'),
+    supabase.from('extintores_view').select('*', { count: 'exact', head: true }).eq('estado', 'por_vencer'),
+    supabase.from('stock_mp').select('*'),
+    supabase.from('stock_terminado').select('*, skus(nombre)')
+  ]);
+
+  const mpEnAlerta = stockMateriaPrima?.filter(mp => mp.cantidad <= (mp.alerta_minimo || 0)) || [];
+  const stockTerminadoTotal = stockTerminado?.reduce((acc, curr) => acc + curr.cantidad, 0) || 0;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight mb-2">Dashboard</h1>
+        <p className="text-gray-400">Resumen operativo del local y alertas del sistema.</p>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="glass rounded-xl p-6 border-l-4 border-l-orange-500 hover:bg-white/5 transition-colors">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-400 text-sm font-medium mb-1">Por Vencer (30d)</p>
+              <h3 className="text-3xl font-bold text-orange-400">{extintoresPorVencer || 0}</h3>
+            </div>
+            <div className="p-3 bg-orange-500/10 rounded-lg text-orange-500">
+              <AlertTriangle size={24} />
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="glass rounded-xl p-6 border-l-4 border-l-red-500 hover:bg-white/5 transition-colors">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-400 text-sm font-medium mb-1">Extintores Vencidos</p>
+              <h3 className="text-3xl font-bold text-red-500">{extintoresVencidos || 0}</h3>
+            </div>
+            <div className="p-3 bg-red-500/10 rounded-lg text-red-500">
+              <Flame size={24} />
+            </div>
+          </div>
         </div>
-      </main>
+
+        <div className="glass rounded-xl p-6 border-l-4 border-l-blue-500 hover:bg-white/5 transition-colors">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-400 text-sm font-medium mb-1">Alertas Stock M.P.</p>
+              <h3 className="text-3xl font-bold text-blue-400">{mpEnAlerta.length}</h3>
+            </div>
+            <div className="p-3 bg-blue-500/10 rounded-lg text-blue-500">
+              <Package size={24} />
+            </div>
+          </div>
+        </div>
+
+        <div className="glass rounded-xl p-6 border-l-4 border-l-emerald-500 hover:bg-white/5 transition-colors">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-400 text-sm font-medium mb-1">Stock Terminado</p>
+              <h3 className="text-3xl font-bold text-emerald-400">{stockTerminadoTotal}</h3>
+            </div>
+            <div className="p-3 bg-emerald-500/10 rounded-lg text-emerald-500">
+              <CheckCircle2 size={24} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Alertas de Materia Prima */}
+        <div className="glass rounded-xl p-6">
+          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <Package size={20} className="text-blue-500" />
+            Materia Prima Crítica
+          </h2>
+          {mpEnAlerta.length > 0 ? (
+            <div className="space-y-3">
+              {mpEnAlerta.map(mp => (
+                <div key={mp.id} className="flex justify-between items-center p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                  <span className="font-medium">{mp.material}</span>
+                  <div className="text-right">
+                    <span className="text-red-400 font-bold">{mp.cantidad} {mp.unidad}</span>
+                    <span className="text-gray-400 text-xs block">Mínimo: {mp.alerta_minimo}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-400 italic">No hay alertas de stock en materia prima.</p>
+          )}
+          <Link href="/stock/mp" className="mt-4 inline-block text-sm text-blue-400 hover:text-blue-300">
+            Gestionar inventario &rarr;
+          </Link>
+        </div>
+
+        {/* Acciones Rápidas */}
+        <div className="glass rounded-xl p-6">
+          <h2 className="text-xl font-bold mb-4">Acciones Rápidas</h2>
+          <div className="grid grid-cols-2 gap-3">
+            <Link href="/ventas/nueva" className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 transition-all text-center btn-animate">
+              <span className="block text-orange-400 font-bold mb-1">Nueva Venta</span>
+              <span className="text-xs text-gray-400">Registrar salida de stock</span>
+            </Link>
+            <Link href="/clientes" className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 transition-all text-center btn-animate">
+              <span className="block text-blue-400 font-bold mb-1">Nuevo Cliente</span>
+              <span className="text-xs text-gray-400">Y registrar extintores</span>
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

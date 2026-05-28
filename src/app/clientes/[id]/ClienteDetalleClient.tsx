@@ -1,0 +1,193 @@
+'use client';
+
+import { useState } from 'react';
+import { Flame, Plus, Trash2, MapPin, Phone, Mail, AlertTriangle, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { addExtintor, deleteExtintor } from './actions';
+import { format } from 'date-fns';
+
+type Cliente = {
+  id: string;
+  nombre: string;
+  telefono: string;
+  email: string;
+  direccion: string;
+};
+
+type SKU = {
+  id: string;
+  nombre: string;
+  tipo_agente: string;
+};
+
+type Extintor = {
+  id: string;
+  cliente_id: string;
+  nro_serie: string;
+  fecha_carga: string;
+  fecha_vence: string;
+  estado: 'vigente' | 'por_vencer' | 'vencido';
+  fecha_ph: string | null;
+  vence_ph: string | null;
+  estado_ph: 'vigente' | 'por_vencer' | 'vencido' | 'sin_datos';
+  skus: { nombre: string, tipo_agente: string };
+};
+
+export default function ClienteDetalleClient({ 
+  cliente, 
+  initialExtintores, 
+  skus 
+}: { 
+  cliente: Cliente, 
+  initialExtintores: Extintor[],
+  skus: SKU[]
+}) {
+  const [isAdding, setIsAdding] = useState(false);
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Columna Izquierda: Datos del Cliente */}
+      <div className="lg:col-span-1 space-y-6">
+        <div className="glass p-6 rounded-xl border-t-4 border-t-blue-500">
+          <h2 className="text-xl font-bold mb-4">Información de Contacto</h2>
+          <div className="space-y-4 text-gray-300">
+            {cliente.telefono && (
+              <div className="flex items-center gap-3 bg-slate-900/50 p-3 rounded-lg border border-white/5">
+                <Phone className="text-blue-500" size={18} />
+                <span>{cliente.telefono}</span>
+              </div>
+            )}
+            {cliente.email && (
+              <div className="flex items-center gap-3 bg-slate-900/50 p-3 rounded-lg border border-white/5">
+                <Mail className="text-blue-500" size={18} />
+                <span className="break-all">{cliente.email}</span>
+              </div>
+            )}
+            {cliente.direccion && (
+              <div className="flex items-start gap-3 bg-slate-900/50 p-3 rounded-lg border border-white/5">
+                <MapPin className="text-blue-500 shrink-0 mt-0.5" size={18} />
+                <span>{cliente.direccion}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="glass p-6 rounded-xl">
+          <div className="flex items-center justify-between">
+            <span className="text-gray-400 font-medium">Total Extintores</span>
+            <span className="text-3xl font-black text-white">{initialExtintores.length}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Columna Derecha: Parque de Extintores */}
+      <div className="lg:col-span-2 space-y-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-bold flex items-center gap-2">
+            <Flame className="text-orange-500" />
+            Parque de Extintores
+          </h2>
+          <button 
+            onClick={() => setIsAdding(!isAdding)}
+            className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl font-medium flex items-center gap-2 btn-animate"
+          >
+            <Plus size={18} />
+            Asignar Extintor
+          </button>
+        </div>
+
+        {isAdding && (
+          <form action={async (formData) => {
+            await addExtintor(formData);
+            setIsAdding(false);
+          }} className="glass p-6 rounded-xl border border-orange-500/30 animate-in slide-in-from-top-4">
+            <input type="hidden" name="cliente_id" value={cliente.id} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <label className="block text-xs text-gray-400 mb-1">Tipo de Extintor (SKU) *</label>
+                <select name="sku_id" required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-orange-500 outline-none">
+                  <option value="">Selecciona un extintor...</option>
+                  {skus.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Número de Serie</label>
+                <input name="nro_serie" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-orange-500 outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Fecha de Carga *</label>
+                <input name="fecha_carga" type="date" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-orange-500 outline-none" />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-xs text-gray-400 mb-1">Fecha Prueba Hidráulica (opcional)</label>
+                <input name="fecha_ph" type="date" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-orange-500 outline-none" />
+              </div>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <button type="submit" className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg text-sm font-medium">Asignar</button>
+              <button type="button" onClick={() => setIsAdding(false)} className="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium">Cancelar</button>
+            </div>
+          </form>
+        )}
+
+        <div className="space-y-3">
+          {initialExtintores.map(ext => (
+            <div key={ext.id} className="glass p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4 border border-white/5 hover:bg-white/5 transition-all group">
+              <div className="flex-1">
+                <h3 className="font-bold text-lg text-white mb-1">{ext.skus?.nombre}</h3>
+                <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-400">
+                  {ext.nro_serie && <span>Serie: <span className="text-gray-300 font-mono">{ext.nro_serie}</span></span>}
+                  <span>Carga: <span className="text-gray-300">{format(new Date(ext.fecha_carga), 'dd/MM/yyyy')}</span></span>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3 md:justify-end">
+                {/* Badge PH */}
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-medium">
+                  <span className="text-gray-500">PH:</span>
+                  {ext.estado_ph === 'sin_datos' && <span className="text-gray-500">N/A</span>}
+                  {ext.estado_ph === 'vigente' && <span className="text-emerald-500 flex items-center gap-1"><CheckCircle2 size={12}/> Vigente</span>}
+                  {ext.estado_ph === 'por_vencer' && <span className="text-orange-400 flex items-center gap-1"><AlertTriangle size={12}/> Vence pronto</span>}
+                  {ext.estado_ph === 'vencido' && <span className="text-red-500 flex items-center gap-1"><AlertCircle size={12}/> Vencida</span>}
+                </div>
+
+                {/* Badge Carga */}
+                {ext.estado === 'vigente' && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20">
+                    <CheckCircle2 size={14}/> Vigente
+                  </span>
+                )}
+                {ext.estado === 'por_vencer' && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-500/10 text-orange-400 text-xs font-bold border border-orange-500/20">
+                    <AlertTriangle size={14}/> Por Vencer
+                  </span>
+                )}
+                {ext.estado === 'vencido' && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 text-xs font-bold border border-red-500/20">
+                    <Flame size={14}/> Vencido
+                  </span>
+                )}
+
+                <button 
+                  onClick={async () => {
+                    if (confirm('¿Eliminar extintor de este cliente?')) {
+                      await deleteExtintor(ext.id, cliente.id);
+                    }
+                  }}
+                  className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors ml-2 md:opacity-0 md:group-hover:opacity-100"
+                  title="Eliminar Extintor"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            </div>
+          ))}
+          {initialExtintores.length === 0 && (
+            <div className="text-center py-10 text-gray-500 border border-dashed border-slate-700 rounded-xl">
+              Este cliente aún no tiene extintores asignados.
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
