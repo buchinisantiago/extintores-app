@@ -22,3 +22,20 @@ export async function addStockTerminado(sku_id: string, currentCantidad: number,
   revalidatePath('/stock/terminado');
   revalidatePath('/');
 }
+
+export async function createSku(formData: FormData) {
+  const nombre = formData.get('nombre') as string;
+  const tipo_agente = formData.get('tipo_agente') as string;
+  const capacidad_kg = parseFloat(formData.get('capacidad_kg') as string);
+  const precio_recarga = parseFloat(formData.get('precio_recarga') as string);
+
+  await supabase.from('skus').insert({
+    nombre,
+    tipo_agente,
+    capacidad_kg,
+    precio_recarga
+  });
+
+  revalidatePath('/stock/terminado');
+  revalidatePath('/ventas/nueva');
+}

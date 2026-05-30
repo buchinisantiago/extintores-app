@@ -14,8 +14,13 @@ type StockItem = {
 export default function NuevaVentaClient({ clientes, stock }: { clientes: Cliente[], stock: StockItem[] }) {
   const router = useRouter();
   const [clienteId, setClienteId] = useState('');
-  const [cart, setCart] = useState<{sku_id: string, nombre: string, cantidad: number, precio: number, max: number}[]>([]);
+  const [cart, setCart] = useState<{sku_id: string, nombre: string, cantidad: number, precio: number, max: number, nro_serie: string}[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Accounting fields
+  const [nroFactura, setNroFactura] = useState('');
+  const [estadoPago, setEstadoPago] = useState('Pagado');
+  const [observaciones, setObservaciones] = useState('');
 
   const addItem = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const sku_id = e.target.value;
@@ -24,7 +29,6 @@ export default function NuevaVentaClient({ clientes, stock }: { clientes: Client
     const itemStock = stock.find(s => s.skus.id === sku_id);
     if (!itemStock) return;
 
-    // Check if already in cart
     if (cart.find(c => c.sku_id === sku_id)) {
       e.target.value = '';
       return;
@@ -35,7 +39,8 @@ export default function NuevaVentaClient({ clientes, stock }: { clientes: Client
       nombre: itemStock.skus.nombre,
       cantidad: 1,
       precio: itemStock.skus.precio_recarga,
-      max: itemStock.cantidad
+      max: itemStock.cantidad,
+      nro_serie: ''
     }]);
     
     e.target.value = '';
@@ -53,6 +58,10 @@ export default function NuevaVentaClient({ clientes, stock }: { clientes: Client
     }));
   };
 
+  const updateNroSerie = (sku_id: string, nro_serie: string) => {
+    setCart(cart.map(item => item.sku_id === sku_id ? { ...item, nro_serie } : item));
+  };
+
   const removeItem = (sku_id: string) => {
     setCart(cart.filter(item => item.sku_id !== sku_id));
   };
@@ -67,10 +76,11 @@ export default function NuevaVentaClient({ clientes, stock }: { clientes: Client
     const items = cart.map(c => ({
       sku_id: c.sku_id,
       cantidad: c.cantidad,
-      precio_unitario: c.precio
+      precio_unitario: c.precio,
+      nro_serie: c.nro_serie
     }));
 
-    const result = await crearVenta(clienteId, total, items);
+    const result = await crearVenta(clienteId, total, items, nroFactura, estadoPago, observaciones);
     
     if (result.success) {
       router.push('/ventas');
@@ -84,7 +94,6 @@ export default function NuevaVentaClient({ clientes, stock }: { clientes: Client
     <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       
       <div className="lg:col-span-2 space-y-6">
-        {/* Selector de Cliente */}
         <div className="glass p-6 rounded-xl border-t-4 border-t-orange-500">
           <label className="block text-sm font-bold mb-2">1. Seleccionar Cliente</label>
           <select 
@@ -98,7 +107,6 @@ export default function NuevaVentaClient({ clientes, stock }: { clientes: Client
           </select>
         </div>
 
-        {/* Añadir Productos */}
         <div className="glass p-6 rounded-xl">
           <label className="block text-sm font-bold mb-2">2. Añadir Productos al Remito</label>
           <select 
@@ -113,13 +121,21 @@ export default function NuevaVentaClient({ clientes, stock }: { clientes: Client
             ))}
           </select>
 
-          {/* Carrito */}
           <div className="space-y-3">
             {cart.map(item => (
               <div key={item.sku_id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-slate-900/50 border border-white/5">
                 <div className="flex-1">
                   <h4 className="font-bold">{item.nombre}</h4>
-                  <p className="text-sm text-gray-400">${item.precio} c/u</p>
+                  <div className="flex items-center gap-3 mt-1">
+                    <p className="text-sm text-gray-400">${item.precio} c/u</p>
+                    <input 
+                      type="text"
+                      placeholder="N° Cilindro (Opcional)"
+                      value={item.nro_serie}
+                      onChange={(e) => updateNroSerie(item.sku_id, e.target.value)}
+                      className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs outline-none focus:border-orange-500 text-white w-40"
+                    />
+                  </div>
                 </div>
                 
                 <div className="flex items-center gap-4">
@@ -144,9 +160,46 @@ export default function NuevaVentaClient({ clientes, stock }: { clientes: Client
             )}
           </div>
         </div>
+
+        {/* Datos Contables (Nuevos campos para Excel) */}
+        <div className="glass p-6 rounded-xl">
+          <label className="block text-sm font-bold mb-4">3. Datos de Facturación / Contables</label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-1">N° Factura / Remito</label>
+              <input 
+                type="text" 
+                value={nroFactura}
+                onChange={e => setNroFactura(e.target.value)}
+                placeholder="Ej. 0001-00001234"
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-1">Estado de Cobro</label>
+              <select 
+                value={estadoPago}
+                onChange={e => setEstadoPago(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 outline-none"
+              >
+                <option value="Pagado">Pagado</option>
+                <option value="Pendiente">Pendiente</option>
+              </select>
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-xs font-medium text-gray-400 mb-1">Observaciones</label>
+              <input 
+                type="text" 
+                value={observaciones}
+                onChange={e => setObservaciones(e.target.value)}
+                placeholder="Detalles adicionales..."
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 outline-none"
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Resumen */}
       <div className="lg:col-span-1">
         <div className="glass p-6 rounded-xl sticky top-6">
           <h3 className="font-bold text-lg mb-6 flex items-center gap-2">
@@ -174,7 +227,7 @@ export default function NuevaVentaClient({ clientes, stock }: { clientes: Client
             disabled={isSubmitting || cart.length === 0 || !clienteId}
             className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:hover:bg-orange-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 btn-animate transition-all"
           >
-            {isSubmitting ? 'Procesando...' : <><CheckCircle2 size={20} /> Confirmar y Descontar Stock</>}
+            {isSubmitting ? 'Procesando...' : <><CheckCircle2 size={20} /> Confirmar y Guardar</>}
           </button>
         </div>
       </div>

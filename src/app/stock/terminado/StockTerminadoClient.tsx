@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { Flame, Plus, Minus, Search } from 'lucide-react';
-import { addStockTerminado } from './actions';
+import { useState, useTransition } from 'react';
+import { Flame, Plus, Minus, Search, X, Save } from 'lucide-react';
+import { addStockTerminado, createSku } from './actions';
 
 type SKU = {
   id: string;
@@ -23,6 +23,17 @@ type StockData = {
 export default function StockTerminadoClient({ initialData }: { initialData: StockData[] }) {
   const [search, setSearch] = useState('');
   const [loadingSku, setLoadingSku] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  const handleCreateSku = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    startTransition(async () => {
+      await createSku(formData);
+      setShowModal(false);
+    });
+  };
 
   const filteredData = initialData.filter(d => 
     d.sku.nombre.toLowerCase().includes(search.toLowerCase()) ||
@@ -38,18 +49,27 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
 
   return (
     <div className="space-y-6">
-      {/* Buscador */}
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Search size={18} className="text-gray-500" />
+      {/* Buscador y Nuevo */}
+      <div className="flex flex-col lg:flex-row justify-between gap-4">
+        <div className="relative flex-1 lg:max-w-md">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search size={18} className="text-gray-500" />
+          </div>
+          <input 
+            type="text" 
+            placeholder="Buscar extintor..." 
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:border-orange-500 outline-none transition-colors"
+          />
         </div>
-        <input 
-          type="text" 
-          placeholder="Buscar extintor..." 
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full lg:w-1/3 bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:border-orange-500 outline-none transition-colors"
-        />
+        <button 
+          onClick={() => setShowModal(true)}
+          className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors whitespace-nowrap"
+        >
+          <Plus size={20} />
+          Nuevo Tipo de Extintor
+        </button>
       </div>
 
       {/* Grid de Productos */}
@@ -106,6 +126,71 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
           </div>
         )}
       </div>
+      {showModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-full max-w-md shadow-2xl animate-in zoom-in-95">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-bold text-lg">Nuevo Tipo de Extintor (SKU)</h3>
+              <button onClick={() => setShowModal(false)} className="text-gray-500 hover:text-white">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleCreateSku} className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300">Nombre (ej: Extintor ABC 5kg)</label>
+                <input 
+                  type="text" 
+                  name="nombre" 
+                  required 
+                  className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300">Tipo de Agente (ej: Polvo ABC)</label>
+                <input 
+                  type="text" 
+                  name="tipo_agente" 
+                  required 
+                  className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-300">Capacidad (kg)</label>
+                  <input 
+                    type="number" 
+                    name="capacidad_kg" 
+                    step="0.1"
+                    required 
+                    className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-300">Precio Recarga ($)</label>
+                  <input 
+                    type="number" 
+                    name="precio_recarga" 
+                    step="0.01"
+                    required 
+                    className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end pt-4 border-t border-white/5 mt-6">
+                <button 
+                  type="submit"
+                  disabled={isPending}
+                  className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-colors disabled:opacity-50"
+                >
+                  <Save size={20} />
+                  {isPending ? 'Guardando...' : 'Crear Producto'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

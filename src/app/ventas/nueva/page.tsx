@@ -12,6 +12,20 @@ export default async function NuevaVentaPage() {
     .select('cantidad, skus(id, nombre, precio_recarga)')
     .gt('cantidad', 0); // Solo traer lo que tiene stock
 
+  // Fetch servicios que no requieren stock
+  const { data: servicios } = await supabase
+    .from('skus')
+    .select('id, nombre, precio_recarga')
+    .eq('es_servicio', true);
+
+  const sellableItems = [
+    ...(stock_terminado as any || []),
+    ...(servicios as any || []).map((s: any) => ({
+      cantidad: 9999, // Stock "infinito" para los servicios
+      skus: s
+    }))
+  ];
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto">
       <div>
@@ -19,10 +33,10 @@ export default async function NuevaVentaPage() {
           <ArrowLeft size={16} /> Volver a Ventas
         </Link>
         <h1 className="text-3xl font-bold tracking-tight mb-2">Registrar Venta</h1>
-        <p className="text-gray-400">Selecciona el cliente y los extintores recargados a facturar/entregar.</p>
+        <p className="text-gray-400">Selecciona el cliente y los productos o servicios a facturar.</p>
       </div>
       
-      <NuevaVentaClient clientes={clientes || []} stock={(stock_terminado as any) || []} />
+      <NuevaVentaClient clientes={clientes || []} stock={sellableItems} />
     </div>
   );
 }
