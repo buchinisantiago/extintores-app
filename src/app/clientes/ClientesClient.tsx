@@ -12,6 +12,7 @@ type Cliente = {
   email: string;
   direccion: string;
   extintores: [{ count: number }];
+  ventas: { total: number, estado_pago: string }[];
 };
 
 export default function ClientesClient({ initialData }: { initialData: Cliente[] }) {
@@ -96,6 +97,14 @@ export default function ClientesClient({ initialData }: { initialData: Cliente[]
                     <span className="bg-white/5 px-2 py-0.5 rounded-full border border-white/5">
                       {cliente.extintores[0]?.count || 0} extintores
                     </span>
+                    {(() => {
+                      const saldo = cliente.ventas?.filter(v => v.estado_pago === 'Pendiente').reduce((acc, v) => acc + v.total, 0) || 0;
+                      return (
+                        <span className={`px-2 py-0.5 rounded-full font-medium ${saldo > 0 ? 'bg-red-500/20 text-red-400' : 'bg-white/5 text-gray-400'}`}>
+                          Saldo: ${saldo.toLocaleString()}
+                        </span>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>

@@ -11,4 +11,5 @@ export async function marcarComoPagado(ventaId: string) {
 
   revalidatePath('/ventas');
   revalidatePath('/finanzas');
+  revalidatePath('/clientes', 'layout');
 }

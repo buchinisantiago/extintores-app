@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { Flame, Plus, Trash2, MapPin, Phone, Mail, AlertTriangle, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { addExtintor, deleteExtintor } from './actions';
 import { format } from 'date-fns';
+import { DollarSign } from 'lucide-react';
+import { marcarComoPagado } from '../../ventas/actions';
 
 type Cliente = {
   id: string;
@@ -32,16 +34,29 @@ type Extintor = {
   skus: { nombre: string, tipo_agente: string };
 };
 
+type Venta = {
+  id: string;
+  fecha: string;
+  nro_factura: string | null;
+  estado_pago: 'Pagado' | 'Pendiente';
+  total: number;
+};
+
+
 export default function ClienteDetalleClient({ 
   cliente, 
   initialExtintores, 
-  skus 
+  skus,
+  ventas
 }: { 
   cliente: Cliente, 
   initialExtintores: Extintor[],
-  skus: SKU[]
+  skus: SKU[],
+  ventas: Venta[]
 }) {
   const [isAdding, setIsAdding] = useState(false);
+  
+  const saldoDeudor = ventas.filter(v => v.estado_pago === 'Pendiente').reduce((acc, v) => acc + v.total, 0);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -75,6 +90,17 @@ export default function ClienteDetalleClient({
           <div className="flex items-center justify-between">
             <span className="text-gray-400 font-medium">Total Extintores</span>
             <span className="text-3xl font-black text-white">{initialExtintores.length}</span>
+          </div>
+        </div>
+
+        <div className={`glass p-6 rounded-xl border-t-4 ${saldoDeudor > 0 ? 'border-t-red-500' : 'border-t-emerald-500'}`}>
+          <h2 className="text-xl font-bold mb-1">Estado de Cuenta</h2>
+          <p className="text-gray-400 text-sm mb-4">Saldo pendiente de pago</p>
+          <div className="flex items-center justify-between">
+            <span className="text-gray-400 font-medium">Deuda Total</span>
+            <span className={`text-3xl font-black ${saldoDeudor > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
+              ${saldoDeudor.toLocaleString()}
+            </span>
           </div>
         </div>
       </div>
@@ -187,6 +213,65 @@ export default function ClienteDetalleClient({
             </div>
           )}
         </div>
+
+        {/* Cuenta Corriente y Ventas */}
+        <div className="pt-8 mt-8 border-t border-white/10">
+          <h2 className="text-xl font-bold flex items-center gap-2 mb-6">
+            <DollarSign className="text-green-500" />
+            Cuenta Corriente y Ventas
+          </h2>
+          <div className="glass rounded-xl overflow-hidden">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-black/20 border-b border-white/5 text-sm">
+                  <th className="p-4 font-medium text-gray-400">Fecha</th>
+                  <th className="p-4 font-medium text-gray-400">N° Factura</th>
+                  <th className="p-4 font-medium text-gray-400">Estado</th>
+                  <th className="p-4 font-medium text-gray-400 text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ventas.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="p-8 text-center text-gray-500 italic">No hay ventas registradas.</td>
+                  </tr>
+                )}
+                {ventas.map(venta => (
+                  <tr key={venta.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                    <td className="p-4 text-gray-300">
+                      {format(new Date(venta.fecha), 'dd/MM/yyyy')}
+                    </td>
+                    <td className="p-4 text-gray-400">
+                      {venta.nro_factura || '-'}
+                    </td>
+                    <td className="p-4">
+                      <div className="flex items-center gap-2">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          venta.estado_pago === 'Pagado' ? 'bg-green-500/20 text-green-400' : 
+                          venta.estado_pago === 'Pendiente' ? 'bg-red-500/20 text-red-400' : 
+                          'bg-gray-500/20 text-gray-400'
+                        }`}>
+                          {venta.estado_pago || 'Pagado'}
+                        </span>
+                        {venta.estado_pago === 'Pendiente' && (
+                          <form action={marcarComoPagado.bind(null, venta.id)}>
+                            <button type="submit" className="text-xs bg-orange-500/20 text-orange-400 hover:bg-orange-500 hover:text-white px-2 py-1 rounded-full transition-colors cursor-pointer">
+                              Marcar Pagado
+                            </button>
+                          </form>
+                        )}
+                      </div>
+                    </td>
+                    <td className="p-4 text-right font-bold text-orange-400">
+                      ${venta.total?.toLocaleString() || 0}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     </div>
   );

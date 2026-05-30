@@ -24,6 +24,13 @@ export default async function ClienteDetallePage({ params }: { params: { id: str
     .eq('cliente_id', params.id)
     .order('fecha_vence', { ascending: true });
 
+  // Obtenemos las ventas del cliente
+  const { data: ventas } = await supabase
+    .from('ventas')
+    .select('*, venta_items(count)')
+    .eq('cliente_id', params.id)
+    .order('fecha', { ascending: false });
+
   const { data: skus } = await supabase.from('skus').select('*').order('nombre');
 
   return (
@@ -36,7 +43,12 @@ export default async function ClienteDetallePage({ params }: { params: { id: str
         <p className="text-gray-400">Detalle del cliente y parque de extintores.</p>
       </div>
       
-      <ClienteDetalleClient cliente={cliente} initialExtintores={(extintores as any) || []} skus={skus || []} />
+      <ClienteDetalleClient 
+        cliente={cliente} 
+        initialExtintores={(extintores as any) || []} 
+        skus={skus || []}
+        ventas={ventas || []} 
+      />
     </div>
   );
 }
