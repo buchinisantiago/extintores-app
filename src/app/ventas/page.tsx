@@ -69,13 +69,26 @@ export default async function VentasPage() {
                   </div>
                 </td>
                 <td className="p-4">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    venta.estado_pago === 'Pagado' ? 'bg-green-500/20 text-green-400' : 
-                    venta.estado_pago === 'Pendiente' ? 'bg-red-500/20 text-red-400' : 
-                    'bg-gray-500/20 text-gray-400'
-                  }`}>
-                    {venta.estado_pago || 'Pagado'}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      venta.estado_pago === 'Pagado' ? 'bg-green-500/20 text-green-400' : 
+                      venta.estado_pago === 'Pendiente' ? 'bg-red-500/20 text-red-400' : 
+                      'bg-gray-500/20 text-gray-400'
+                    }`}>
+                      {venta.estado_pago || 'Pagado'}
+                    </span>
+                    {venta.estado_pago === 'Pendiente' && (
+                      <form action={async () => {
+                        'use server';
+                        const { marcarComoPagado } = await import('./actions');
+                        await marcarComoPagado(venta.id);
+                      }}>
+                        <button type="submit" className="text-xs bg-orange-500/20 text-orange-400 hover:bg-orange-500 hover:text-white px-2 py-1 rounded-full transition-colors cursor-pointer">
+                          Marcar Pagado
+                        </button>
+                      </form>
+                    )}
+                  </div>
                 </td>
                 <td className="p-4 text-right font-bold text-orange-400">
                   ${venta.total?.toLocaleString() || 0}
