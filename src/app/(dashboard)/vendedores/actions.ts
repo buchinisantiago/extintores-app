@@ -24,7 +24,7 @@ export async function addVendedor(formData: FormData) {
   // 2. Insertar vendedor
   const { error } = await supabase.from('vendedores').insert([{ 
     nombre,
-    // auth_user_id: authData.user.id // Descomentaremos esto luego de que el usuario corra el SQL
+    auth_user_id: authData.user.id
   }]);
 
   if (error) {
