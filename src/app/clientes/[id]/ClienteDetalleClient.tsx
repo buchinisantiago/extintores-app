@@ -5,7 +5,7 @@ import { Flame, Plus, Trash2, MapPin, Phone, Mail, AlertTriangle, AlertCircle, C
 import { addExtintor, deleteExtintor } from './actions';
 import { format } from 'date-fns';
 import { DollarSign } from 'lucide-react';
-import { marcarComoPagado } from '../../ventas/actions';
+import MarcarPagadoButton from '../../ventas/MarcarPagadoButton';
 
 type Cliente = {
   id: string;
@@ -254,11 +254,7 @@ export default function ClienteDetalleClient({
                           {venta.estado_pago || 'Pagado'}
                         </span>
                         {venta.estado_pago === 'Pendiente' && (
-                          <form action={marcarComoPagado.bind(null, venta.id)}>
-                            <button type="submit" className="text-xs bg-orange-500/20 text-orange-400 hover:bg-orange-500 hover:text-white px-2 py-1 rounded-full transition-colors cursor-pointer">
-                              Marcar Pagado
-                            </button>
-                          </form>
+                          <MarcarPagadoButton ventaId={venta.id} />
                         )}
                       </div>
                     </td>

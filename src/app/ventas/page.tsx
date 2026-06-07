@@ -3,6 +3,7 @@ import { ShoppingCart, Calendar, User, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import ImportarExcel from '@/components/ImportarExcel';
+import MarcarPagadoButton from './MarcarPagadoButton';
 
 export const revalidate = 0;
 
@@ -78,15 +79,7 @@ export default async function VentasPage() {
                       {venta.estado_pago || 'Pagado'}
                     </span>
                     {venta.estado_pago === 'Pendiente' && (
-                      <form action={async () => {
-                        'use server';
-                        const { marcarComoPagado } = await import('./actions');
-                        await marcarComoPagado(venta.id);
-                      }}>
-                        <button type="submit" className="text-xs bg-orange-500/20 text-orange-400 hover:bg-orange-500 hover:text-white px-2 py-1 rounded-full transition-colors cursor-pointer">
-                          Marcar Pagado
-                        </button>
-                      </form>
+                      <MarcarPagadoButton ventaId={venta.id} />
                     )}
                   </div>
                 </td>

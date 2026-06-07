@@ -21,6 +21,8 @@ export default function NuevaVentaClient({ clientes, stock }: { clientes: Client
   const [nroFactura, setNroFactura] = useState('');
   const [estadoPago, setEstadoPago] = useState('Pagado');
   const [observaciones, setObservaciones] = useState('');
+  const [metodoPago, setMetodoPago] = useState('Efectivo');
+  const [comprobante, setComprobante] = useState('');
 
   const addItem = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const sku_id = e.target.value;
@@ -80,7 +82,16 @@ export default function NuevaVentaClient({ clientes, stock }: { clientes: Client
       nro_serie: c.nro_serie
     }));
 
-    const result = await crearVenta(clienteId, total, items, nroFactura, estadoPago, observaciones);
+    const result = await crearVenta(
+      clienteId, 
+      total, 
+      items, 
+      nroFactura, 
+      estadoPago, 
+      observaciones,
+      estadoPago === 'Pagado' ? metodoPago : undefined,
+      estadoPago === 'Pagado' ? comprobante : undefined
+    );
     
     if (result.success) {
       router.push('/ventas');
@@ -198,6 +209,40 @@ export default function NuevaVentaClient({ clientes, stock }: { clientes: Client
             </div>
           </div>
         </div>
+
+        {/* Clasificación de Pagos (Solo si está pagado) */}
+        {estadoPago === 'Pagado' && (
+          <div className="glass p-6 rounded-xl border-t-4 border-t-green-500 animate-in fade-in slide-in-from-top-2">
+            <label className="block text-sm font-bold mb-4 text-green-500">4. Detalles del Cobro</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Método de Pago</label>
+                <select 
+                  value={metodoPago}
+                  onChange={e => setMetodoPago(e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:border-green-500 outline-none"
+                >
+                  <option value="Efectivo">Efectivo</option>
+                  <option value="Transferencia">Transferencia</option>
+                  <option value="MercadoPago">MercadoPago</option>
+                  <option value="Cheque Diferido">Cheque Diferido</option>
+                  <option value="Tarjeta">Tarjeta</option>
+                  <option value="Otro">Otro</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Comprobante o Vuelto (Opcional)</label>
+                <input 
+                  type="text" 
+                  value={comprobante}
+                  onChange={e => setComprobante(e.target.value)}
+                  placeholder="Ej: Nro Transferencia, Entregó $10000, etc..."
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:border-green-500 outline-none"
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="lg:col-span-1">

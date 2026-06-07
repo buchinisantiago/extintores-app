@@ -9,7 +9,9 @@ export async function crearVenta(
   items: any[],
   nro_factura?: string,
   estado_pago?: string,
-  observaciones?: string
+  observaciones?: string,
+  metodo_pago?: string,
+  comprobante?: string
 ) {
   // Call the Postgres function (RPC) we will define for the transaction
   const { data: venta_id, error } = await supabase.rpc('crear_venta', {
@@ -28,7 +30,9 @@ export async function crearVenta(
     await supabase.from('ventas').update({
       nro_factura: nro_factura || null,
       estado_pago: estado_pago || 'Pagado',
-      observaciones: observaciones || null
+      observaciones: observaciones || null,
+      metodo_pago: metodo_pago || null,
+      comprobante: comprobante || null
     }).eq('id', venta_id);
   }
 
