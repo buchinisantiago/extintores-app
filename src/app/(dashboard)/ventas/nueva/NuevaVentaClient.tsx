@@ -12,10 +12,10 @@ type StockItem = {
   skus: { id: string, nombre: string, precio_recarga: number };
 };
 
-export default function NuevaVentaClient({ clientes, stock, vendedores }: { clientes: Cliente[], stock: StockItem[], vendedores: Vendedor[] }) {
+export default function NuevaVentaClient({ clientes, stock, vendedores, currentUserVendedorId }: { clientes: Cliente[], stock: StockItem[], vendedores: Vendedor[], currentUserVendedorId?: string }) {
   const router = useRouter();
   const [clienteId, setClienteId] = useState('');
-  const [vendedorId, setVendedorId] = useState('');
+  const [vendedorId, setVendedorId] = useState(currentUserVendedorId || '');
   const [cart, setCart] = useState<{sku_id: string, nombre: string, cantidad: number, precio: number, max: number, nro_serie: string}[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -124,14 +124,20 @@ export default function NuevaVentaClient({ clientes, stock, vendedores }: { clie
             </div>
             <div>
               <label className="block text-sm font-bold mb-2">Vendedor (Comisiones)</label>
-              <select 
-                value={vendedorId}
-                onChange={e => setVendedorId(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-base focus:border-orange-500 outline-none"
-              >
-                <option value="">Ninguno / Local</option>
-                {vendedores.map(v => <option key={v.id} value={v.id}>{v.nombre}</option>)}
-              </select>
+              {currentUserVendedorId ? (
+                <div className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-base text-gray-400">
+                  {vendedores.find(v => v.id === currentUserVendedorId)?.nombre || 'Vendedor Actual'}
+                </div>
+              ) : (
+                <select 
+                  value={vendedorId}
+                  onChange={e => setVendedorId(e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-base focus:border-orange-500 outline-none"
+                >
+                  <option value="">Ninguno / Local</option>
+                  {vendedores.map(v => <option key={v.id} value={v.id}>{v.nombre}</option>)}
+                </select>
+              )}
             </div>
           </div>
         </div>

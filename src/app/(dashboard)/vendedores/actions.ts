@@ -1,16 +1,38 @@
 'use server';
 
 import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function addVendedor(formData: FormData) {
   const nombre = formData.get('nombre') as string;
+  const email = formData.get('email') as string;
   
-  if (!nombre) return;
+  if (!nombre || !email) return { success: false, error: 'Nombre y correo requeridos' };
 
-  await supabase.from('vendedores').insert([{ nombre }]);
+  // 1. Crear usuario en Auth
+  const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+    email,
+    password: '1234',
+    email_confirm: true,
+  });
+
+  if (authError) {
+    return { success: false, error: 'Error al crear login: ' + authError.message };
+  }
+
+  // 2. Insertar vendedor
+  const { error } = await supabase.from('vendedores').insert([{ 
+    nombre,
+    // auth_user_id: authData.user.id // Descomentaremos esto luego de que el usuario corra el SQL
+  }]);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
   revalidatePath('/vendedores');
   revalidatePath('/ventas/nueva');
+  return { success: true };
 }
 
 export async function deleteVendedor(id: string) {

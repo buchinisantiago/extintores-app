@@ -11,11 +11,12 @@ import {
   Flame,
   Banknote,
   LineChart,
-  Clock
+  Clock,
+  LogOut
 } from 'lucide-react';
-import RoleSwitcher from './RoleSwitcher';
+import { logout } from '@/app/login/actions';
 
-export default function Sidebar({ initialRole }: { initialRole: 'Gerente' | 'Administrativo' }) {
+export default function Sidebar({ initialRole, email }: { initialRole: string, email: string }) {
   const pathname = usePathname();
 
   const navItems = [
@@ -43,7 +44,7 @@ export default function Sidebar({ initialRole }: { initialRole: 'Gerente' | 'Adm
       <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
-          const isDisabled = item.restricted && initialRole === 'Administrativo';
+          const isDisabled = item.restricted && initialRole !== 'Gerente';
 
           if (isDisabled) {
             return (
@@ -77,13 +78,26 @@ export default function Sidebar({ initialRole }: { initialRole: 'Gerente' | 'Adm
         })}
       </nav>
 
-      <RoleSwitcher initialRole={initialRole} />
-
       <div className="p-4 border-t border-white/5">
-        <Link href="/ajustes" className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-gray-100 hover:bg-white/5 transition-colors">
-          <Settings size={20} className="text-gray-500" />
-          Ajustes
-        </Link>
+        <div className="flex flex-col gap-2 mb-4 px-4 py-2 bg-slate-900/50 rounded-xl border border-white/5">
+          <span className="text-xs text-gray-400">Logueado como</span>
+          <span className="text-sm font-medium text-white truncate" title={email}>{email}</span>
+          <span className="text-xs text-orange-400 font-bold uppercase tracking-wider">{initialRole}</span>
+        </div>
+        
+        <form action={logout}>
+          <button type="submit" className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors">
+            <LogOut size={20} />
+            Cerrar Sesión
+          </button>
+        </form>
+
+        {initialRole === 'Gerente' && (
+          <Link href="/ajustes" className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-gray-100 hover:bg-white/5 transition-colors mt-2">
+            <Settings size={20} className="text-gray-500" />
+            Ajustes
+          </Link>
+        )}
       </div>
     </aside>
   );

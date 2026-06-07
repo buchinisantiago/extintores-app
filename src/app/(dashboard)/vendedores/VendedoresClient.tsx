@@ -26,14 +26,22 @@ export default function VendedoresClient({ initialData }: { initialData: Vendedo
 
       {isAdding && (
         <form action={async (formData) => {
-          await addVendedor(formData);
-          setIsAdding(false);
+          const res = await addVendedor(formData);
+          if (res && !res.success) {
+            alert(res.error);
+          } else {
+            setIsAdding(false);
+          }
         }} className="glass p-6 rounded-xl border-l-4 border-l-blue-500 animate-in slide-in-from-top-4">
           <h3 className="font-bold mb-4 text-lg">Registrar Nuevo Vendedor</h3>
-          <div className="flex gap-4 items-end">
-            <div className="flex-1">
+          <div className="flex gap-4 items-end flex-wrap">
+            <div className="flex-1 min-w-[200px]">
               <label className="block text-xs text-gray-400 mb-1">Nombre Completo *</label>
               <input name="nombre" required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 focus:border-blue-500 outline-none" />
+            </div>
+            <div className="flex-1 min-w-[200px]">
+              <label className="block text-xs text-gray-400 mb-1">Correo para Login *</label>
+              <input name="email" type="email" required placeholder="vendedor@empresa.com" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 focus:border-blue-500 outline-none" />
             </div>
             <button type="submit" className="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-medium transition-colors h-[42px]">Guardar</button>
             <button type="button" onClick={() => setIsAdding(false)} className="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg font-medium transition-colors h-[42px]">Cancelar</button>

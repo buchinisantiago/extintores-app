@@ -28,6 +28,18 @@ export default async function NuevaVentaPage() {
 
   const { data: vendedores } = await supabase.from('vendedores').select('*').order('nombre');
 
+  const { createClient } = await import('@/lib/supabase/server');
+  const supabaseServer = await createClient();
+  const { data: { user } } = await supabaseServer.auth.getUser();
+  
+  let currentUserVendedorId: string | undefined = undefined;
+  if (user && user.email !== 'gerencia@tuempresa.com') {
+    const { data: vendedorLogueado } = await supabase.from('vendedores').select('id').eq('auth_user_id', user.id).single();
+    if (vendedorLogueado) {
+      currentUserVendedorId = vendedorLogueado.id;
+    }
+  }
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto">
       <div>
@@ -42,6 +54,7 @@ export default async function NuevaVentaPage() {
         clientes={clientes || []} 
         stock={sellableItems} 
         vendedores={vendedores || []}
+        currentUserVendedorId={currentUserVendedorId}
       />
     </div>
   );

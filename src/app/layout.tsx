@@ -11,23 +11,15 @@ export const metadata: Metadata = {
   description: 'Panel interno para gestión de stock y clientes',
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const cookieStore = await cookies();
-  const role = (cookieStore.get('user_role')?.value as 'Gerente' | 'Administrativo') || 'Gerente';
-
   return (
     <html lang="es">
-      <body className={`${inter.className} min-h-screen bg-slate-950 text-slate-50 flex`}>
-        <Sidebar initialRole={role} />
-        <main className="flex-1 ml-64 p-8">
-          <div className="max-w-6xl mx-auto">
-            {children}
-          </div>
-        </main>
+      <body className={`${inter.className} min-h-screen bg-slate-950 text-slate-50`}>
+        {children}
       </body>
     </html>
   );
