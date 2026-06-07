@@ -7,7 +7,7 @@ import { cookies } from 'next/headers';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'FireControl - Gestión de Extintores',
+  title: 'Menendez - Gestión de Extintores',
   description: 'Panel interno para gestión de stock y clientes',
 };
 

@@ -34,7 +34,7 @@ export default function VencimientosClient({ initialData }: { initialData: Extin
     if (ext.estado === 'vencido' || ext.estado === 'por_vencer') reason += 'la recarga anual';
     if (ext.estado_ph === 'vencido' || ext.estado_ph === 'por_vencer') reason += (reason ? ' y ' : '') + 'la prueba hidráulica';
     
-    const message = `Hola ${ext.clientes.nombre}, te avisamos desde FireControl que el extintor ${ext.skus?.nombre} (Serie: ${ext.nro_serie || 'S/N'}) tiene ${reason} próxima a vencer o ya vencida. ¡Comunicate con nosotros para coordinar el retiro!`;
+    const message = `Hola ${ext.clientes.nombre}, te avisamos desde Menendez que el extintor ${ext.skus?.nombre} (Serie: ${ext.nro_serie || 'S/N'}) tiene ${reason} próxima a vencer o ya vencida. ¡Comunicate con nosotros para coordinar el retiro!`;
     return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
   };
 
@@ -43,19 +43,19 @@ export default function VencimientosClient({ initialData }: { initialData: Extin
       <div className="flex gap-2 mb-6">
         <button 
           onClick={() => setFilter('todos')}
-          className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${filter === 'todos' ? 'bg-orange-500 text-white' : 'bg-slate-800 text-gray-400 hover:bg-slate-700'}`}
+          className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${filter === 'todos' ? 'bg-red-600 text-white' : 'bg-slate-800 text-gray-400 hover:bg-slate-700'}`}
         >
           Todos
         </button>
         <button 
           onClick={() => setFilter('carga')}
-          className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${filter === 'carga' ? 'bg-orange-500 text-white' : 'bg-slate-800 text-gray-400 hover:bg-slate-700'}`}
+          className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${filter === 'carga' ? 'bg-red-600 text-white' : 'bg-slate-800 text-gray-400 hover:bg-slate-700'}`}
         >
           Recargas Anuales
         </button>
         <button 
           onClick={() => setFilter('ph')}
-          className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${filter === 'ph' ? 'bg-orange-500 text-white' : 'bg-slate-800 text-gray-400 hover:bg-slate-700'}`}
+          className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${filter === 'ph' ? 'bg-red-600 text-white' : 'bg-slate-800 text-gray-400 hover:bg-slate-700'}`}
         >
           Pruebas Hidráulicas
         </button>
@@ -83,7 +83,7 @@ export default function VencimientosClient({ initialData }: { initialData: Extin
               return (
                 <tr key={ext.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                   <td className="p-4">
-                    <Link href={`/clientes/${ext.clientes?.id}`} className="font-bold hover:text-orange-400 transition-colors">
+                    <Link href={`/clientes/${ext.clientes?.id}`} className="font-bold hover:text-red-400 transition-colors">
                       {ext.clientes?.nombre}
                     </Link>
                     <div className="text-xs text-gray-400">{ext.clientes?.telefono || 'Sin teléfono'}</div>
@@ -96,7 +96,7 @@ export default function VencimientosClient({ initialData }: { initialData: Extin
                     <div className="flex items-center gap-2">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
                         ext.estado === 'vencido' ? 'bg-red-500/20 text-red-400' : 
-                        ext.estado === 'por_vencer' ? 'bg-orange-500/20 text-orange-400' : 
+                        ext.estado === 'por_vencer' ? 'bg-red-600/20 text-red-400' : 
                         'bg-emerald-500/20 text-emerald-400'
                       }`}>
                         {ext.estado === 'vencido' && <AlertCircle size={12}/>}
@@ -111,7 +111,7 @@ export default function VencimientosClient({ initialData }: { initialData: Extin
                       <div className="flex items-center gap-2">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
                           ext.estado_ph === 'vencido' ? 'bg-red-500/20 text-red-400' : 
-                          ext.estado_ph === 'por_vencer' ? 'bg-orange-500/20 text-orange-400' : 
+                          ext.estado_ph === 'por_vencer' ? 'bg-red-600/20 text-red-400' : 
                           'bg-emerald-500/20 text-emerald-400'
                         }`}>
                           {ext.estado_ph === 'vencido' && <AlertCircle size={12}/>}

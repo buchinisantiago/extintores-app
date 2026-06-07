@@ -22,7 +22,7 @@ export default function MarcarPagadoButton({ ventaId }: { ventaId: string }) {
     <>
       <button 
         onClick={() => setIsOpen(true)}
-        className="text-xs bg-orange-500/20 text-orange-400 hover:bg-orange-500 hover:text-white px-2 py-1 rounded-full transition-colors cursor-pointer"
+        className="text-xs bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white px-2 py-1 rounded-full transition-colors cursor-pointer"
       >
         Marcar Pagado
       </button>

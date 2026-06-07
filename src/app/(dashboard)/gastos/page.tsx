@@ -24,7 +24,7 @@ export default async function GastosPage() {
         </div>
         <Link 
           href="/gastos/nuevo"
-          className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl font-medium flex items-center gap-2 btn-animate"
+          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl font-medium flex items-center gap-2 btn-animate"
         >
           <Plus size={20} />
           Nuevo Gasto

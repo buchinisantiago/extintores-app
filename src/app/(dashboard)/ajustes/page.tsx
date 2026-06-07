@@ -32,9 +32,9 @@ export default async function AjustesPage() {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="glass p-6 rounded-2xl border-l-4 border-l-blue-500">
+        <div className="glass p-6 rounded-2xl border-l-4 border-l-red-600">
           <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-            <Settings size={20} className="text-blue-500" />
+            <Settings size={20} className="text-red-600" />
             Configuración General
           </h2>
 
@@ -46,15 +46,15 @@ export default async function AjustesPage() {
               <label className="block text-sm font-medium text-gray-400 mb-1">Nombre de la Empresa</label>
               <input 
                 name="empresa_nombre" 
-                defaultValue={config?.empresa_nombre || 'FireControl'} 
+                defaultValue={config?.empresa_nombre || 'Menendez'} 
                 required 
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 focus:border-blue-500 outline-none" 
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 focus:border-red-600 outline-none" 
               />
             </div>
             
             <div className="pt-4 border-t border-white/5">
               <h3 className="font-bold text-white mb-2 flex items-center gap-2">
-                <ShieldAlert size={16} className="text-orange-500" />
+                <ShieldAlert size={16} className="text-red-600" />
                 Alertas de Seguridad y Vencimientos
               </h3>
               <p className="text-xs text-gray-400 mb-4">Este correo recibirá las alertas semanales de extintores vencidos y las notificaciones instantáneas cuando un empleado edite o elimine ventas/clientes.</p>
@@ -65,12 +65,12 @@ export default async function AjustesPage() {
                 type="email"
                 defaultValue={config?.email_notificaciones || 'gerencia@tuempresa.com'} 
                 required 
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 focus:border-blue-500 outline-none" 
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 focus:border-red-600 outline-none" 
               />
             </div>
 
             <div className="pt-6">
-              <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl transition-colors flex items-center justify-center gap-2">
+              <button type="submit" className="w-full bg-red-700 hover:bg-red-800 text-white font-medium py-3 rounded-xl transition-colors flex items-center justify-center gap-2">
                 <Save size={18} />
                 Guardar Configuración
               </button>

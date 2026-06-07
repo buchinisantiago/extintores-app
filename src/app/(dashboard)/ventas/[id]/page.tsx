@@ -29,7 +29,7 @@ export default async function VentaDetallePage({ params }: { params: Promise<{ i
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div>
-        <Link href="/ventas" className="inline-flex items-center gap-2 text-sm text-orange-400 hover:text-orange-300 mb-4 transition-colors">
+        <Link href="/ventas" className="inline-flex items-center gap-2 text-sm text-red-400 hover:text-orange-300 mb-4 transition-colors">
           <ArrowLeft size={16} /> Volver a Ventas
         </Link>
         <div className="flex justify-between items-start">
@@ -47,10 +47,10 @@ export default async function VentaDetallePage({ params }: { params: Promise<{ i
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="glass p-6 rounded-xl border-t-4 border-t-orange-500 space-y-4">
+        <div className="glass p-6 rounded-xl border-t-4 border-t-red-600 space-y-4">
           <h2 className="text-xl font-bold mb-4">Información del Cliente</h2>
           <div className="flex items-center gap-3 text-gray-300">
-            <User className="text-orange-500" size={18} />
+            <User className="text-red-600" size={18} />
             <span className="font-medium text-white">{venta.clientes?.nombre || 'Consumidor Final'}</span>
           </div>
           {venta.clientes?.telefono && (
@@ -122,7 +122,7 @@ export default async function VentaDetallePage({ params }: { params: Promise<{ i
             <tfoot>
               <tr className="bg-black/20">
                 <td colSpan={3} className="p-4 text-right font-bold text-gray-400">TOTAL</td>
-                <td className="p-4 text-right font-black text-orange-400 text-xl">
+                <td className="p-4 text-right font-black text-red-400 text-xl">
                   ${(venta.total || 0).toLocaleString()}
                 </td>
               </tr>

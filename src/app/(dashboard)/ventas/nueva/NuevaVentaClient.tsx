@@ -108,7 +108,7 @@ export default function NuevaVentaClient({ clientes, stock, vendedores, currentU
     <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       
       <div className="lg:col-span-2 space-y-6">
-        <div className="glass p-6 rounded-xl border-t-4 border-t-orange-500">
+        <div className="glass p-6 rounded-xl border-t-4 border-t-red-600">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-bold mb-2">1. Seleccionar Cliente *</label>
@@ -116,7 +116,7 @@ export default function NuevaVentaClient({ clientes, stock, vendedores, currentU
                 required 
                 value={clienteId}
                 onChange={e => setClienteId(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-base focus:border-orange-500 outline-none"
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-base focus:border-red-600 outline-none"
               >
                 <option value="">Buscar cliente...</option>
                 {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
@@ -132,7 +132,7 @@ export default function NuevaVentaClient({ clientes, stock, vendedores, currentU
                 <select 
                   value={vendedorId}
                   onChange={e => setVendedorId(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-base focus:border-orange-500 outline-none"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-base focus:border-red-600 outline-none"
                 >
                   <option value="">Ninguno / Local</option>
                   {vendedores.map(v => <option key={v.id} value={v.id}>{v.nombre}</option>)}
@@ -146,7 +146,7 @@ export default function NuevaVentaClient({ clientes, stock, vendedores, currentU
           <label className="block text-sm font-bold mb-2">2. Añadir Productos al Remito</label>
           <select 
             onChange={addItem}
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-base focus:border-orange-500 outline-none mb-6"
+            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-base focus:border-red-600 outline-none mb-6"
           >
             <option value="">+ Seleccionar extintor recargado...</option>
             {stock.map(s => (
@@ -168,7 +168,7 @@ export default function NuevaVentaClient({ clientes, stock, vendedores, currentU
                       placeholder="N° Cilindro (Opcional)"
                       value={item.nro_serie}
                       onChange={(e) => updateNroSerie(item.sku_id, e.target.value)}
-                      className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs outline-none focus:border-orange-500 text-white w-40"
+                      className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs outline-none focus:border-red-600 text-white w-40"
                     />
                   </div>
                 </div>
@@ -179,7 +179,7 @@ export default function NuevaVentaClient({ clientes, stock, vendedores, currentU
                     <span className="w-8 text-center font-bold">{item.cantidad}</span>
                     <button type="button" onClick={() => updateQuantity(item.sku_id, 1)} className="w-8 h-8 flex items-center justify-center rounded bg-slate-800 hover:bg-slate-700">+</button>
                   </div>
-                  <div className="w-24 text-right font-bold text-orange-400">
+                  <div className="w-24 text-right font-bold text-red-400">
                     ${item.cantidad * item.precio}
                   </div>
                   <button type="button" onClick={() => removeItem(item.sku_id)} className="p-2 text-gray-500 hover:text-red-500 transition-colors">
@@ -208,7 +208,7 @@ export default function NuevaVentaClient({ clientes, stock, vendedores, currentU
                 value={nroFactura}
                 onChange={e => setNroFactura(e.target.value)}
                 placeholder="Ej. 0001-00001234"
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 outline-none"
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:border-red-600 outline-none"
               />
             </div>
             <div>
@@ -216,7 +216,7 @@ export default function NuevaVentaClient({ clientes, stock, vendedores, currentU
               <select 
                 value={estadoPago}
                 onChange={e => setEstadoPago(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 outline-none"
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:border-red-600 outline-none"
               >
                 <option value="Pagado">Pagado</option>
                 <option value="Pendiente">Pendiente</option>
@@ -229,7 +229,7 @@ export default function NuevaVentaClient({ clientes, stock, vendedores, currentU
                 value={observaciones}
                 onChange={e => setObservaciones(e.target.value)}
                 placeholder="Detalles adicionales..."
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 outline-none"
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:border-red-600 outline-none"
               />
             </div>
           </div>
@@ -273,7 +273,7 @@ export default function NuevaVentaClient({ clientes, stock, vendedores, currentU
       <div className="lg:col-span-1">
         <div className="glass p-6 rounded-xl sticky top-6">
           <h3 className="font-bold text-lg mb-6 flex items-center gap-2">
-            <ShoppingCart className="text-orange-500" /> Resumen de Venta
+            <ShoppingCart className="text-red-600" /> Resumen de Venta
           </h3>
           
           <div className="space-y-3 mb-6">
@@ -288,14 +288,14 @@ export default function NuevaVentaClient({ clientes, stock, vendedores, currentU
             <div className="h-px bg-white/10 w-full my-4"></div>
             <div className="flex justify-between items-end">
               <span className="font-bold text-lg">Total</span>
-              <span className="font-black text-3xl text-orange-500">${total}</span>
+              <span className="font-black text-3xl text-red-600">${total}</span>
             </div>
           </div>
 
           <button 
             type="submit" 
             disabled={isSubmitting || cart.length === 0 || !clienteId}
-            className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:hover:bg-orange-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 btn-animate transition-all"
+            className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:hover:bg-red-600 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 btn-animate transition-all"
           >
             {isSubmitting ? 'Procesando...' : <><CheckCircle2 size={20} /> Confirmar y Guardar</>}
           </button>

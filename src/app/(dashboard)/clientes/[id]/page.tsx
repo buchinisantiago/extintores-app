@@ -38,7 +38,7 @@ export default async function ClienteDetallePage({ params }: { params: Promise<{
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div>
-        <Link href="/clientes" className="inline-flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 mb-4 transition-colors">
+        <Link href="/clientes" className="inline-flex items-center gap-2 text-sm text-red-400 hover:text-blue-300 mb-4 transition-colors">
           <ArrowLeft size={16} /> Volver a Clientes
         </Link>
         <h1 className="text-3xl font-bold tracking-tight mb-2">{cliente.nombre}</h1>

@@ -98,9 +98,9 @@ export default async function FinanzasPage() {
         </div>
 
         {/* Tarjeta de Capital */}
-        <div className="glass p-6 rounded-2xl border-l-4 border-l-blue-500 relative overflow-hidden group">
+        <div className="glass p-6 rounded-2xl border-l-4 border-l-red-600 relative overflow-hidden group">
           <div className="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <Package size={64} className="text-blue-500" />
+            <Package size={64} className="text-red-600" />
           </div>
           <p className="text-gray-400 font-medium mb-1">Capital en Repuestos / Stock</p>
           <h2 className="text-4xl font-black text-white">${capitalEnStock.toLocaleString()}</h2>
@@ -108,9 +108,9 @@ export default async function FinanzasPage() {
         </div>
 
         {/* Tarjeta de Ganancia */}
-        <div className="glass p-6 rounded-2xl border-l-4 border-l-orange-500 relative overflow-hidden group md:col-span-3 lg:col-span-1">
+        <div className="glass p-6 rounded-2xl border-l-4 border-l-red-600 relative overflow-hidden group md:col-span-3 lg:col-span-1">
           <div className="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <DollarSign size={64} className="text-orange-500" />
+            <DollarSign size={64} className="text-red-600" />
           </div>
           <p className="text-gray-400 font-medium mb-1">Ganancia Real Estimada</p>
           <h2 className={`text-4xl font-black ${gananciaBruta >= 0 ? 'text-white' : 'text-red-400'}`}>
@@ -123,7 +123,7 @@ export default async function FinanzasPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
         <div className="glass p-8 rounded-2xl">
           <div className="flex items-center gap-3 mb-6">
-            <Users className="text-blue-500" />
+            <Users className="text-red-600" />
             <h3 className="text-xl font-bold">Ventas por Empleado (Para Comisiones)</h3>
           </div>
           
@@ -134,7 +134,7 @@ export default async function FinanzasPage() {
               Object.entries(ventasPorVendedor).sort((a, b) => b[1] - a[1]).map(([nombre, total]) => (
                 <div key={nombre} className="flex justify-between items-center p-4 bg-slate-900/50 rounded-xl border border-white/5">
                   <span className="font-bold">{nombre}</span>
-                  <span className="text-blue-400 font-black">${total.toLocaleString()}</span>
+                  <span className="text-red-400 font-black">${total.toLocaleString()}</span>
                 </div>
               ))
             )}
@@ -144,7 +144,7 @@ export default async function FinanzasPage() {
 
         <div className="glass p-8 rounded-2xl">
           <div className="flex items-center gap-3 mb-6">
-            <Activity className="text-orange-500" />
+            <Activity className="text-red-600" />
             <h3 className="text-xl font-bold">Estado de Cuenta</h3>
           </div>
           <div className="h-48 flex items-center justify-center border-2 border-dashed border-white/5 rounded-xl text-gray-500 text-center px-4">

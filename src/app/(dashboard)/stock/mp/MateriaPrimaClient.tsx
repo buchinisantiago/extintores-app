@@ -23,7 +23,7 @@ export default function MateriaPrimaClient({ initialData }: { initialData: MP[] 
       <div className="flex justify-end">
         <button 
           onClick={() => setIsAdding(!isAdding)}
-          className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl font-medium flex items-center gap-2 btn-animate"
+          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl font-medium flex items-center gap-2 btn-animate"
         >
           <Plus size={20} />
           Nuevo Material
@@ -35,20 +35,20 @@ export default function MateriaPrimaClient({ initialData }: { initialData: MP[] 
         <form action={async (formData) => {
           await addMateriaPrima(formData);
           setIsAdding(false);
-        }} className="glass p-6 rounded-xl border-l-4 border-l-orange-500 animate-in slide-in-from-top-4">
+        }} className="glass p-6 rounded-xl border-l-4 border-l-red-600 animate-in slide-in-from-top-4">
           <h3 className="font-bold mb-4 text-lg">Registrar Nueva Materia Prima</h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <label className="block text-xs text-gray-400 mb-1">Nombre del Material</label>
-              <input name="material" required placeholder="Ej: Polvo ABC" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-orange-500 outline-none" />
+              <input name="material" required placeholder="Ej: Polvo ABC" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none" />
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">Cantidad Inicial</label>
-              <input name="cantidad" type="number" step="0.01" required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-orange-500 outline-none" />
+              <input name="cantidad" type="number" step="0.01" required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none" />
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">Unidad</label>
-              <select name="unidad" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-orange-500 outline-none">
+              <select name="unidad" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none">
                 <option value="Kg">Kilogramos (Kg)</option>
                 <option value="Litros">Litros (L)</option>
                 <option value="Unidades">Unidades (Ud)</option>
@@ -56,11 +56,11 @@ export default function MateriaPrimaClient({ initialData }: { initialData: MP[] 
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">Alerta Mínima</label>
-              <input name="alerta_minimo" type="number" step="0.01" required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-orange-500 outline-none" />
+              <input name="alerta_minimo" type="number" step="0.01" required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none" />
             </div>
           </div>
           <div className="mt-4 flex gap-2">
-            <button type="submit" className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg text-sm font-medium">Guardar</button>
+            <button type="submit" className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm font-medium">Guardar</button>
             <button type="button" onClick={() => setIsAdding(false)} className="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium">Cancelar</button>
           </div>
         </form>
@@ -89,7 +89,7 @@ export default function MateriaPrimaClient({ initialData }: { initialData: MP[] 
               return (
                 <tr key={item.id} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
                   <td className="p-4 font-medium flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${isLowStock ? 'bg-red-500/20 text-red-500' : 'bg-blue-500/20 text-blue-400'}`}>
+                    <div className={`p-2 rounded-lg ${isLowStock ? 'bg-red-500/20 text-red-500' : 'bg-red-600/20 text-red-400'}`}>
                       <Package size={18} />
                     </div>
                     {item.material}
@@ -102,7 +102,7 @@ export default function MateriaPrimaClient({ initialData }: { initialData: MP[] 
                           step="0.01" 
                           value={editCantidad}
                           onChange={e => setEditCantidad(Number(e.target.value))}
-                          className="w-24 bg-slate-900 border border-orange-500 rounded px-2 py-1 text-sm outline-none text-right"
+                          className="w-24 bg-slate-900 border border-red-600 rounded px-2 py-1 text-sm outline-none text-right"
                           autoFocus
                         />
                         <button 
@@ -139,7 +139,7 @@ export default function MateriaPrimaClient({ initialData }: { initialData: MP[] 
                         setEditingId(item.id);
                         setEditCantidad(item.cantidad);
                       }}
-                      className="p-2 text-gray-400 hover:text-blue-400 transition-colors" title="Actualizar Stock">
+                      className="p-2 text-gray-400 hover:text-red-400 transition-colors" title="Actualizar Stock">
                       <Edit2 size={18} />
                     </button>
                     <button 

@@ -65,11 +65,11 @@ export default function ImportarExcel() {
               </button>
             </div>
             
-            <div className="border-2 border-dashed border-slate-700 rounded-xl p-8 text-center hover:border-orange-500/50 transition-colors bg-slate-900/50">
+            <div className="border-2 border-dashed border-slate-700 rounded-xl p-8 text-center hover:border-red-600/50 transition-colors bg-slate-900/50">
               <Upload className="mx-auto text-gray-500 mb-4" size={32} />
               <p className="text-sm text-gray-300 mb-4">Sube tu archivo .xlsx con las columnas: <br/> Fecha, N° Factura, Estado, Observaciones, Total</p>
               
-              <label className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg cursor-pointer inline-block font-medium transition-colors">
+              <label className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg cursor-pointer inline-block font-medium transition-colors">
                 {isProcessing ? 'Procesando...' : 'Seleccionar Archivo'}
                 <input 
                   type="file" 

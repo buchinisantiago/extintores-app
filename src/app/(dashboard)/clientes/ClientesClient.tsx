@@ -38,12 +38,12 @@ export default function ClientesClient({ initialData }: { initialData: Cliente[]
             placeholder="Buscar por nombre, email o teléfono..." 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2 text-sm focus:border-blue-500 outline-none transition-colors"
+            className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2 text-sm focus:border-red-600 outline-none transition-colors"
           />
         </div>
         <button 
           onClick={() => setIsAdding(!isAdding)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-medium flex items-center justify-center gap-2 btn-animate"
+          className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-xl font-medium flex items-center justify-center gap-2 btn-animate"
         >
           <Plus size={20} />
           Nuevo Cliente
@@ -55,28 +55,28 @@ export default function ClientesClient({ initialData }: { initialData: Cliente[]
         <form action={async (formData) => {
           await addCliente(formData);
           setIsAdding(false);
-        }} className="glass p-6 rounded-xl border-l-4 border-l-blue-500 animate-in slide-in-from-top-4">
+        }} className="glass p-6 rounded-xl border-l-4 border-l-red-600 animate-in slide-in-from-top-4">
           <h3 className="font-bold mb-4 text-lg">Registrar Nuevo Cliente</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs text-gray-400 mb-1">Nombre Completo o Empresa *</label>
-              <input name="nombre" required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-blue-500 outline-none" />
+              <input name="nombre" required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none" />
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">Teléfono</label>
-              <input name="telefono" type="tel" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-blue-500 outline-none" />
+              <input name="telefono" type="tel" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none" />
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">Email</label>
-              <input name="email" type="email" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-blue-500 outline-none" />
+              <input name="email" type="email" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none" />
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">Dirección</label>
-              <input name="direccion" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-blue-500 outline-none" />
+              <input name="direccion" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none" />
             </div>
           </div>
           <div className="mt-5 flex gap-2">
-            <button type="submit" className="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-medium transition-colors">Guardar Cliente</button>
+            <button type="submit" className="bg-red-700 hover:bg-red-800 px-6 py-2 rounded-lg font-medium transition-colors">Guardar Cliente</button>
             <button type="button" onClick={() => setIsAdding(false)} className="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg font-medium transition-colors">Cancelar</button>
           </div>
         </form>
@@ -85,10 +85,10 @@ export default function ClientesClient({ initialData }: { initialData: Cliente[]
       {/* Grid de Clientes */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {filteredData.map((cliente) => (
-          <div key={cliente.id} className="glass p-5 rounded-xl border border-white/5 hover:border-blue-500/30 transition-all group flex flex-col justify-between">
+          <div key={cliente.id} className="glass p-5 rounded-xl border border-white/5 hover:border-red-600/30 transition-all group flex flex-col justify-between">
             <div>
               <div className="flex items-start gap-3 mb-4">
-                <div className="p-2.5 rounded-lg bg-blue-500/10 text-blue-500">
+                <div className="p-2.5 rounded-lg bg-red-600/10 text-red-600">
                   <Users size={24} />
                 </div>
                 <div>
@@ -130,7 +130,7 @@ export default function ClientesClient({ initialData }: { initialData: Cliente[]
 
             <Link 
               href={`/clientes/${cliente.id}`}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-blue-500/10 text-blue-400 font-medium hover:bg-blue-500/20 transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-red-600/10 text-red-400 font-medium hover:bg-red-600/20 transition-colors"
             >
               Ver Detalle <ArrowRight size={16} />
             </Link>

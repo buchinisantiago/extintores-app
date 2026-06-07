@@ -30,13 +30,13 @@ export default async function Dashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="glass rounded-xl p-6 border-l-4 border-l-orange-500 hover:bg-white/5 transition-colors">
+        <div className="glass rounded-xl p-6 border-l-4 border-l-red-600 hover:bg-white/5 transition-colors">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-gray-400 text-sm font-medium mb-1">Por Vencer (30d)</p>
-              <h3 className="text-3xl font-bold text-orange-400">{extintoresPorVencer || 0}</h3>
+              <h3 className="text-3xl font-bold text-red-400">{extintoresPorVencer || 0}</h3>
             </div>
-            <div className="p-3 bg-orange-500/10 rounded-lg text-orange-500">
+            <div className="p-3 bg-red-600/10 rounded-lg text-red-600">
               <AlertTriangle size={24} />
             </div>
           </div>
@@ -54,13 +54,13 @@ export default async function Dashboard() {
           </div>
         </div>
 
-        <div className="glass rounded-xl p-6 border-l-4 border-l-blue-500 hover:bg-white/5 transition-colors">
+        <div className="glass rounded-xl p-6 border-l-4 border-l-red-600 hover:bg-white/5 transition-colors">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-gray-400 text-sm font-medium mb-1">Alertas Stock M.P.</p>
-              <h3 className="text-3xl font-bold text-blue-400">{mpEnAlerta.length}</h3>
+              <h3 className="text-3xl font-bold text-red-400">{mpEnAlerta.length}</h3>
             </div>
-            <div className="p-3 bg-blue-500/10 rounded-lg text-blue-500">
+            <div className="p-3 bg-red-600/10 rounded-lg text-red-600">
               <Package size={24} />
             </div>
           </div>
@@ -83,7 +83,7 @@ export default async function Dashboard() {
         {/* Alertas de Materia Prima */}
         <div className="glass rounded-xl p-6">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <Package size={20} className="text-blue-500" />
+            <Package size={20} className="text-red-600" />
             Materia Prima Crítica
           </h2>
           {mpEnAlerta.length > 0 ? (
@@ -101,7 +101,7 @@ export default async function Dashboard() {
           ) : (
             <p className="text-gray-400 italic">No hay alertas de stock en materia prima.</p>
           )}
-          <Link href="/stock/mp" className="mt-4 inline-block text-sm text-blue-400 hover:text-blue-300">
+          <Link href="/stock/mp" className="mt-4 inline-block text-sm text-red-400 hover:text-blue-300">
             Gestionar inventario &rarr;
           </Link>
         </div>
@@ -110,12 +110,12 @@ export default async function Dashboard() {
         <div className="glass rounded-xl p-6">
           <h2 className="text-xl font-bold mb-4">Acciones Rápidas</h2>
           <div className="grid grid-cols-2 gap-3">
-            <Link href="/ventas/nueva" className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 transition-all text-center btn-animate">
-              <span className="block text-orange-400 font-bold mb-1">Nueva Venta</span>
+            <Link href="/ventas/nueva" className="p-4 rounded-xl bg-red-600/10 border border-red-600/20 hover:bg-red-600/20 transition-all text-center btn-animate">
+              <span className="block text-red-400 font-bold mb-1">Nueva Venta</span>
               <span className="text-xs text-gray-400">Registrar salida de stock</span>
             </Link>
-            <Link href="/clientes" className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 transition-all text-center btn-animate">
-              <span className="block text-blue-400 font-bold mb-1">Nuevo Cliente</span>
+            <Link href="/clientes" className="p-4 rounded-xl bg-red-600/10 border border-red-600/20 hover:bg-red-600/20 transition-all text-center btn-animate">
+              <span className="block text-red-400 font-bold mb-1">Nuevo Cliente</span>
               <span className="text-xs text-gray-400">Y registrar extintores</span>
             </Link>
           </div>

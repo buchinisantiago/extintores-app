@@ -25,7 +25,7 @@ export default async function VentasPage() {
           <ImportarExcel />
           <Link 
             href="/ventas/nueva"
-            className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl font-medium flex items-center gap-2 btn-animate"
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl font-medium flex items-center gap-2 btn-animate"
           >
             <ShoppingCart size={20} />
             Nueva Venta
@@ -85,7 +85,7 @@ export default async function VentasPage() {
                     )}
                   </div>
                 </td>
-                <td className="p-4 text-right font-bold text-orange-400">
+                <td className="p-4 text-right font-bold text-red-400">
                   <div className="flex items-center justify-end gap-4">
                     <span>${venta.total?.toLocaleString() || 0}</span>
                     <VentaRowActions venta={venta} />

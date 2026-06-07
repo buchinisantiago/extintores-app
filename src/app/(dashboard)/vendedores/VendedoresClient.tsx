@@ -17,7 +17,7 @@ export default function VendedoresClient({ initialData }: { initialData: Vendedo
       <div className="flex justify-end">
         <button 
           onClick={() => setIsAdding(!isAdding)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-medium flex items-center justify-center gap-2 btn-animate"
+          className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-xl font-medium flex items-center justify-center gap-2 btn-animate"
         >
           <Plus size={20} />
           Nuevo Vendedor
@@ -32,18 +32,18 @@ export default function VendedoresClient({ initialData }: { initialData: Vendedo
           } else {
             setIsAdding(false);
           }
-        }} className="glass p-6 rounded-xl border-l-4 border-l-blue-500 animate-in slide-in-from-top-4">
+        }} className="glass p-6 rounded-xl border-l-4 border-l-red-600 animate-in slide-in-from-top-4">
           <h3 className="font-bold mb-4 text-lg">Registrar Nuevo Vendedor</h3>
           <div className="flex gap-4 items-end flex-wrap">
             <div className="flex-1 min-w-[200px]">
               <label className="block text-xs text-gray-400 mb-1">Nombre Completo *</label>
-              <input name="nombre" required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 focus:border-blue-500 outline-none" />
+              <input name="nombre" required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 focus:border-red-600 outline-none" />
             </div>
             <div className="flex-1 min-w-[200px]">
               <label className="block text-xs text-gray-400 mb-1">Correo para Login *</label>
-              <input name="email" type="email" required placeholder="vendedor@empresa.com" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 focus:border-blue-500 outline-none" />
+              <input name="email" type="email" required placeholder="vendedor@empresa.com" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 focus:border-red-600 outline-none" />
             </div>
-            <button type="submit" className="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-medium transition-colors h-[42px]">Guardar</button>
+            <button type="submit" className="bg-red-700 hover:bg-red-800 px-6 py-2 rounded-lg font-medium transition-colors h-[42px]">Guardar</button>
             <button type="button" onClick={() => setIsAdding(false)} className="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg font-medium transition-colors h-[42px]">Cancelar</button>
           </div>
         </form>
@@ -51,9 +51,9 @@ export default function VendedoresClient({ initialData }: { initialData: Vendedo
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {initialData.map((vendedor) => (
-          <div key={vendedor.id} className="glass p-5 rounded-xl border border-white/5 hover:border-blue-500/30 transition-all flex items-center justify-between group">
+          <div key={vendedor.id} className="glass p-5 rounded-xl border border-white/5 hover:border-red-600/30 transition-all flex items-center justify-between group">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-lg bg-blue-500/10 text-blue-500">
+              <div className="p-2.5 rounded-lg bg-red-600/10 text-red-600">
                 <Users size={20} />
               </div>
               <h3 className="font-bold text-lg">{vendedor.nombre}</h3>

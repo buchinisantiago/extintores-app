@@ -78,7 +78,7 @@ export default function ClienteDetalleClient({
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Columna Izquierda: Datos del Cliente */}
       <div className="lg:col-span-1 space-y-6">
-        <div className="glass p-6 rounded-xl border-t-4 border-t-blue-500 relative group">
+        <div className="glass p-6 rounded-xl border-t-4 border-t-red-600 relative group">
           <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <button onClick={() => setIsEditing(true)} className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors" title="Editar Cliente">
               <Edit2 size={18} />
@@ -91,19 +91,19 @@ export default function ClienteDetalleClient({
           <div className="space-y-4 text-gray-300">
             {cliente.telefono && (
               <div className="flex items-center gap-3 bg-slate-900/50 p-3 rounded-lg border border-white/5">
-                <Phone className="text-blue-500" size={18} />
+                <Phone className="text-red-600" size={18} />
                 <span>{cliente.telefono}</span>
               </div>
             )}
             {cliente.email && (
               <div className="flex items-center gap-3 bg-slate-900/50 p-3 rounded-lg border border-white/5">
-                <Mail className="text-blue-500" size={18} />
+                <Mail className="text-red-600" size={18} />
                 <span className="break-all">{cliente.email}</span>
               </div>
             )}
             {cliente.direccion && (
               <div className="flex items-start gap-3 bg-slate-900/50 p-3 rounded-lg border border-white/5">
-                <MapPin className="text-blue-500 shrink-0 mt-0.5" size={18} />
+                <MapPin className="text-red-600 shrink-0 mt-0.5" size={18} />
                 <span>{cliente.direccion}</span>
               </div>
             )}
@@ -133,12 +133,12 @@ export default function ClienteDetalleClient({
       <div className="lg:col-span-2 space-y-6">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-bold flex items-center gap-2">
-            <Flame className="text-orange-500" />
+            <Flame className="text-red-600" />
             Parque de Extintores
           </h2>
           <button 
             onClick={() => setIsAdding(!isAdding)}
-            className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl font-medium flex items-center gap-2 btn-animate"
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl font-medium flex items-center gap-2 btn-animate"
           >
             <Plus size={18} />
             Asignar Extintor
@@ -149,31 +149,31 @@ export default function ClienteDetalleClient({
           <form action={async (formData) => {
             await addExtintor(formData);
             setIsAdding(false);
-          }} className="glass p-6 rounded-xl border border-orange-500/30 animate-in slide-in-from-top-4">
+          }} className="glass p-6 rounded-xl border border-red-600/30 animate-in slide-in-from-top-4">
             <input type="hidden" name="cliente_id" value={cliente.id} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <label className="block text-xs text-gray-400 mb-1">Tipo de Extintor (SKU) *</label>
-                <select name="sku_id" required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-orange-500 outline-none">
+                <select name="sku_id" required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none">
                   <option value="">Selecciona un extintor...</option>
                   {skus.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-xs text-gray-400 mb-1">Número de Serie</label>
-                <input name="nro_serie" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-orange-500 outline-none" />
+                <input name="nro_serie" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none" />
               </div>
               <div>
                 <label className="block text-xs text-gray-400 mb-1">Fecha de Carga *</label>
-                <input name="fecha_carga" type="date" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-orange-500 outline-none" />
+                <input name="fecha_carga" type="date" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none" />
               </div>
               <div className="md:col-span-2">
                 <label className="block text-xs text-gray-400 mb-1">Fecha Prueba Hidráulica (opcional)</label>
-                <input name="fecha_ph" type="date" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-orange-500 outline-none" />
+                <input name="fecha_ph" type="date" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none" />
               </div>
             </div>
             <div className="mt-4 flex gap-2">
-              <button type="submit" className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg text-sm font-medium">Asignar</button>
+              <button type="submit" className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm font-medium">Asignar</button>
               <button type="button" onClick={() => setIsAdding(false)} className="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium">Cancelar</button>
             </div>
           </form>
@@ -186,7 +186,7 @@ export default function ClienteDetalleClient({
                 <div className="flex items-center gap-3 mb-1">
                   <h3 className="font-bold text-lg text-white">{ext.skus?.nombre}</h3>
                   {ext.nro_serie && (
-                    <span className="bg-orange-500/20 text-orange-400 border border-orange-500/30 px-2 py-0.5 rounded text-xs font-mono font-bold tracking-widest">
+                    <span className="bg-red-600/20 text-red-400 border border-red-600/30 px-2 py-0.5 rounded text-xs font-mono font-bold tracking-widest">
                       N° {ext.nro_serie}
                     </span>
                   )}
@@ -203,7 +203,7 @@ export default function ClienteDetalleClient({
                   <span className="text-gray-500">PH:</span>
                   {ext.estado_ph === 'sin_datos' && <span className="text-gray-500">N/A</span>}
                   {ext.estado_ph === 'vigente' && <span className="text-emerald-500 flex items-center gap-1"><CheckCircle2 size={12}/> Vigente</span>}
-                  {ext.estado_ph === 'por_vencer' && <span className="text-orange-400 flex items-center gap-1"><AlertTriangle size={12}/> Vence pronto</span>}
+                  {ext.estado_ph === 'por_vencer' && <span className="text-red-400 flex items-center gap-1"><AlertTriangle size={12}/> Vence pronto</span>}
                   {ext.estado_ph === 'vencido' && <span className="text-red-500 flex items-center gap-1"><AlertCircle size={12}/> Vencida</span>}
                 </div>
 
@@ -214,7 +214,7 @@ export default function ClienteDetalleClient({
                   </span>
                 )}
                 {ext.estado === 'por_vencer' && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-500/10 text-orange-400 text-xs font-bold border border-orange-500/20">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-600/10 text-red-400 text-xs font-bold border border-red-600/20">
                     <AlertTriangle size={14}/> Por Vencer
                   </span>
                 )}
@@ -290,7 +290,7 @@ export default function ClienteDetalleClient({
                         )}
                       </div>
                     </td>
-                    <td className="p-4 text-right font-bold text-orange-400">
+                    <td className="p-4 text-right font-bold text-red-400">
                       <div className="flex items-center justify-end gap-4 group">
                         <span>${venta.total?.toLocaleString() || 0}</span>
                         <VentaRowActions venta={venta as any} />
@@ -325,23 +325,23 @@ export default function ClienteDetalleClient({
             }} className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Nombre Completo</label>
-                <input name="nombre" defaultValue={cliente.nombre} required className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-blue-500 outline-none text-white" />
+                <input name="nombre" defaultValue={cliente.nombre} required className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Teléfono</label>
-                <input name="telefono" defaultValue={cliente.telefono} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-blue-500 outline-none text-white" />
+                <input name="telefono" defaultValue={cliente.telefono} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Email</label>
-                <input name="email" type="email" defaultValue={cliente.email} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-blue-500 outline-none text-white" />
+                <input name="email" type="email" defaultValue={cliente.email} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Dirección</label>
-                <input name="direccion" defaultValue={cliente.direccion} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-blue-500 outline-none text-white" />
+                <input name="direccion" defaultValue={cliente.direccion} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white" />
               </div>
               <div className="pt-4 flex gap-3">
                 <button type="button" onClick={() => setIsEditing(false)} className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-medium py-2 rounded-lg transition-colors">Cancelar</button>
-                <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition-colors">Guardar Cambios</button>
+                <button type="submit" className="flex-1 bg-red-700 hover:bg-red-800 text-white font-bold py-2 rounded-lg transition-colors">Guardar Cambios</button>
               </div>
             </form>
           </div>

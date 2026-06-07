@@ -37,7 +37,7 @@ export default function NuevoGastoPage() {
                 type="date" 
                 name="fecha" 
                 required 
-                className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+                className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-red-600/50"
               />
             </div>
             
@@ -49,7 +49,7 @@ export default function NuevoGastoPage() {
                 step="0.01"
                 required 
                 placeholder="0.00"
-                className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+                className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-red-600/50"
               />
             </div>
 
@@ -59,7 +59,7 @@ export default function NuevoGastoPage() {
                 type="text" 
                 name="nro_comprobante" 
                 placeholder="Ej. 0001-00001234"
-                className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+                className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-red-600/50"
               />
             </div>
 
@@ -68,7 +68,7 @@ export default function NuevoGastoPage() {
               <select 
                 name="estado_pago"
                 required
-                className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 appearance-none"
+                className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-red-600/50 appearance-none"
               >
                 <option value="Pagado">Pagado</option>
                 <option value="Pendiente">Pendiente</option>
@@ -82,7 +82,7 @@ export default function NuevoGastoPage() {
               name="observaciones" 
               rows={3}
               placeholder="Detalle del gasto, proveedor, etc."
-              className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+              className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-red-600/50"
             ></textarea>
           </div>
 
@@ -90,7 +90,7 @@ export default function NuevoGastoPage() {
             <button 
               type="submit"
               disabled={isPending}
-              className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-xl font-medium flex items-center gap-2 btn-animate disabled:opacity-50"
+              className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-medium flex items-center gap-2 btn-animate disabled:opacity-50"
             >
               <Save size={20} />
               {isPending ? 'Guardando...' : 'Guardar Gasto'}

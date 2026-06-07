@@ -30,7 +30,7 @@ export default function RoleSwitcher({ initialRole }: { initialRole: 'Gerente' |
           disabled={isPending}
           className={`flex-1 text-xs py-1.5 px-2 rounded-md transition-all ${
             role === 'Gerente' 
-              ? 'bg-orange-500 text-white font-medium shadow-md' 
+              ? 'bg-red-600 text-white font-medium shadow-md' 
               : 'text-gray-400 hover:text-white'
           }`}
         >
@@ -41,7 +41,7 @@ export default function RoleSwitcher({ initialRole }: { initialRole: 'Gerente' |
           disabled={isPending}
           className={`flex-1 text-xs py-1.5 px-2 rounded-md transition-all ${
             role === 'Administrativo' 
-              ? 'bg-orange-500 text-white font-medium shadow-md' 
+              ? 'bg-red-600 text-white font-medium shadow-md' 
               : 'text-gray-400 hover:text-white'
           }`}
         >

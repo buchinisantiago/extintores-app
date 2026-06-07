@@ -23,7 +23,7 @@ export async function notificarCambioGerente(accion: string, detalle: string) {
           <p><strong>Detalle:</strong> ${detalle}</p>
           <p><small>Fecha y Hora: ${new Date().toLocaleString('es-AR')}</small></p>
           <hr />
-          <p>Este es un mensaje automático del Sistema FireControl.</p>
+          <p>Este es un mensaje automático del Sistema Menendez.</p>
         `
       });
     }
