@@ -25,16 +25,11 @@ export default function Sidebar({ initialRole }: { initialRole: 'Gerente' | 'Adm
     { name: 'Stock Terminado', href: '/stock/terminado', icon: Flame },
     { name: 'Clientes', href: '/clientes', icon: Users },
     { name: 'Ventas', href: '/ventas', icon: ShoppingCart },
+    { name: 'Catálogo / Precios', href: '/catalogo', icon: Flame, restricted: true },
+    { name: 'Vendedores', href: '/vendedores', icon: Users, restricted: true },
+    { name: 'Gastos', href: '/gastos', icon: Banknote, restricted: true },
+    { name: 'Finanzas', href: '/finanzas', icon: LineChart, restricted: true }
   ];
-
-  if (initialRole === 'Gerente') {
-    navItems.push(
-      { name: 'Catálogo / Precios', href: '/catalogo', icon: Flame },
-      { name: 'Vendedores', href: '/vendedores', icon: Users },
-      { name: 'Gastos', href: '/gastos', icon: Banknote },
-      { name: 'Finanzas', href: '/finanzas', icon: LineChart }
-    );
-  }
 
   return (
     <aside className="w-64 h-screen fixed left-0 top-0 border-r border-white/5 glass flex flex-col">
@@ -48,6 +43,23 @@ export default function Sidebar({ initialRole }: { initialRole: 'Gerente' | 'Adm
       <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+          const isDisabled = item.restricted && initialRole === 'Administrativo';
+
+          if (isDisabled) {
+            return (
+              <div
+                key={item.name}
+                className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-gray-600 bg-white/5 cursor-not-allowed opacity-50"
+                title="Acceso exclusivo para Gerencia"
+              >
+                <div className="flex items-center gap-3">
+                  <item.icon size={20} className="text-gray-600" />
+                  {item.name}
+                </div>
+              </div>
+            );
+          }
+
           return (
             <Link
               key={item.name}

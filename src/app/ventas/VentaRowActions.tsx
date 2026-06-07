@@ -28,6 +28,9 @@ export default function VentaRowActions({ venta }: { venta: Venta }) {
   return (
     <>
       <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <a href={`/ventas/${venta.id}`} className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-blue-400/10 rounded transition-colors" title="Ver Detalle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+        </a>
         <button onClick={() => setIsEditing(true)} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Editar Venta">
           <Edit2 size={16} />
         </button>
