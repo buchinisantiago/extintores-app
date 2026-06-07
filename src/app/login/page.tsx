@@ -8,10 +8,9 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
     <div className="min-h-screen flex items-center justify-center bg-slate-950 p-4">
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-red-600/20 flex items-center justify-center border border-red-600/50 text-red-600 mb-4 shadow-lg shadow-red-600/20">
-            <Flame size={32} />
+          <div className="w-full max-w-[250px] bg-white rounded-xl p-4 mb-4 shadow-lg shadow-red-900/20">
+            <img src="/logo.jpeg" alt="Menendez Seguridad Industrial" className="w-full h-auto object-contain" />
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-white">Menendez</h1>
           <p className="text-gray-400 mt-2 text-center">Inicia sesión en el panel de gestión</p>
         </div>
 

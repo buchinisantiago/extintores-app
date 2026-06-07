@@ -36,7 +36,7 @@ export default function Sidebar({ initialRole, email }: { initialRole: string, e
     <aside className="w-64 h-screen fixed left-0 top-0 border-r border-white/5 glass flex flex-col">
       <div className="p-6 flex flex-col items-center justify-center border-b border-white/5">
         <div className="w-full bg-white rounded-xl p-3 mb-2 shadow-lg shadow-red-900/20">
-          <img src="/logo.png" alt="Menendez Seguridad Industrial" className="w-full h-auto object-contain" />
+          <img src="/logo.jpeg" alt="Menendez Seguridad Industrial" className="w-full h-auto object-contain" />
         </div>
       </div>
 
