@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { TrendingUp, TrendingDown, DollarSign, Activity, Users } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Activity, Users, Package } from 'lucide-react';
 
 export const revalidate = 0;
 
@@ -14,15 +14,25 @@ export default async function FinanzasPage() {
   }
 
   // Fetch Ventas and Gastos
-  const { data: ventas } = await supabase.from('ventas').select('total, estado_pago, vendedor_id, vendedores(nombre)');
+  const { data: ventas } = await supabase.from('ventas').select('total, estado_pago, vendedor_id, vendedores(nombre), venta_items(cantidad, costo_unitario)');
   const { data: gastos } = await supabase.from('gastos').select('monto, estado_pago');
+  const { data: stock_terminado } = await supabase.from('stock_terminado').select('cantidad, skus(costo)');
 
   const ingresosTotales = (ventas || []).reduce((acc, v) => acc + (v.total || 0), 0);
   const ingresosPagados = (ventas || []).filter(v => v.estado_pago === 'Pagado').reduce((acc, v) => acc + (v.total || 0), 0);
   
   const egresosTotales = (gastos || []).reduce((acc, g) => acc + (g.monto || 0), 0);
   
-  const gananciaBruta = ingresosPagados - egresosTotales;
+  // Costo de Mercadería Vendida (COGS) solo de lo cobrado o de todo?
+  // Generalmente la ganancia se calcula sobre lo que ya se cobró.
+  const costoMercaderiaVendida = (ventas || []).filter(v => v.estado_pago === 'Pagado').reduce((acc, v) => {
+    const costoVenta = (v.venta_items as any[] || []).reduce((sum, item) => sum + (item.cantidad * (item.costo_unitario || 0)), 0);
+    return acc + costoVenta;
+  }, 0);
+
+  const gananciaBruta = ingresosPagados - egresosTotales - costoMercaderiaVendida;
+
+  const capitalEnStock = (stock_terminado || []).reduce((acc, st: any) => acc + (st.cantidad * (st.skus?.costo || 0)), 0);
 
   // Calcular ventas cobradas por vendedor
   const ventasPorVendedor = (ventas || []).reduce((acc, v) => {
@@ -41,7 +51,7 @@ export default async function FinanzasPage() {
         <p className="text-gray-400">Resumen contable exclusivo para Gerencia.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Tarjeta de Ingresos */}
         <div className="glass p-6 rounded-2xl border-l-4 border-l-green-500 relative overflow-hidden group">
           <div className="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
@@ -62,16 +72,26 @@ export default async function FinanzasPage() {
           <p className="text-sm text-gray-500 mt-2">Gastos, compras e insumos</p>
         </div>
 
+        {/* Tarjeta de Capital */}
+        <div className="glass p-6 rounded-2xl border-l-4 border-l-blue-500 relative overflow-hidden group">
+          <div className="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <Package size={64} className="text-blue-500" />
+          </div>
+          <p className="text-gray-400 font-medium mb-1">Capital en Repuestos / Stock</p>
+          <h2 className="text-4xl font-black text-white">${capitalEnStock.toLocaleString()}</h2>
+          <p className="text-sm text-gray-500 mt-2">Valor de costo del stock actual</p>
+        </div>
+
         {/* Tarjeta de Ganancia */}
-        <div className="glass p-6 rounded-2xl border-l-4 border-l-orange-500 relative overflow-hidden group">
+        <div className="glass p-6 rounded-2xl border-l-4 border-l-orange-500 relative overflow-hidden group md:col-span-3 lg:col-span-1">
           <div className="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
             <DollarSign size={64} className="text-orange-500" />
           </div>
-          <p className="text-gray-400 font-medium mb-1">Ganancia Bruta Estimada</p>
+          <p className="text-gray-400 font-medium mb-1">Ganancia Real Estimada</p>
           <h2 className={`text-4xl font-black ${gananciaBruta >= 0 ? 'text-white' : 'text-red-400'}`}>
             ${gananciaBruta.toLocaleString()}
           </h2>
-          <p className="text-sm text-gray-500 mt-2">Ingresos cobrados - Egresos</p>
+          <p className="text-sm text-gray-500 mt-2">Ingresos cobrados - Gastos - Costos Prod.</p>
         </div>
       </div>
 

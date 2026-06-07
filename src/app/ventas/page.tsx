@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import Link from 'next/link';
 import ImportarExcel from '@/components/ImportarExcel';
 import MarcarPagadoButton from './MarcarPagadoButton';
+import VentaRowActions from './VentaRowActions';
 
 export const revalidate = 0;
 
@@ -84,7 +85,10 @@ export default async function VentasPage() {
                   </div>
                 </td>
                 <td className="p-4 text-right font-bold text-orange-400">
-                  ${venta.total?.toLocaleString() || 0}
+                  <div className="flex items-center justify-end gap-4">
+                    <span>${venta.total?.toLocaleString() || 0}</span>
+                    <VentaRowActions venta={venta} />
+                  </div>
                 </td>
               </tr>
             ))}

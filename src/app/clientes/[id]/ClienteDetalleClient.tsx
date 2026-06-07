@@ -4,8 +4,11 @@ import { useState } from 'react';
 import { Flame, Plus, Trash2, MapPin, Phone, Mail, AlertTriangle, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { addExtintor, deleteExtintor } from './actions';
 import { format } from 'date-fns';
-import { DollarSign } from 'lucide-react';
+import { DollarSign, Edit2, X } from 'lucide-react';
 import MarcarPagadoButton from '../../ventas/MarcarPagadoButton';
+import VentaRowActions from '../../ventas/VentaRowActions';
+import { updateCliente, deleteCliente } from '../actions';
+import { useRouter } from 'next/navigation';
 
 type Cliente = {
   id: string;
@@ -54,15 +57,36 @@ export default function ClienteDetalleClient({
   skus: SKU[],
   ventas: Venta[]
 }) {
+  const router = useRouter();
   const [isAdding, setIsAdding] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   
   const saldoDeudor = ventas.filter(v => v.estado_pago === 'Pendiente').reduce((acc, v) => acc + v.total, 0);
+
+  const handleDeleteClient = async () => {
+    if (confirm('¿Estás seguro de que deseas eliminar este cliente? Esta acción no se puede deshacer.')) {
+      const result = await deleteCliente(cliente.id);
+      if (result.success) {
+        router.push('/clientes');
+      } else {
+        alert(result.error);
+      }
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Columna Izquierda: Datos del Cliente */}
       <div className="lg:col-span-1 space-y-6">
-        <div className="glass p-6 rounded-xl border-t-4 border-t-blue-500">
+        <div className="glass p-6 rounded-xl border-t-4 border-t-blue-500 relative group">
+          <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onClick={() => setIsEditing(true)} className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors" title="Editar Cliente">
+              <Edit2 size={18} />
+            </button>
+            <button onClick={handleDeleteClient} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors" title="Eliminar Cliente">
+              <Trash2 size={18} />
+            </button>
+          </div>
           <h2 className="text-xl font-bold mb-4">Información de Contacto</h2>
           <div className="space-y-4 text-gray-300">
             {cliente.telefono && (
@@ -259,7 +283,10 @@ export default function ClienteDetalleClient({
                       </div>
                     </td>
                     <td className="p-4 text-right font-bold text-orange-400">
-                      ${venta.total?.toLocaleString() || 0}
+                      <div className="flex items-center justify-end gap-4 group">
+                        <span>${venta.total?.toLocaleString() || 0}</span>
+                        <VentaRowActions venta={venta as any} />
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -269,6 +296,49 @@ export default function ClienteDetalleClient({
         </div>
 
       </div>
+
+      {isEditing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95">
+            <div className="flex justify-between items-center p-4 border-b border-slate-800">
+              <h3 className="font-bold text-lg text-white">Editar Cliente</h3>
+              <button onClick={() => setIsEditing(false)} className="text-gray-400 hover:text-white">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <form action={async (formData) => {
+              const res = await updateCliente(cliente.id, formData);
+              if (res.success) {
+                setIsEditing(false);
+              } else {
+                alert(res.error);
+              }
+            }} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">Nombre Completo</label>
+                <input name="nombre" defaultValue={cliente.nombre} required className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-blue-500 outline-none text-white" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">Teléfono</label>
+                <input name="telefono" defaultValue={cliente.telefono} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-blue-500 outline-none text-white" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">Email</label>
+                <input name="email" type="email" defaultValue={cliente.email} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-blue-500 outline-none text-white" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">Dirección</label>
+                <input name="direccion" defaultValue={cliente.direccion} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-blue-500 outline-none text-white" />
+              </div>
+              <div className="pt-4 flex gap-3">
+                <button type="button" onClick={() => setIsEditing(false)} className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-medium py-2 rounded-lg transition-colors">Cancelar</button>
+                <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition-colors">Guardar Cambios</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

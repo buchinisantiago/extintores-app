@@ -24,3 +24,44 @@ export async function addCliente(formData: FormData) {
   revalidatePath('/clientes');
   return data.id; // Returns new client ID for redirecting if needed
 }
+
+export async function updateCliente(id: string, formData: FormData) {
+  const nombre = formData.get('nombre') as string;
+  const telefono = formData.get('telefono') as string;
+  const email = formData.get('email') as string;
+  const direccion = formData.get('direccion') as string;
+
+  const { error } = await supabase.from('clientes').update({
+    nombre,
+    telefono,
+    email,
+    direccion
+  }).eq('id', id);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath('/clientes');
+  revalidatePath(`/clientes/${id}`);
+  return { success: true };
+}
+
+export async function deleteCliente(id: string) {
+  // Primero verificamos si tiene ventas o extintores
+  const { count: ventasCount } = await supabase.from('ventas').select('*', { count: 'exact', head: true }).eq('cliente_id', id);
+  const { count: extintoresCount } = await supabase.from('extintores').select('*', { count: 'exact', head: true }).eq('cliente_id', id);
+
+  if ((ventasCount && ventasCount > 0) || (extintoresCount && extintoresCount > 0)) {
+    return { success: false, error: 'No se puede eliminar el cliente porque tiene ventas o extintores asociados. Debes eliminarlos primero.' };
+  }
+
+  const { error } = await supabase.from('clientes').delete().eq('id', id);
+  
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath('/clientes');
+  return { success: true };
+}
