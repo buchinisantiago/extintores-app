@@ -1,7 +1,7 @@
 'use server';
 
 import { supabase } from '@/lib/supabase';
-import { supabaseAdmin } from '@/lib/supabase/admin';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function addVendedor(formData: FormData) {
@@ -11,6 +11,7 @@ export async function addVendedor(formData: FormData) {
   if (!nombre || !email) return { success: false, error: 'Nombre y correo requeridos' };
 
   // 1. Crear usuario en Auth
+  const supabaseAdmin = getSupabaseAdmin();
   const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
     email,
     password: '1234',
