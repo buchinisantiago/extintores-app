@@ -6,11 +6,13 @@ import { notFound } from 'next/navigation';
 
 export const revalidate = 0;
 
-export default async function ClienteDetallePage({ params }: { params: { id: string } }) {
+export default async function ClienteDetallePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+
   const { data: cliente, error } = await supabase
     .from('clientes')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .single();
 
   if (error || !cliente) {
@@ -21,14 +23,14 @@ export default async function ClienteDetallePage({ params }: { params: { id: str
   const { data: extintores } = await supabase
     .from('extintores_view')
     .select('*, skus(nombre, tipo_agente)')
-    .eq('cliente_id', params.id)
+    .eq('cliente_id', id)
     .order('fecha_vence', { ascending: true });
 
   // Obtenemos las ventas del cliente
   const { data: ventas } = await supabase
     .from('ventas')
     .select('*, venta_items(count)')
-    .eq('cliente_id', params.id)
+    .eq('cliente_id', id)
     .order('fecha', { ascending: false });
 
   const { data: skus } = await supabase.from('skus').select('*').order('nombre');
