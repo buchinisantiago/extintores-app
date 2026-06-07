@@ -10,7 +10,8 @@ import {
   Settings,
   Flame,
   Banknote,
-  LineChart
+  LineChart,
+  Clock
 } from 'lucide-react';
 import RoleSwitcher from './RoleSwitcher';
 
@@ -19,6 +20,7 @@ export default function Sidebar({ initialRole }: { initialRole: 'Gerente' | 'Adm
 
   const navItems = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+    { name: 'Vencimientos', href: '/vencimientos', icon: Clock },
     { name: 'Stock M.P.', href: '/stock/mp', icon: Package },
     { name: 'Stock Terminado', href: '/stock/terminado', icon: Flame },
     { name: 'Clientes', href: '/clientes', icon: Users },
