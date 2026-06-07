@@ -43,14 +43,15 @@ export default async function FinanzasPage() {
   const capitalEnStock = (stock_terminado || []).reduce((acc, st: any) => acc + (st.cantidad * (st.skus?.costo || 0)), 0);
 
   // Calcular ventas cobradas por vendedor
-  const ventasPorVendedor = (ventas || []).reduce((acc, v) => {
+  const ventasPorVendedor = (ventas || []).reduce((acc: any, v) => {
     if (v.vendedor_id && v.estado_pago === 'Pagado') {
-      const nombre = v.vendedores?.nombre || 'Desconocido';
+      const vend = v.vendedores as any;
+      const nombre = vend?.nombre || 'Desconocido';
       if (!acc[nombre]) acc[nombre] = 0;
       acc[nombre] += v.total || 0;
     }
     return acc;
-  }, {} as Record<string, number>);
+  }, {}) as Record<string, number>;
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
