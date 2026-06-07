@@ -1,4 +1,6 @@
 import { supabase } from '@/lib/supabase';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { createClient } from '@/lib/supabase/server';
 import NuevaVentaClient from './NuevaVentaClient';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
@@ -6,6 +8,8 @@ import { ArrowLeft } from 'lucide-react';
 export const revalidate = 0;
 
 export default async function NuevaVentaPage() {
+  const supabaseAdmin = getSupabaseAdmin();
+  
   const { data: clientes } = await supabase.from('clientes').select('id, nombre').order('nombre');
   const { data: stock_terminado } = await supabase
     .from('stock_terminado')
@@ -26,7 +30,7 @@ export default async function NuevaVentaPage() {
     }))
   ];
 
-  const { data: vendedores } = await supabase.from('vendedores').select('*').order('nombre');
+  const { data: vendedores } = await supabaseAdmin.from('vendedores').select('*').order('nombre');
 
   const { createClient } = await import('@/lib/supabase/server');
   const supabaseServer = await createClient();
@@ -34,7 +38,7 @@ export default async function NuevaVentaPage() {
   
   let currentUserVendedorId: string | undefined = undefined;
   if (user && user.email !== 'gerencia@tuempresa.com') {
-    const { data: vendedorLogueado } = await supabase.from('vendedores').select('id').eq('auth_user_id', user.id).single();
+    const { data: vendedorLogueado } = await supabaseAdmin.from('vendedores').select('id').eq('auth_user_id', user.id).single();
     if (vendedorLogueado) {
       currentUserVendedorId = vendedorLogueado.id;
     }

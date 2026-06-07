@@ -1,11 +1,12 @@
-import { supabase } from '@/lib/supabase';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import VendedoresClient from './VendedoresClient';
 
 export const revalidate = 0;
 
 export default async function VendedoresPage() {
   try {
-    const { data: vendedores, error } = await supabase
+    const supabaseAdmin = getSupabaseAdmin();
+    const { data: vendedores, error } = await supabaseAdmin
       .from('vendedores')
       .select('*')
       .order('nombre');
