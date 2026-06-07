@@ -252,16 +252,17 @@ export default function ClienteDetalleClient({
             Cuenta Corriente y Ventas
           </h2>
           <div className="glass rounded-xl overflow-hidden">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-black/20 border-b border-white/5 text-sm">
-                  <th className="p-4 font-medium text-gray-400">Fecha</th>
-                  <th className="p-4 font-medium text-gray-400">N° Factura</th>
-                  <th className="p-4 font-medium text-gray-400">Estado</th>
-                  <th className="p-4 font-medium text-gray-400 text-right">Total</th>
-                </tr>
-              </thead>
-              <tbody>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse whitespace-nowrap min-w-full">
+                <thead>
+                  <tr className="bg-black/20 border-b border-white/5 text-sm">
+                    <th className="p-4 font-medium text-gray-400">Fecha</th>
+                    <th className="p-4 font-medium text-gray-400">N° Factura</th>
+                    <th className="p-4 font-medium text-gray-400">Estado</th>
+                    <th className="p-4 font-medium text-gray-400 text-right">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
                 {ventas.length === 0 && (
                   <tr>
                     <td colSpan={4} className="p-8 text-center text-gray-500 italic">No hay ventas registradas.</td>

@@ -22,9 +22,25 @@ export default async function FinanzasPage() {
   }
 
   // Fetch Ventas and Gastos
-  const { data: ventas } = await supabase.from('ventas').select('total, estado_pago, vendedor_id, vendedores(nombre), venta_items(cantidad, costo_unitario)');
-  const { data: gastos } = await supabase.from('gastos').select('monto, estado_pago');
-  const { data: stock_terminado } = await supabase.from('stock_terminado').select('cantidad, skus(costo)');
+  const { data: ventas, error: errVentas } = await supabase.from('ventas').select('total, estado_pago, vendedor_id, vendedores(nombre), venta_items(cantidad, costo_unitario)');
+  const { data: gastos, error: errGastos } = await supabase.from('gastos').select('monto, estado_pago');
+  const { data: stock_terminado, error: errStock } = await supabase.from('stock_terminado').select('cantidad, skus(costo)');
+
+  if (errVentas || errGastos || errStock) {
+    return (
+      <div className="glass p-8 rounded-2xl border-l-4 border-red-500">
+        <h2 className="text-xl font-bold text-red-500 mb-4">Error de Base de Datos</h2>
+        <p>No se pudo cargar el módulo de Finanzas. Probablemente falta ejecutar algún script SQL de actualización.</p>
+        <pre className="mt-4 p-4 bg-black/50 rounded text-xs text-red-400 overflow-auto">
+          {JSON.stringify({
+            ventas: errVentas?.message,
+            gastos: errGastos?.message,
+            stock: errStock?.message
+          }, null, 2)}
+        </pre>
+      </div>
+    );
+  }
 
   const ingresosTotales = (ventas || []).reduce((acc, v) => acc + (v.total || 0), 0);
   const ingresosPagados = (ventas || []).filter(v => v.estado_pago === 'Pagado').reduce((acc, v) => acc + (v.total || 0), 0);
