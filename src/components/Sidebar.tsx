@@ -66,10 +66,10 @@ export default function Sidebar({ initialRole }: { initialRole: 'Gerente' | 'Adm
       <RoleSwitcher initialRole={initialRole} />
 
       <div className="p-4 border-t border-white/5">
-        <button className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-gray-100 hover:bg-white/5 transition-colors">
+        <Link href="/ajustes" className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-gray-100 hover:bg-white/5 transition-colors">
           <Settings size={20} className="text-gray-500" />
           Ajustes
-        </button>
+        </Link>
       </div>
     </aside>
   );

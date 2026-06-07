@@ -198,6 +198,7 @@ export default function NuevaVentaClient({ clientes, stock, vendedores }: { clie
               <label className="block text-xs font-medium text-gray-400 mb-1">N° Factura / Remito</label>
               <input 
                 type="text" 
+                required
                 value={nroFactura}
                 onChange={e => setNroFactura(e.target.value)}
                 placeholder="Ej. 0001-00001234"

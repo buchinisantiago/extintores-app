@@ -10,7 +10,15 @@ export default async function FinanzasPage() {
   const role = cookieStore.get('user_role')?.value;
 
   if (role !== 'Gerente') {
-    redirect('/');
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-4">
+        <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 mb-4">
+          <TrendingDown size={40} />
+        </div>
+        <h1 className="text-3xl font-bold">Acceso Denegado</h1>
+        <p className="text-gray-400 max-w-md">El módulo de Finanzas es exclusivo para la Gerencia. Utiliza el Simulador de Rol en el menú izquierdo para cambiar a "Gerente" y poder ver esta página.</p>
+      </div>
+    );
   }
 
   // Fetch Ventas and Gastos
