@@ -28,7 +28,7 @@ export async function addVendedor(formData: FormData) {
     }
 
     // 2. Insertar vendedor
-    const { error } = await supabase.from('vendedores').insert([{ 
+    const { error } = await supabaseAdmin.from('vendedores').insert([{ 
       nombre,
       auth_user_id: authData.user.id
     }]);
@@ -45,9 +45,10 @@ export async function addVendedor(formData: FormData) {
 }
 
 export async function deleteVendedor(id: string) {
+  const supabaseAdmin = getSupabaseAdmin();
   // Solo se puede borrar si no tiene ventas asignadas, o setear ventas a null (lo cual viola la FK si no es SET NULL, pero el default es NO ACTION).
   // Si falla, es porque tiene ventas.
-  const { error } = await supabase.from('vendedores').delete().eq('id', id);
+  const { error } = await supabaseAdmin.from('vendedores').delete().eq('id', id);
   if (error) {
     return { success: false, error: 'No se puede borrar el vendedor porque tiene ventas asociadas.' };
   }
