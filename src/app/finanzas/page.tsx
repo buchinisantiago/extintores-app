@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { TrendingUp, TrendingDown, DollarSign, Activity } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Activity, Users } from 'lucide-react';
 
 export const revalidate = 0;
 
@@ -14,7 +14,7 @@ export default async function FinanzasPage() {
   }
 
   // Fetch Ventas and Gastos
-  const { data: ventas } = await supabase.from('ventas').select('total, estado_pago');
+  const { data: ventas } = await supabase.from('ventas').select('total, estado_pago, vendedor_id, vendedores(nombre)');
   const { data: gastos } = await supabase.from('gastos').select('monto, estado_pago');
 
   const ingresosTotales = (ventas || []).reduce((acc, v) => acc + (v.total || 0), 0);
@@ -23,6 +23,16 @@ export default async function FinanzasPage() {
   const egresosTotales = (gastos || []).reduce((acc, g) => acc + (g.monto || 0), 0);
   
   const gananciaBruta = ingresosPagados - egresosTotales;
+
+  // Calcular ventas cobradas por vendedor
+  const ventasPorVendedor = (ventas || []).reduce((acc, v) => {
+    if (v.vendedor_id && v.estado_pago === 'Pagado') {
+      const nombre = v.vendedores?.nombre || 'Desconocido';
+      if (!acc[nombre]) acc[nombre] = 0;
+      acc[nombre] += v.total || 0;
+    }
+    return acc;
+  }, {} as Record<string, number>);
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -65,13 +75,36 @@ export default async function FinanzasPage() {
         </div>
       </div>
 
-      <div className="glass p-8 rounded-2xl mt-8">
-        <div className="flex items-center gap-3 mb-6">
-          <Activity className="text-orange-500" />
-          <h3 className="text-xl font-bold">Estado de Cuenta</h3>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+        <div className="glass p-8 rounded-2xl">
+          <div className="flex items-center gap-3 mb-6">
+            <Users className="text-blue-500" />
+            <h3 className="text-xl font-bold">Ventas por Empleado (Para Comisiones)</h3>
+          </div>
+          
+          <div className="space-y-4">
+            {Object.keys(ventasPorVendedor).length === 0 ? (
+              <p className="text-gray-500 italic">No hay ventas registradas a vendedores aún.</p>
+            ) : (
+              Object.entries(ventasPorVendedor).sort((a, b) => b[1] - a[1]).map(([nombre, total]) => (
+                <div key={nombre} className="flex justify-between items-center p-4 bg-slate-900/50 rounded-xl border border-white/5">
+                  <span className="font-bold">{nombre}</span>
+                  <span className="text-blue-400 font-black">${total.toLocaleString()}</span>
+                </div>
+              ))
+            )}
+            <p className="text-xs text-gray-500 mt-4">* Solo se contabilizan ventas ya "Pagadas".</p>
+          </div>
         </div>
-        <div className="h-64 flex items-center justify-center border-2 border-dashed border-white/5 rounded-xl text-gray-500">
-          El gráfico de evolución histórica se habilitará en la Fase 2 cuando haya suficientes datos históricos.
+
+        <div className="glass p-8 rounded-2xl">
+          <div className="flex items-center gap-3 mb-6">
+            <Activity className="text-orange-500" />
+            <h3 className="text-xl font-bold">Estado de Cuenta</h3>
+          </div>
+          <div className="h-48 flex items-center justify-center border-2 border-dashed border-white/5 rounded-xl text-gray-500 text-center px-4">
+            El gráfico de evolución histórica se habilitará en próximas fases cuando haya más datos históricos.
+          </div>
         </div>
       </div>
     </div>

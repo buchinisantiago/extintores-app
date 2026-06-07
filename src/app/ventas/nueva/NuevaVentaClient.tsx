@@ -6,14 +6,16 @@ import { ShoppingCart, Plus, Trash2, CheckCircle2 } from 'lucide-react';
 import { crearVenta } from './actions';
 
 type Cliente = { id: string, nombre: string };
+type Vendedor = { id: string, nombre: string };
 type StockItem = {
   cantidad: number;
   skus: { id: string, nombre: string, precio_recarga: number };
 };
 
-export default function NuevaVentaClient({ clientes, stock }: { clientes: Cliente[], stock: StockItem[] }) {
+export default function NuevaVentaClient({ clientes, stock, vendedores }: { clientes: Cliente[], stock: StockItem[], vendedores: Vendedor[] }) {
   const router = useRouter();
   const [clienteId, setClienteId] = useState('');
+  const [vendedorId, setVendedorId] = useState('');
   const [cart, setCart] = useState<{sku_id: string, nombre: string, cantidad: number, precio: number, max: number, nro_serie: string}[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -90,7 +92,8 @@ export default function NuevaVentaClient({ clientes, stock }: { clientes: Client
       estadoPago, 
       observaciones,
       estadoPago === 'Pagado' ? metodoPago : undefined,
-      estadoPago === 'Pagado' ? comprobante : undefined
+      estadoPago === 'Pagado' ? comprobante : undefined,
+      vendedorId || undefined
     );
     
     if (result.success) {
@@ -106,16 +109,31 @@ export default function NuevaVentaClient({ clientes, stock }: { clientes: Client
       
       <div className="lg:col-span-2 space-y-6">
         <div className="glass p-6 rounded-xl border-t-4 border-t-orange-500">
-          <label className="block text-sm font-bold mb-2">1. Seleccionar Cliente</label>
-          <select 
-            required 
-            value={clienteId}
-            onChange={e => setClienteId(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-base focus:border-orange-500 outline-none"
-          >
-            <option value="">Buscar cliente...</option>
-            {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
-          </select>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold mb-2">1. Seleccionar Cliente *</label>
+              <select 
+                required 
+                value={clienteId}
+                onChange={e => setClienteId(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-base focus:border-orange-500 outline-none"
+              >
+                <option value="">Buscar cliente...</option>
+                {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-bold mb-2">Vendedor (Comisiones)</label>
+              <select 
+                value={vendedorId}
+                onChange={e => setVendedorId(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-base focus:border-orange-500 outline-none"
+              >
+                <option value="">Ninguno / Local</option>
+                {vendedores.map(v => <option key={v.id} value={v.id}>{v.nombre}</option>)}
+              </select>
+            </div>
+          </div>
         </div>
 
         <div className="glass p-6 rounded-xl">

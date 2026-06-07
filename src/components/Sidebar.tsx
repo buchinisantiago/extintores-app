@@ -25,6 +25,7 @@ export default function Sidebar({ initialRole }: { initialRole: 'Gerente' | 'Adm
     { name: 'Stock Terminado', href: '/stock/terminado', icon: Flame },
     { name: 'Clientes', href: '/clientes', icon: Users },
     { name: 'Ventas', href: '/ventas', icon: ShoppingCart },
+    { name: 'Vendedores', href: '/vendedores', icon: Users },
     { name: 'Gastos', href: '/gastos', icon: Banknote },
   ];
 

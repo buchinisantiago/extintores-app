@@ -26,6 +26,8 @@ export default async function NuevaVentaPage() {
     }))
   ];
 
+  const { data: vendedores } = await supabase.from('vendedores').select('*').order('nombre');
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto">
       <div>
@@ -36,7 +38,11 @@ export default async function NuevaVentaPage() {
         <p className="text-gray-400">Selecciona el cliente y los productos o servicios a facturar.</p>
       </div>
       
-      <NuevaVentaClient clientes={clientes || []} stock={sellableItems} />
+      <NuevaVentaClient 
+        clientes={clientes || []} 
+        stock={sellableItems} 
+        vendedores={vendedores || []}
+      />
     </div>
   );
 }
