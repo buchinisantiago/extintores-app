@@ -298,11 +298,11 @@ export default function ClienteDetalleClient({
                     </td>
                   </tr>
                 ))}
-              </tbody>
-            </table>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-
       </div>
 
       {isEditing && (

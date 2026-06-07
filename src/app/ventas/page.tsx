@@ -93,9 +93,10 @@ export default async function VentasPage() {
                 </td>
               </tr>
             ))}
-          </tbody>
-        </table>
+            </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-    </div>
   );
 }
