@@ -183,10 +183,17 @@ export default function ClienteDetalleClient({
           {initialExtintores.map(ext => (
             <div key={ext.id} className="glass p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4 border border-white/5 hover:bg-white/5 transition-all group">
               <div className="flex-1">
-                <h3 className="font-bold text-lg text-white mb-1">{ext.skus?.nombre}</h3>
+                <div className="flex items-center gap-3 mb-1">
+                  <h3 className="font-bold text-lg text-white">{ext.skus?.nombre}</h3>
+                  {ext.nro_serie && (
+                    <span className="bg-orange-500/20 text-orange-400 border border-orange-500/30 px-2 py-0.5 rounded text-xs font-mono font-bold tracking-widest">
+                      N° {ext.nro_serie}
+                    </span>
+                  )}
+                </div>
                 <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-400">
-                  {ext.nro_serie && <span>Serie: <span className="text-gray-300 font-mono">{ext.nro_serie}</span></span>}
                   <span>Carga: <span className="text-gray-300">{format(new Date(ext.fecha_carga), 'dd/MM/yyyy')}</span></span>
+                  {ext.fecha_ph && <span>P.H.: <span className="text-gray-300">{format(new Date(ext.fecha_ph), 'dd/MM/yyyy')}</span></span>}
                 </div>
               </div>
 

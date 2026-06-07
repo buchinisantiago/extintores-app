@@ -2,6 +2,7 @@
 
 import { supabase } from '@/lib/supabase';
 import { revalidatePath } from 'next/cache';
+import { notificarCambioGerente } from '@/lib/email';
 
 export async function marcarComoPagado(ventaId: string, metodoPago?: string, comprobante?: string) {
   const { error } = await supabase
@@ -26,6 +27,8 @@ export async function anularVenta(ventaId: string) {
   if (error) {
     return { success: false, error: error.message };
   }
+
+  await notificarCambioGerente('Anulación de Venta', `Se anuló y borró la venta con ID: ${ventaId}. El stock de los productos ha sido devuelto al sistema.`);
 
   revalidatePath('/ventas');
   revalidatePath('/finanzas');
@@ -52,6 +55,8 @@ export async function updateVentaInfo(ventaId: string, formData: FormData) {
   if (error) {
     return { success: false, error: error.message };
   }
+
+  await notificarCambioGerente('Edición de Venta', `Se modificó la venta con ID: ${ventaId}. Factura: ${nro_factura}, Estado: ${estado_pago}, Observaciones: ${observaciones}.`);
 
   revalidatePath('/ventas');
   revalidatePath('/finanzas');

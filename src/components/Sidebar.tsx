@@ -23,15 +23,17 @@ export default function Sidebar({ initialRole }: { initialRole: 'Gerente' | 'Adm
     { name: 'Vencimientos', href: '/vencimientos', icon: Clock },
     { name: 'Stock M.P.', href: '/stock/mp', icon: Package },
     { name: 'Stock Terminado', href: '/stock/terminado', icon: Flame },
-    { name: 'Catálogo / Precios', href: '/catalogo', icon: Flame },
     { name: 'Clientes', href: '/clientes', icon: Users },
     { name: 'Ventas', href: '/ventas', icon: ShoppingCart },
-    { name: 'Vendedores', href: '/vendedores', icon: Users },
-    { name: 'Gastos', href: '/gastos', icon: Banknote },
   ];
 
   if (initialRole === 'Gerente') {
-    navItems.push({ name: 'Finanzas', href: '/finanzas', icon: LineChart });
+    navItems.push(
+      { name: 'Catálogo / Precios', href: '/catalogo', icon: Flame },
+      { name: 'Vendedores', href: '/vendedores', icon: Users },
+      { name: 'Gastos', href: '/gastos', icon: Banknote },
+      { name: 'Finanzas', href: '/finanzas', icon: LineChart }
+    );
   }
 
   return (

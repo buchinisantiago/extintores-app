@@ -2,6 +2,7 @@
 
 import { supabase } from '@/lib/supabase';
 import { revalidatePath } from 'next/cache';
+import { notificarCambioGerente } from '@/lib/email';
 
 export async function addCliente(formData: FormData) {
   const nombre = formData.get('nombre') as string;
@@ -42,6 +43,8 @@ export async function updateCliente(id: string, formData: FormData) {
     return { success: false, error: error.message };
   }
 
+  await notificarCambioGerente('Edición de Cliente', `Se modificaron los datos del cliente ${nombre} (ID: ${id}).`);
+
   revalidatePath('/clientes');
   revalidatePath(`/clientes/${id}`);
   return { success: true };
@@ -56,11 +59,13 @@ export async function deleteCliente(id: string) {
     return { success: false, error: 'No se puede eliminar el cliente porque tiene ventas o extintores asociados. Debes eliminarlos primero.' };
   }
 
-  const { error } = await supabase.from('clientes').delete().eq('id', id);
-  
-  if (error) {
-    return { success: false, error: error.message };
+  const { error: deleteError } = await supabase.from('clientes').delete().eq('id', id);
+
+  if (deleteError) {
+    return { success: false, error: deleteError.message };
   }
+
+  await notificarCambioGerente('Borrado de Cliente', `Se eliminó por completo de la base de datos al cliente con ID: ${id}.`);
 
   revalidatePath('/clientes');
   return { success: true };
