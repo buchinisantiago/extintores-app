@@ -1,9 +1,17 @@
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 import VendedoresClient from './VendedoresClient';
 
 export const revalidate = 0;
 
 export default async function VendedoresPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (user?.email !== 'gerencia@tuempresa.com') {
+    redirect('/');
+  }
   try {
     const supabaseAdmin = getSupabaseAdmin();
     const { data: vendedores, error } = await supabaseAdmin

@@ -1,16 +1,15 @@
 import { Settings, ShieldAlert, Save } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import { cookies } from 'next/headers';
+import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { updateConfig } from './actions';
 
 export const revalidate = 0;
 
 export default async function AjustesPage() {
-  const cookieStore = await cookies();
-  const role = cookieStore.get('user_role')?.value;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (role !== 'Gerente') {
+  if (user?.email !== 'gerencia@tuempresa.com') {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-4">
         <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 mb-4">

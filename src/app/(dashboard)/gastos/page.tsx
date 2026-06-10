@@ -1,11 +1,20 @@
+import { createClient } from '@/lib/supabase/server';
 import { supabase } from '@/lib/supabase';
 import { Banknote, Plus, Calendar, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
 export const revalidate = 0;
 
 export default async function GastosPage() {
+  const serverClient = await createClient();
+  const { data: { user } } = await serverClient.auth.getUser();
+
+  if (user?.email !== 'gerencia@tuempresa.com') {
+    redirect('/');
+  }
+
   const { data: gastos, error } = await supabase
     .from('gastos')
     .select('*')

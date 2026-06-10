@@ -1,15 +1,14 @@
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import CatalogoClient from './CatalogoClient';
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 export const revalidate = 0;
 
 export default async function CatalogoPage() {
-  const cookieStore = await cookies();
-  const role = cookieStore.get('user_role')?.value;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (role !== 'Gerente') {
+  if (user?.email !== 'gerencia@tuempresa.com') {
     redirect('/');
   }
 
