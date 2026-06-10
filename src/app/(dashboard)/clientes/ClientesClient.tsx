@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Users, Plus, Search, MapPin, Phone, Mail, ArrowRight } from 'lucide-react';
 import { addCliente } from './actions';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 type Cliente = {
   id: string;
@@ -17,6 +18,7 @@ type Cliente = {
 };
 
 export default function ClientesClient({ initialData }: { initialData: Cliente[] }) {
+  const router = useRouter();
   const [isAdding, setIsAdding] = useState(false);
   const [search, setSearch] = useState('');
 
@@ -55,8 +57,12 @@ export default function ClientesClient({ initialData }: { initialData: Cliente[]
       {/* Formulario Añadir */}
       {isAdding && (
         <form action={async (formData) => {
-          await addCliente(formData);
-          setIsAdding(false);
+          const newId = await addCliente(formData);
+          if (newId) {
+            router.push(`/clientes/${newId}`);
+          } else {
+            setIsAdding(false);
+          }
         }} className="glass p-6 rounded-xl border-l-4 border-l-red-600 animate-in slide-in-from-top-4">
           <h3 className="font-bold mb-4 text-lg">Registrar Nuevo Cliente</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
