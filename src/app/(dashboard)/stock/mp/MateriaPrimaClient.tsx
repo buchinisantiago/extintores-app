@@ -232,11 +232,12 @@ export default function MateriaPrimaClient({ initialData }: { initialData: MP[] 
               </tr>
             )}
             {initialData.map((item) => {
-              const isLowStock = item.cantidad <= item.alerta_minimo;
+              const isNegative = item.cantidad < 0;
+              const isLowStock = item.cantidad <= item.alerta_minimo && !isNegative;
               return (
-                <tr key={item.id} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                <tr key={item.id} className={`border-b border-white/5 transition-colors group ${isNegative ? 'bg-red-950/40 hover:bg-red-950/60' : 'hover:bg-white/5'}`}>
                   <td className="p-4 font-medium flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${isLowStock ? 'bg-red-500/20 text-red-500' : 'bg-red-600/20 text-red-400'}`}>
+                    <div className={`p-2 rounded-lg ${isNegative ? 'bg-red-600 text-white animate-pulse' : isLowStock ? 'bg-red-500/20 text-red-500' : 'bg-red-600/20 text-red-400'}`}>
                       <Package size={18} />
                     </div>
                     {item.material}
@@ -270,7 +271,11 @@ export default function MateriaPrimaClient({ initialData }: { initialData: MP[] 
                     {item.alerta_minimo} {item.unidad}
                   </td>
                   <td className="p-4 text-center">
-                    {isLowStock ? (
+                    {isNegative ? (
+                      <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-red-600 text-white text-xs font-black border border-red-500 shadow-[0_0_10px_rgba(220,38,38,0.5)] uppercase tracking-wider">
+                        <AlertCircle size={14} /> Stock Negativo
+                      </span>
+                    ) : isLowStock ? (
                       <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-500/20 text-red-400 text-xs font-bold border border-red-500/30">
                         <AlertCircle size={12} /> Bajo Stock
                       </span>

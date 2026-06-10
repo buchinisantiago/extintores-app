@@ -2,6 +2,7 @@
 
 import { supabase } from '@/lib/supabase';
 import { revalidatePath } from 'next/cache';
+import { validateStockForSale } from '@/lib/stockValidation';
 
 export async function crearPresupuesto(
   clienteId: string, 
@@ -71,6 +72,12 @@ export async function convertirPresupuesto(
   metodo_pago: string,
   comprobante: string
 ) {
+  const { data: pItems, error: itemsErr } = await supabase.from('presupuesto_items').select('sku_id, cantidad').eq('presupuesto_id', id);
+  if (!itemsErr && pItems) {
+    const stockError = await validateStockForSale(pItems);
+    if (stockError) return { success: false, error: stockError };
+  }
+
   const { data, error } = await supabase.rpc('convertir_presupuesto_a_venta', {
     p_presupuesto_id: id,
     p_estado_pago: estado_pago,

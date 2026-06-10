@@ -2,6 +2,7 @@
 
 import { supabase } from '@/lib/supabase';
 import { revalidatePath } from 'next/cache';
+import { validateStockForSale } from '@/lib/stockValidation';
 
 export async function crearVenta(
   cliente_id: string, 
@@ -14,6 +15,9 @@ export async function crearVenta(
   comprobante?: string,
   vendedor_id?: string
 ) {
+  const stockError = await validateStockForSale(items);
+  if (stockError) return { success: false, error: stockError };
+
   // Call the Postgres function (RPC) we will define for the transaction
   const { data: venta_id, error } = await supabase.rpc('crear_venta', {
     p_cliente_id: cliente_id,
