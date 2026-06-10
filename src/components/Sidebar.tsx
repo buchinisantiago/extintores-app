@@ -25,6 +25,7 @@ export default function Sidebar({ initialRole, email }: { initialRole: string, e
     { name: 'Vencimientos', href: '/vencimientos', icon: Clock },
     { name: 'Stock M.P.', href: '/stock/mp', icon: Package },
     { name: 'Stock Terminado', href: '/stock/terminado', icon: Flame },
+    { name: 'Ingresos / Reposición', href: '/reposiciones', icon: Package },
     { name: 'Clientes', href: '/clientes', icon: Users },
     { name: 'Ventas', href: '/ventas', icon: ShoppingCart },
     { name: 'Presupuestos', href: '/presupuestos', icon: FileText },
