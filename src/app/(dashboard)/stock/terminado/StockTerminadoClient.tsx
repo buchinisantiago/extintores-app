@@ -40,6 +40,40 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
     setIsLoadingKardex(false);
   };
 
+  const { chartData, tableData } = useMemo(() => {
+    if (!kardexModalItem || !kardexData.length) return { chartData: [], tableData: [] };
+    
+    let currentStock = initialData.find(d => d.sku.id === kardexModalItem.id)?.stock.cantidad || 0;
+    const points = [];
+    const rows = [];
+    
+    for (let i = 0; i < kardexData.length; i++) {
+      const mov = kardexData[i];
+      rows.push({
+        ...mov,
+        stock_resultante: currentStock
+      });
+      points.unshift({
+        fechaStr: new Date(mov.fecha).toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute:'2-digit' }),
+        nivel: currentStock,
+        movimiento: mov.tipo_movimiento,
+        cantidad: mov.cantidad,
+        refId: mov.referencia_id
+      });
+      currentStock -= mov.cantidad;
+    }
+    
+    points.unshift({
+      fechaStr: 'Inicio',
+      nivel: currentStock,
+      movimiento: 'Stock Anterior',
+      cantidad: 0,
+      refId: null
+    });
+    
+    return { chartData: points, tableData: rows };
+  }, [kardexData, kardexModalItem, initialData]);
+
   const handleCreateSku = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -201,65 +235,11 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
                 <div className="h-[400px] w-full mt-4">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart
-                      data={(() => {
-                        let current = initialData.find(d => d.sku.id === kardexModalItem.id)?.stock.cantidad || 0;
-                        const points = [];
-                        for (let i = 0; i < kardexData.length; i++) {
-                          const mov = kardexData[i];
-                          points.unshift({
-                            fechaStr: new Date(mov.fecha).toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute:'2-digit' }),
-                            nivel: current,
-                            movimiento: mov.tipo_movimiento,
-                            cantidad: mov.cantidad,
-                            refId: mov.referencia_id
-                          });
-                          current -= mov.cantidad;
-                        }
-                        points.unshift({
-                          fechaStr: 'Inicio',
-                          nivel: current,
-                          movimiento: 'Stock Anterior',
-                          cantidad: 0,
-                          refId: null
-                        });
-                        return points;
-                      })()}
+                      data={chartData}
                       margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
                       <XAxis dataKey="fechaStr" stroke="#94a3b8" tick={{fontSize: 12}} dy={10} minTickGap={30} />
                       <YAxis stroke="#94a3b8" tick={{fontSize: 12}} dx={-10} />
-                      <Tooltip 
-                        content={({ active, payload }) => {
-                          if (active && payload && payload.length) {
-                            const data = payload[0].payload;
-                            return (
-                              <div className="bg-slate-800 border border-slate-700 p-4 rounded-xl shadow-xl">
-                                <p className="font-bold text-white mb-2">{data.fechaStr}</p>
-                                <p className="text-blue-400 font-bold mb-1">
-                                  Nivel Resultante: {data.nivel} uds
-                                </p>
-                                <div className="text-sm text-gray-300 mb-2">
-                                  <span className="text-gray-500 block text-xs uppercase mb-1">Motivo del cambio:</span>
-                                  {data.movimiento} <span className={data.cantidad > 0 ? 'text-emerald-400 font-bold' : data.cantidad < 0 ? 'text-red-400 font-bold' : 'text-gray-500'}>({data.cantidad > 0 ? '+' : ''}{data.cantidad})</span>
-                                </div>
-                                {data.refId && (data.movimiento.includes('Venta') || data.movimiento.includes('Consumo')) && (
-                                  <div className="pt-2 border-t border-slate-700">
-                                    <a 
-                                      href={`/ventas/${data.refId}`} 
-                                      target="_blank" 
-                                      className="inline-flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300"
-                                    >
-                                      <FileText size={12} /> Ver Remito
-                                    </a>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          }
-                          return null;
-                        }}
-                      />
                       <Line 
                         type="stepAfter" 
                         dataKey="nivel" 
@@ -282,20 +262,24 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
                           <th className="p-3 font-medium text-gray-400">Tipo de Movimiento</th>
                           <th className="p-3 font-medium text-gray-400">Cantidad</th>
                           <th className="p-3 font-medium text-gray-400">Observaciones</th>
+                          <th className="p-3 font-medium text-gray-400 text-center">Stock Resultante</th>
                           <th className="p-3 font-medium text-gray-400 text-right">Detalle</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {kardexData.map((mov) => (
+                        {tableData.map((mov) => (
                           <tr key={mov.id} className="border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors">
                             <td className="p-3 text-gray-400 whitespace-nowrap">
                               {new Date(mov.fecha).toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute:'2-digit' })}
                             </td>
                             <td className="p-3 font-medium text-white">{mov.tipo_movimiento}</td>
                             <td className={`p-3 font-bold ${mov.cantidad > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                              {mov.cantidad > 0 ? '+' : ''}{mov.cantidad}
+                              {mov.cantidad > 0 ? '+' : ''}{mov.cantidad} <span className="text-xs text-gray-500 font-normal">uds</span>
                             </td>
                             <td className="p-3 text-gray-400 text-xs italic">{mov.observaciones || '-'}</td>
+                            <td className="p-3 font-mono text-center font-bold text-white bg-slate-900/30">
+                              {mov.stock_resultante}
+                            </td>
                             <td className="p-3 text-right">
                               {mov.referencia_id && (mov.tipo_movimiento.includes('Venta') || mov.tipo_movimiento.includes('Consumo')) && (
                                 <a 
