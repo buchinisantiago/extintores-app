@@ -136,7 +136,7 @@ export default function MateriaPrimaClient({ initialData }: { initialData: MP[] 
                 <div className="text-center py-20 text-gray-500 italic flex-1 flex items-center justify-center">No hay movimientos registrados recientes para este insumo.</div>
               ) : (
               <>
-                <div className="h-[400px] w-full mt-4">
+                <div className="h-[200px] w-full mt-2 shrink-0">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart
                       data={chartData}
