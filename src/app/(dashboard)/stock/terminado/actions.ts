@@ -19,6 +19,15 @@ export async function addStockTerminado(sku_id: string, currentCantidad: number,
     });
   }
 
+  // Registrar en Kardex
+  await supabase.from('movimientos_stock').insert({
+    tipo_entidad: 'SKU',
+    entidad_id: sku_id,
+    tipo_movimiento: 'Ajuste Manual',
+    cantidad: amountToAdd,
+    observaciones: 'Modificado con el botón de suma en tabla'
+  });
+
   revalidatePath('/stock/terminado');
   revalidatePath('/');
 }

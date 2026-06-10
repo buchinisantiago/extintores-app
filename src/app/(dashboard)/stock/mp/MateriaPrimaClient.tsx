@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Package, Plus, Trash2, Edit2, AlertCircle } from 'lucide-react';
-import { addMateriaPrima, updateMateriaPrima, deleteMateriaPrima } from './actions';
+import { Package, Plus, Trash2, Edit2, AlertCircle, Clock, X } from 'lucide-react';
+import { addMateriaPrima, updateMateriaPrima, deleteMateriaPrima, getHistorialKardex } from './actions';
 
 type MP = {
   id: string;
@@ -16,6 +16,20 @@ export default function MateriaPrimaClient({ initialData }: { initialData: MP[] 
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editCantidad, setEditCantidad] = useState<number>(0);
+
+  const [kardexModalItem, setKardexModalItem] = useState<MP | null>(null);
+  const [kardexData, setKardexData] = useState<any[]>([]);
+  const [isLoadingKardex, setIsLoadingKardex] = useState(false);
+
+  const handleOpenKardex = async (item: MP) => {
+    setKardexModalItem(item);
+    setIsLoadingKardex(true);
+    const res = await getHistorialKardex(item.id, 'MP');
+    if (res.success) {
+      setKardexData(res.data);
+    }
+    setIsLoadingKardex(false);
+  };
 
   return (
     <div className="space-y-6">
@@ -64,6 +78,59 @@ export default function MateriaPrimaClient({ initialData }: { initialData: MP[] 
             <button type="button" onClick={() => setIsAdding(false)} className="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium">Cancelar</button>
           </div>
         </form>
+      )}
+
+      {/* Modal de Kardex (Historial) */}
+      {kardexModalItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 flex flex-col max-h-[90vh]">
+            <div className="flex justify-between items-center p-6 border-b border-slate-800 shrink-0">
+              <h3 className="font-bold text-xl text-white flex items-center gap-2">
+                <Clock className="text-blue-500" />
+                Historial de Stock: {kardexModalItem.material}
+              </h3>
+              <button onClick={() => setKardexModalItem(null)} className="text-gray-400 hover:text-white bg-white/5 p-2 rounded-full hover:bg-blue-500/20 hover:text-blue-500 transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto flex-1 bg-slate-900/50">
+              {isLoadingKardex ? (
+                <div className="text-center py-10 text-gray-500">Cargando historial...</div>
+              ) : kardexData.length === 0 ? (
+                <div className="text-center py-10 text-gray-500 italic">No hay movimientos registrados recientes para este insumo.</div>
+              ) : (
+                <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-700 before:to-transparent">
+                  {kardexData.map((mov, i) => {
+                    const isPositive = mov.cantidad > 0;
+                    return (
+                      <div key={mov.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                        <div className={`flex items-center justify-center w-10 h-10 rounded-full border-4 border-slate-900 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm ${isPositive ? 'bg-emerald-500' : 'bg-red-500'}`}>
+                          <span className="text-slate-900 font-bold text-sm">{isPositive ? '+' : '-'}</span>
+                        </div>
+                        <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-slate-800 bg-slate-800/50 shadow-sm">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className={`font-bold ${isPositive ? 'text-emerald-400' : 'text-red-400'} text-lg`}>
+                              {mov.cantidad > 0 ? '+' : ''}{mov.cantidad} <span className="text-xs font-normal text-gray-500">{kardexModalItem.unidad}</span>
+                            </span>
+                            <time className="text-xs font-medium text-gray-500">
+                              {new Date(mov.fecha).toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute:'2-digit' })}
+                            </time>
+                          </div>
+                          <div className="text-sm font-medium text-white mb-1">{mov.tipo_movimiento}</div>
+                          {mov.observaciones && <div className="text-xs text-gray-400 italic">{mov.observaciones}</div>}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            <div className="p-4 border-t border-slate-800 shrink-0 bg-slate-900 flex justify-end">
+              <button onClick={() => setKardexModalItem(null)} className="bg-slate-800 hover:bg-slate-700 text-white font-medium px-6 py-2 rounded-xl transition-colors">Cerrar</button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Tabla */}
@@ -135,11 +202,16 @@ export default function MateriaPrimaClient({ initialData }: { initialData: MP[] 
                   </td>
                   <td className="p-4 text-right opacity-0 group-hover:opacity-100 transition-opacity">
                     <button 
+                      onClick={() => handleOpenKardex(item)}
+                      className="p-2 text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors" title="Ver Historial (Kardex)">
+                      <Clock size={18} />
+                    </button>
+                    <button 
                       onClick={() => {
                         setEditingId(item.id);
                         setEditCantidad(item.cantidad);
                       }}
-                      className="p-2 text-gray-400 hover:text-red-400 transition-colors" title="Actualizar Stock">
+                      className="p-2 text-gray-400 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-colors" title="Ajuste Manual">
                       <Edit2 size={18} />
                     </button>
                     <button 
