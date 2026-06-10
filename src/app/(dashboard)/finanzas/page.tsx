@@ -16,6 +16,9 @@ export default async function FinanzasPage() {
   const { data: ventas, error: errVentas } = await supabase.from('ventas').select('total, estado_pago, vendedor_id, vendedores(nombre), venta_items(cantidad, costo_unitario)');
   const { data: gastos, error: errGastos } = await supabase.from('gastos').select('monto, estado_pago');
   const { data: stock_terminado, error: errStock } = await supabase.from('stock_terminado').select('cantidad, skus(costo)');
+  const { data: vendedoresList } = await supabase.from('vendedores').select('id, nombre');
+
+  const vendedoresMap = Object.fromEntries((vendedoresList || []).map(v => [v.id, v.nombre]));
 
   if (errVentas || errGastos || errStock) {
     return (
@@ -53,7 +56,7 @@ export default async function FinanzasPage() {
   const ventasPorVendedor = (ventas || []).reduce((acc: any, v) => {
     if (v.vendedor_id && v.estado_pago === 'Pagado') {
       const vend = v.vendedores as any;
-      const nombre = vend?.nombre || 'Desconocido';
+      const nombre = vend?.nombre || vendedoresMap[v.vendedor_id] || 'Desconocido';
       if (!acc[nombre]) acc[nombre] = 0;
       acc[nombre] += v.total || 0;
     }

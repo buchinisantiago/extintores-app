@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Users, Plus, Trash2 } from 'lucide-react';
+import { Users, Plus, Trash2, ArrowRight } from 'lucide-react';
 import { addVendedor, deleteVendedor } from './actions';
+import Link from 'next/link';
 
 type Vendedor = {
   id: string;
@@ -52,14 +53,18 @@ export default function VendedoresClient({ initialData }: { initialData: Vendedo
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {initialData.map((vendedor) => (
           <div key={vendedor.id} className="glass p-5 rounded-xl border border-white/5 hover:border-red-600/30 transition-all flex items-center justify-between group">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-lg bg-red-600/10 text-red-600">
+            <Link href={`/vendedores/${vendedor.id}`} className="flex items-center gap-3 flex-1">
+              <div className="p-2.5 rounded-lg bg-red-600/10 text-red-600 group-hover:bg-red-600 group-hover:text-white transition-colors">
                 <Users size={20} />
               </div>
-              <h3 className="font-bold text-lg">{vendedor.nombre}</h3>
-            </div>
+              <div>
+                <h3 className="font-bold text-lg group-hover:text-red-400 transition-colors">{vendedor.nombre}</h3>
+                <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">Ver dashboard y comisiones <ArrowRight size={12} /></p>
+              </div>
+            </Link>
             <button 
-              onClick={async () => {
+              onClick={async (e) => {
+                e.preventDefault();
                 if (confirm('¿Eliminar este vendedor?')) {
                   const res = await deleteVendedor(vendedor.id);
                   if (res && !res.success) alert(res.error);
