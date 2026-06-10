@@ -25,7 +25,7 @@ export default function PdfClient({ presupuesto, items }: { presupuesto: any, it
         {/* Header */}
         <div className="flex justify-between items-start border-b-2 border-red-600 pb-6 mb-8">
           <div className="w-64">
-            <img src="/logo.jpeg" alt="Menendez" className="w-full h-auto object-contain" />
+            <img src="/logo2.jpeg" alt="Menendez" className="w-full h-auto object-contain" />
           </div>
           <div className="text-right">
             <h1 className="text-3xl font-black text-red-600 uppercase mb-2">Presupuesto</h1>
