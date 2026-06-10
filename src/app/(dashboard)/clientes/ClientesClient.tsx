@@ -8,6 +8,7 @@ import Link from 'next/link';
 type Cliente = {
   id: string;
   nombre: string;
+  documento?: string;
   telefono: string;
   email: string;
   direccion: string;
@@ -21,6 +22,7 @@ export default function ClientesClient({ initialData }: { initialData: Cliente[]
 
   const filteredData = initialData.filter(c => 
     c.nombre.toLowerCase().includes(search.toLowerCase()) ||
+    (c.documento && c.documento.toLowerCase().includes(search.toLowerCase())) ||
     (c.email && c.email.toLowerCase().includes(search.toLowerCase())) ||
     (c.telefono && c.telefono.includes(search))
   );
@@ -35,7 +37,7 @@ export default function ClientesClient({ initialData }: { initialData: Cliente[]
           </div>
           <input 
             type="text" 
-            placeholder="Buscar por nombre, email o teléfono..." 
+            placeholder="Buscar por nombre, apellido, DNI, CUIT, email..." 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2 text-sm focus:border-red-600 outline-none transition-colors"
@@ -59,8 +61,12 @@ export default function ClientesClient({ initialData }: { initialData: Cliente[]
           <h3 className="font-bold mb-4 text-lg">Registrar Nuevo Cliente</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Nombre Completo o Empresa *</label>
+              <label className="block text-xs text-gray-400 mb-1">Nombre, Apellido o Empresa *</label>
               <input name="nombre" required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none" />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">DNI / CUIT / CUIL</label>
+              <input name="documento" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none" />
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">Teléfono</label>
@@ -110,6 +116,11 @@ export default function ClientesClient({ initialData }: { initialData: Cliente[]
               </div>
               
               <div className="space-y-2 text-sm text-gray-300 mb-6">
+                {cliente.documento && (
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-gray-500 text-[10px] uppercase bg-white/5 px-1.5 py-0.5 rounded">Doc</span> {cliente.documento}
+                  </div>
+                )}
                 {cliente.telefono && (
                   <div className="flex items-center gap-2">
                     <Phone size={14} className="text-gray-500" /> {cliente.telefono}

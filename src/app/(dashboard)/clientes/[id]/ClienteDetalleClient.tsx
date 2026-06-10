@@ -10,9 +10,9 @@ import VentaRowActions from '../../ventas/VentaRowActions';
 import { updateCliente, deleteCliente } from '../actions';
 import { useRouter } from 'next/navigation';
 
-type Cliente = {
   id: string;
   nombre: string;
+  documento?: string;
   telefono: string;
   email: string;
   direccion: string;
@@ -89,6 +89,12 @@ export default function ClienteDetalleClient({
           </div>
           <h2 className="text-xl font-bold mb-4">Información de Contacto</h2>
           <div className="space-y-4 text-gray-300">
+            {cliente.documento && (
+              <div className="flex items-center gap-3 bg-slate-900/50 p-3 rounded-lg border border-white/5">
+                <span className="font-bold text-red-600 text-[10px] uppercase bg-white/5 px-2 py-1 rounded">Doc</span>
+                <span>{cliente.documento}</span>
+              </div>
+            )}
             {cliente.telefono && (
               <div className="flex items-center gap-3 bg-slate-900/50 p-3 rounded-lg border border-white/5">
                 <Phone className="text-red-600" size={18} />
@@ -326,6 +332,10 @@ export default function ClienteDetalleClient({
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Nombre Completo</label>
                 <input name="nombre" defaultValue={cliente.nombre} required className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">DNI / CUIT / CUIL</label>
+                <input name="documento" defaultValue={cliente.documento} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Teléfono</label>
