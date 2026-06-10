@@ -21,6 +21,7 @@ export default function NuevoPresupuestoClient({ clientes, stock, vendedores, cu
   const [cart, setCart] = useState<{sku_id: string, nombre: string, cantidad: number, precio: number, max: number, nro_serie: string}[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [observaciones, setObservaciones] = useState('');
+  const [descuentoPorcentaje, setDescuentoPorcentaje] = useState(0);
 
   const addItem = (sku_id: string) => {
     if (!sku_id) return;
@@ -62,7 +63,8 @@ export default function NuevoPresupuestoClient({ clientes, stock, vendedores, cu
     setCart(cart.filter(item => item.sku_id !== sku_id));
   };
 
-  const total = cart.reduce((acc, item) => acc + (item.cantidad * item.precio), 0);
+  const subtotal = cart.reduce((acc, item) => acc + (item.cantidad * item.precio), 0);
+  const total = subtotal * (1 - descuentoPorcentaje / 100);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,11 +78,15 @@ export default function NuevoPresupuestoClient({ clientes, stock, vendedores, cu
       nro_serie: c.nro_serie
     }));
 
+    const finalObservaciones = descuentoPorcentaje > 0 
+      ? `[Descuento Aplicado: ${descuentoPorcentaje}%]\n${observaciones}` 
+      : observaciones;
+
     const result = await crearPresupuesto(
       clienteId, 
       total, 
       items, 
-      observaciones,
+      finalObservaciones,
       vendedorId || undefined
     );
     
@@ -198,12 +204,32 @@ export default function NuevoPresupuestoClient({ clientes, stock, vendedores, cu
           <div className="space-y-3 mb-6">
             <div className="flex justify-between text-gray-400">
               <span>Subtotal</span>
-              <span>${total}</span>
+              <span>${subtotal.toFixed(2)}</span>
             </div>
+            <div className="flex justify-between items-center text-gray-400">
+              <span>Descuento (%)</span>
+              <div className="flex items-center gap-2">
+                <input 
+                  type="number" 
+                  min="0" 
+                  max="100" 
+                  value={descuentoPorcentaje} 
+                  onChange={e => setDescuentoPorcentaje(Number(e.target.value))}
+                  className="w-16 bg-slate-800 border border-slate-700 rounded px-2 py-1 text-sm outline-none focus:border-red-600 text-white text-right"
+                />
+                <span>%</span>
+              </div>
+            </div>
+            {descuentoPorcentaje > 0 && (
+              <div className="flex justify-between text-red-400 text-sm">
+                <span>Ahorro</span>
+                <span>-${(subtotal - total).toFixed(2)}</span>
+              </div>
+            )}
             <div className="h-px bg-white/10 w-full my-4"></div>
             <div className="flex justify-between items-end">
               <span className="font-bold text-lg">Total</span>
-              <span className="font-black text-3xl text-red-600">${total}</span>
+              <span className="font-black text-3xl text-red-600">${total.toFixed(2)}</span>
             </div>
           </div>
 

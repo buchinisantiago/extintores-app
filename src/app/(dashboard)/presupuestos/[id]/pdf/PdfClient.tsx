@@ -77,6 +77,18 @@ export default function PdfClient({ presupuesto, items }: { presupuesto: any, it
         {/* Total */}
         <div className="flex justify-end mb-8">
           <div className="w-1/3 bg-gray-50 rounded-lg p-4 border border-gray-200">
+            {items && items.reduce((acc, item) => acc + (item.cantidad * Number(item.precio_unitario)), 0) > Number(presupuesto.total) && (
+              <>
+                <div className="flex justify-between items-center text-sm text-gray-500 mb-1">
+                  <span>Subtotal:</span>
+                  <span>${items.reduce((acc, item) => acc + (item.cantidad * Number(item.precio_unitario)), 0).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm text-red-500 mb-2 border-b border-gray-200 pb-2">
+                  <span>Descuento:</span>
+                  <span>-${(items.reduce((acc, item) => acc + (item.cantidad * Number(item.precio_unitario)), 0) - Number(presupuesto.total)).toLocaleString()}</span>
+                </div>
+              </>
+            )}
             <div className="flex justify-between items-center text-xl">
               <span className="font-bold text-gray-700">TOTAL:</span>
               <span className="font-black text-red-600">${Number(presupuesto.total).toLocaleString()}</span>
