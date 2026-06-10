@@ -136,9 +136,11 @@ export default function MateriaPrimaClient({ initialData }: { initialData: MP[] 
                 <div className="text-center py-20 text-gray-500 italic flex-1 flex items-center justify-center">No hay movimientos registrados recientes para este insumo.</div>
               ) : (
               <>
-                <div className="h-[200px] w-full mt-2 shrink-0">
-                  <ResponsiveContainer width="100%" height="100%">
+                <div className="h-[200px] w-full mt-2 shrink-0 overflow-x-auto overflow-y-hidden">
+                  <div className="min-w-[700px]">
                     <LineChart
+                      width={800}
+                      height={200}
                       data={chartData}
                       margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
                     >
@@ -153,7 +155,7 @@ export default function MateriaPrimaClient({ initialData }: { initialData: MP[] 
                         activeDot={{ r: 6, fill: '#ef4444', strokeWidth: 0 }}
                       />
                     </LineChart>
-                  </ResponsiveContainer>
+                  </div>
                 </div>
 
                 <div className="mt-8 border-t border-slate-700/50 pt-6">
