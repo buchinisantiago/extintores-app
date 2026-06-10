@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { Package, Plus, Trash2, Edit2, AlertCircle, Clock, X, FileText } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Package, Plus, Trash2, Edit2, AlertCircle, Clock, X, FileText, TrendingUp } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { addMateriaPrima, updateMateriaPrima, deleteMateriaPrima, getHistorialKardex } from './actions';
 
 type MP = {
@@ -83,64 +84,89 @@ export default function MateriaPrimaClient({ initialData }: { initialData: MP[] 
       {/* Modal de Kardex (Historial) */}
       {kardexModalItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 flex flex-col max-h-[90vh]">
+          <div className="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-4xl shadow-2xl overflow-hidden animate-in zoom-in-95 flex flex-col max-h-[90vh]">
             <div className="flex justify-between items-center p-6 border-b border-slate-800 shrink-0">
               <h3 className="font-bold text-xl text-white flex items-center gap-2">
-                <Clock className="text-blue-500" />
-                Historial de Stock: {kardexModalItem.material}
+                <TrendingUp className="text-blue-500" />
+                Evolución de Stock: {kardexModalItem.material}
               </h3>
               <button onClick={() => setKardexModalItem(null)} className="text-gray-400 hover:text-white bg-white/5 p-2 rounded-full hover:bg-blue-500/20 hover:text-blue-500 transition-colors">
                 <X size={20} />
               </button>
             </div>
             
-            <div className="p-6 overflow-y-auto flex-1 bg-slate-900/50">
+            <div className="p-6 overflow-y-auto flex-1 bg-slate-900/50 flex flex-col">
               {isLoadingKardex ? (
-                <div className="text-center py-10 text-gray-500">Cargando historial...</div>
+                <div className="text-center py-20 text-gray-500 flex-1 flex items-center justify-center">Cargando gráfico...</div>
               ) : kardexData.length === 0 ? (
-                <div className="text-center py-10 text-gray-500 italic">No hay movimientos registrados recientes para este insumo.</div>
+                <div className="text-center py-20 text-gray-500 italic flex-1 flex items-center justify-center">No hay movimientos registrados recientes para este insumo.</div>
               ) : (
-                <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-700 before:to-transparent">
-                  {kardexData.map((mov, i) => {
-                    const isPositive = mov.cantidad > 0;
-                    return (
-                      <div key={mov.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                        <div className={`flex items-center justify-center w-10 h-10 rounded-full border-4 border-slate-900 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm ${isPositive ? 'bg-emerald-500' : 'bg-red-500'}`}>
-                          <span className="text-slate-900 font-bold text-sm">{isPositive ? '+' : '-'}</span>
-                        </div>
-                        <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-slate-800 bg-slate-800/50 shadow-sm">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className={`font-bold ${isPositive ? 'text-emerald-400' : 'text-red-400'} text-lg`}>
-                              {mov.cantidad > 0 ? '+' : ''}{mov.cantidad} <span className="text-xs font-normal text-gray-500">{kardexModalItem.unidad}</span>
-                            </span>
-                            <time className="text-xs font-medium text-gray-500">
-                              {new Date(mov.fecha).toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute:'2-digit' })}
-                            </time>
-                          </div>
-                          <div className="text-sm font-medium text-white mb-1">{mov.tipo_movimiento}</div>
-                          {mov.observaciones && <div className="text-xs text-gray-400 italic">{mov.observaciones}</div>}
-                          
-                          {mov.referencia_id && (mov.tipo_movimiento.includes('Venta') || mov.tipo_movimiento.includes('Consumo')) && (
-                            <div className="mt-3 pt-3 border-t border-slate-700/50 flex justify-end">
-                              <a 
-                                href={`/ventas/${mov.referencia_id}`} 
-                                target="_blank" 
-                                className="inline-flex items-center gap-1.5 text-xs bg-slate-900/50 hover:bg-blue-500/20 text-blue-400 px-2 py-1 rounded border border-blue-500/20 transition-colors"
-                              >
-                                <FileText size={12} />
-                                Ver Remito de Venta
-                              </a>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div className="flex-1 min-h-[400px] w-full mt-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart
+                      data={(() => {
+                        let current = kardexModalItem.cantidad;
+                        const points = [];
+                        for (let i = 0; i < kardexData.length; i++) {
+                          const mov = kardexData[i];
+                          points.unshift({
+                            fechaStr: new Date(mov.fecha).toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute:'2-digit' }),
+                            nivel: current,
+                            movimiento: mov.tipo_movimiento,
+                            cantidad: mov.cantidad,
+                            refId: mov.referencia_id
+                          });
+                          current -= mov.cantidad;
+                        }
+                        points.unshift({
+                          fechaStr: 'Inicio',
+                          nivel: current,
+                          movimiento: 'Stock Anterior',
+                          cantidad: 0,
+                          refId: null
+                        });
+                        return points;
+                      })()}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                      <XAxis dataKey="fechaStr" stroke="#94a3b8" tick={{fontSize: 12}} dy={10} minTickGap={30} />
+                      <YAxis stroke="#94a3b8" tick={{fontSize: 12}} dx={-10} />
+                      <Tooltip 
+                        content={({ active, payload }) => {
+                          if (active && payload && payload.length) {
+                            const data = payload[0].payload;
+                            return (
+                              <div className="bg-slate-800 border border-slate-700 p-4 rounded-xl shadow-xl">
+                                <p className="font-bold text-white mb-2">{data.fechaStr}</p>
+                                <p className="text-blue-400 font-bold mb-1">
+                                  Nivel Resultante: {data.nivel} {kardexModalItem.unidad}
+                                </p>
+                                <div className="text-sm text-gray-300">
+                                  <span className="text-gray-500 block text-xs uppercase mb-1">Motivo del cambio:</span>
+                                  {data.movimiento} <span className={data.cantidad > 0 ? 'text-emerald-400 font-bold' : data.cantidad < 0 ? 'text-red-400 font-bold' : 'text-gray-500'}>({data.cantidad > 0 ? '+' : ''}{data.cantidad})</span>
+                                </div>
+                              </div>
+                            );
+                          }
+                          return null;
+                        }}
+                      />
+                      <Line 
+                        type="stepAfter" 
+                        dataKey="nivel" 
+                        stroke="#3b82f6" 
+                        strokeWidth={3}
+                        dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4, stroke: '#1e293b' }}
+                        activeDot={{ r: 6, fill: '#ef4444', strokeWidth: 0 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
                 </div>
               )}
             </div>
             <div className="p-4 border-t border-slate-800 shrink-0 bg-slate-900 flex justify-end">
-              <button onClick={() => setKardexModalItem(null)} className="bg-slate-800 hover:bg-slate-700 text-white font-medium px-6 py-2 rounded-xl transition-colors">Cerrar</button>
+              <button onClick={() => setKardexModalItem(null)} className="bg-slate-800 hover:bg-slate-700 text-white font-medium px-6 py-2 rounded-xl transition-colors">Cerrar Gráfico</button>
             </div>
           </div>
         </div>

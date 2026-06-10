@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Flame, Plus, Minus, Search, X, Save, Clock, FileText } from 'lucide-react';
+import { Flame, Plus, Minus, Search, X, Save, Clock, FileText, TrendingUp } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { addStockTerminado, createSku } from './actions';
 import { getHistorialKardex } from '../mp/actions';
 
@@ -179,39 +180,100 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
 
       {kardexModalItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 flex flex-col max-h-[90vh]">
+          <div className="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-4xl shadow-2xl overflow-hidden animate-in zoom-in-95 flex flex-col max-h-[90vh]">
             <div className="flex justify-between items-center p-6 border-b border-slate-800 shrink-0">
               <h3 className="font-bold text-xl text-white flex items-center gap-2">
-                <Clock className="text-blue-500" />
-                Historial de Stock: {kardexModalItem.nombre}
+                <TrendingUp className="text-blue-500" />
+                Evolución de Stock: {kardexModalItem.nombre}
               </h3>
-              <button onClick={() => setKardexModalItem(null)} className="text-gray-400 hover:text-white"><X size={20} /></button>
+              <button onClick={() => setKardexModalItem(null)} className="text-gray-400 hover:text-white bg-white/5 p-2 rounded-full hover:bg-blue-500/20 hover:text-blue-500 transition-colors">
+                <X size={20} />
+              </button>
             </div>
-            <div className="p-6 overflow-y-auto flex-1 bg-slate-900/50">
-              {isLoadingKardex ? <div className="text-center py-10 text-gray-500">Cargando...</div> : kardexData.length === 0 ? <div className="text-center py-10 text-gray-500 italic">Sin movimientos recientes.</div> : (
-                <div className="space-y-4">
-                  {kardexData.map((mov) => (
-                    <div key={mov.id} className="flex justify-between items-center p-3 bg-slate-800 rounded-lg border border-slate-700">
-                      <div>
-                        <p className="text-sm font-bold">{mov.tipo_movimiento}</p>
-                        <p className="text-xs text-gray-400">{new Date(mov.fecha).toLocaleString()}</p>
-                        {mov.referencia_id && (mov.tipo_movimiento.includes('Venta') || mov.tipo_movimiento.includes('Consumo')) && (
-                          <a 
-                            href={`/ventas/${mov.referencia_id}`} 
-                            target="_blank" 
-                            className="inline-flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 mt-1"
-                          >
-                            <FileText size={12} /> Ver Remito
-                          </a>
-                        )}
-                      </div>
-                      <span className={`font-bold ${mov.cantidad > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                        {mov.cantidad > 0 ? '+' : ''}{mov.cantidad}
-                      </span>
-                    </div>
-                  ))}
+            
+            <div className="p-6 overflow-y-auto flex-1 bg-slate-900/50 flex flex-col">
+              {isLoadingKardex ? (
+                <div className="text-center py-20 text-gray-500 flex-1 flex items-center justify-center">Cargando gráfico...</div>
+              ) : kardexData.length === 0 ? (
+                <div className="text-center py-20 text-gray-500 italic flex-1 flex items-center justify-center">No hay movimientos registrados recientes para este producto.</div>
+              ) : (
+                <div className="flex-1 min-h-[400px] w-full mt-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart
+                      data={(() => {
+                        let current = initialData.find(d => d.sku.id === kardexModalItem.id)?.stock.cantidad || 0;
+                        const points = [];
+                        for (let i = 0; i < kardexData.length; i++) {
+                          const mov = kardexData[i];
+                          points.unshift({
+                            fechaStr: new Date(mov.fecha).toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute:'2-digit' }),
+                            nivel: current,
+                            movimiento: mov.tipo_movimiento,
+                            cantidad: mov.cantidad,
+                            refId: mov.referencia_id
+                          });
+                          current -= mov.cantidad;
+                        }
+                        points.unshift({
+                          fechaStr: 'Inicio',
+                          nivel: current,
+                          movimiento: 'Stock Anterior',
+                          cantidad: 0,
+                          refId: null
+                        });
+                        return points;
+                      })()}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                      <XAxis dataKey="fechaStr" stroke="#94a3b8" tick={{fontSize: 12}} dy={10} minTickGap={30} />
+                      <YAxis stroke="#94a3b8" tick={{fontSize: 12}} dx={-10} />
+                      <Tooltip 
+                        content={({ active, payload }) => {
+                          if (active && payload && payload.length) {
+                            const data = payload[0].payload;
+                            return (
+                              <div className="bg-slate-800 border border-slate-700 p-4 rounded-xl shadow-xl">
+                                <p className="font-bold text-white mb-2">{data.fechaStr}</p>
+                                <p className="text-blue-400 font-bold mb-1">
+                                  Nivel Resultante: {data.nivel} uds
+                                </p>
+                                <div className="text-sm text-gray-300 mb-2">
+                                  <span className="text-gray-500 block text-xs uppercase mb-1">Motivo del cambio:</span>
+                                  {data.movimiento} <span className={data.cantidad > 0 ? 'text-emerald-400 font-bold' : data.cantidad < 0 ? 'text-red-400 font-bold' : 'text-gray-500'}>({data.cantidad > 0 ? '+' : ''}{data.cantidad})</span>
+                                </div>
+                                {data.refId && (data.movimiento.includes('Venta') || data.movimiento.includes('Consumo')) && (
+                                  <div className="pt-2 border-t border-slate-700">
+                                    <a 
+                                      href={`/ventas/${data.refId}`} 
+                                      target="_blank" 
+                                      className="inline-flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300"
+                                    >
+                                      <FileText size={12} /> Ver Remito
+                                    </a>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          }
+                          return null;
+                        }}
+                      />
+                      <Line 
+                        type="stepAfter" 
+                        dataKey="nivel" 
+                        stroke="#3b82f6" 
+                        strokeWidth={3}
+                        dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4, stroke: '#1e293b' }}
+                        activeDot={{ r: 6, fill: '#ef4444', strokeWidth: 0 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
                 </div>
               )}
+            </div>
+            <div className="p-4 border-t border-slate-800 shrink-0 bg-slate-900 flex justify-end">
+              <button onClick={() => setKardexModalItem(null)} className="bg-slate-800 hover:bg-slate-700 text-white font-medium px-6 py-2 rounded-xl transition-colors">Cerrar Gráfico</button>
             </div>
           </div>
         </div>
