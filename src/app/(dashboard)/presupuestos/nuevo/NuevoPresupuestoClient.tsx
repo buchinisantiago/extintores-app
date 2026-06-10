@@ -12,6 +12,8 @@ type StockItem = {
   skus: { id: string, nombre: string, precio_recarga: number };
 };
 
+import ProductSearchSelect from '@/components/ProductSearchSelect';
+
 export default function NuevoPresupuestoClient({ clientes, stock, vendedores, currentUserVendedorId }: { clientes: Cliente[], stock: StockItem[], vendedores: Vendedor[], currentUserVendedorId?: string }) {
   const router = useRouter();
   const [clienteId, setClienteId] = useState('');
@@ -20,15 +22,13 @@ export default function NuevoPresupuestoClient({ clientes, stock, vendedores, cu
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [observaciones, setObservaciones] = useState('');
 
-  const addItem = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const sku_id = e.target.value;
+  const addItem = (sku_id: string) => {
     if (!sku_id) return;
     
     const itemStock = stock.find(s => s.skus.id === sku_id);
     if (!itemStock) return;
 
     if (cart.find(c => c.sku_id === sku_id)) {
-      e.target.value = '';
       return;
     }
 
@@ -40,8 +40,6 @@ export default function NuevoPresupuestoClient({ clientes, stock, vendedores, cu
       max: itemStock.cantidad,
       nro_serie: ''
     }]);
-    
-    e.target.value = '';
   };
 
   const updateQuantity = (sku_id: string, delta: number) => {
@@ -134,17 +132,7 @@ export default function NuevoPresupuestoClient({ clientes, stock, vendedores, cu
 
         <div className="glass p-6 rounded-xl">
           <label className="block text-sm font-bold mb-2">2. Añadir Productos / Servicios</label>
-          <select 
-            onChange={addItem}
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-base focus:border-red-600 outline-none mb-6"
-          >
-            <option value="">+ Seleccionar ítem a cotizar...</option>
-            {stock.map(s => (
-              <option key={s.skus.id} value={s.skus.id}>
-                {s.skus.nombre} - Precio Base: ${s.skus.precio_recarga}
-              </option>
-            ))}
-          </select>
+          <ProductSearchSelect stock={stock} onSelect={addItem} placeholder="+ Buscar producto a cotizar..." />
 
           <div className="space-y-3">
             {cart.map(item => (

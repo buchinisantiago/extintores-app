@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ShoppingCart, Plus, Trash2, CheckCircle2 } from 'lucide-react';
 import { crearVenta } from './actions';
+import ProductSearchSelect from '@/components/ProductSearchSelect';
 
 type Cliente = { id: string, nombre: string };
 type Vendedor = { id: string, nombre: string };
@@ -26,15 +27,13 @@ export default function NuevaVentaClient({ clientes, stock, vendedores, currentU
   const [metodoPago, setMetodoPago] = useState('Efectivo');
   const [comprobante, setComprobante] = useState('');
 
-  const addItem = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const sku_id = e.target.value;
+  const addItem = (sku_id: string) => {
     if (!sku_id) return;
     
     const itemStock = stock.find(s => s.skus.id === sku_id);
     if (!itemStock) return;
 
     if (cart.find(c => c.sku_id === sku_id)) {
-      e.target.value = '';
       return;
     }
 
@@ -46,8 +45,6 @@ export default function NuevaVentaClient({ clientes, stock, vendedores, currentU
       max: itemStock.cantidad,
       nro_serie: ''
     }]);
-    
-    e.target.value = '';
   };
 
   const updateQuantity = (sku_id: string, delta: number) => {
@@ -144,17 +141,7 @@ export default function NuevaVentaClient({ clientes, stock, vendedores, currentU
 
         <div className="glass p-6 rounded-xl">
           <label className="block text-sm font-bold mb-2">2. Añadir Productos al Remito</label>
-          <select 
-            onChange={addItem}
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-base focus:border-red-600 outline-none mb-6"
-          >
-            <option value="">+ Seleccionar extintor recargado...</option>
-            {stock.map(s => (
-              <option key={s.skus.id} value={s.skus.id}>
-                {s.skus.nombre} (Disponibles: {s.cantidad}) - ${s.skus.precio_recarga}
-              </option>
-            ))}
-          </select>
+          <ProductSearchSelect stock={stock} onSelect={addItem} placeholder="+ Buscar producto por nombre..." />
 
           <div className="space-y-3">
             {cart.map(item => (
