@@ -197,6 +197,7 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
               ) : kardexData.length === 0 ? (
                 <div className="text-center py-20 text-gray-500 italic flex-1 flex items-center justify-center">No hay movimientos registrados recientes para este producto.</div>
               ) : (
+              <>
                 <div className="h-[400px] w-full mt-4">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart
@@ -270,8 +271,51 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
-              )}
-            </div>
+
+                <div className="mt-8 border-t border-slate-700/50 pt-6">
+                  <h4 className="font-bold text-lg mb-4 text-white">Detalle de Movimientos</h4>
+                  <div className="bg-slate-800/50 rounded-xl overflow-hidden border border-slate-700">
+                    <table className="w-full text-left border-collapse text-sm">
+                      <thead>
+                        <tr className="bg-black/20 border-b border-slate-700">
+                          <th className="p-3 font-medium text-gray-400">Fecha</th>
+                          <th className="p-3 font-medium text-gray-400">Tipo de Movimiento</th>
+                          <th className="p-3 font-medium text-gray-400">Cantidad</th>
+                          <th className="p-3 font-medium text-gray-400">Observaciones</th>
+                          <th className="p-3 font-medium text-gray-400 text-right">Detalle</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {kardexData.map((mov) => (
+                          <tr key={mov.id} className="border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors">
+                            <td className="p-3 text-gray-400 whitespace-nowrap">
+                              {new Date(mov.fecha).toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute:'2-digit' })}
+                            </td>
+                            <td className="p-3 font-medium text-white">{mov.tipo_movimiento}</td>
+                            <td className={`p-3 font-bold ${mov.cantidad > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                              {mov.cantidad > 0 ? '+' : ''}{mov.cantidad}
+                            </td>
+                            <td className="p-3 text-gray-400 text-xs italic">{mov.observaciones || '-'}</td>
+                            <td className="p-3 text-right">
+                              {mov.referencia_id && (mov.tipo_movimiento.includes('Venta') || mov.tipo_movimiento.includes('Consumo')) && (
+                                <a 
+                                  href={`/ventas/${mov.referencia_id}`} 
+                                  target="_blank" 
+                                  className="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 font-medium"
+                                >
+                                  <FileText size={14} /> Ver Remito
+                                </a>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
             <div className="p-4 border-t border-slate-800 shrink-0 bg-slate-900 flex justify-end">
               <button onClick={() => setKardexModalItem(null)} className="bg-slate-800 hover:bg-slate-700 text-white font-medium px-6 py-2 rounded-xl transition-colors">Cerrar Gráfico</button>
             </div>
