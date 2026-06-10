@@ -68,7 +68,7 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
           className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors whitespace-nowrap"
         >
           <Plus size={20} />
-          Nuevo Tipo de Extintor
+          Nuevo Producto
         </button>
       </div>
 
@@ -83,7 +83,7 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
                 </div>
                 <div>
                   <h3 className="font-bold leading-tight">{item.sku.nombre}</h3>
-                  <p className="text-xs text-gray-400 mt-1">{item.sku.tipo_agente}</p>
+                  <p className="text-xs text-gray-400 mt-1">{item.sku.tipo_agente || 'Accesorio/Repuesto'}</p>
                 </div>
               </div>
             </div>
@@ -130,7 +130,7 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-full max-w-md shadow-2xl animate-in zoom-in-95">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="font-bold text-lg">Nuevo Tipo de Extintor (SKU)</h3>
+              <h3 className="font-bold text-lg">Nuevo Producto</h3>
               <button onClick={() => setShowModal(false)} className="text-gray-500 hover:text-white">
                 <X size={20} />
               </button>
@@ -138,7 +138,7 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
             
             <form onSubmit={handleCreateSku} className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">Nombre (ej: Extintor ABC 5kg)</label>
+                <label className="text-sm font-medium text-gray-300">Nombre (ej: Casco / Extintor 5kg)</label>
                 <input 
                   type="text" 
                   name="nombre" 
@@ -147,27 +147,25 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">Tipo de Agente (ej: Polvo ABC)</label>
+                <label className="text-sm font-medium text-gray-300">Categoría (ej: Repuesto, Accesorio)</label>
                 <input 
                   type="text" 
                   name="tipo_agente" 
-                  required 
                   className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-red-600/50"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-300">Capacidad (kg)</label>
+                  <label className="text-sm font-medium text-gray-300">Capacidad (Opcional)</label>
                   <input 
                     type="number" 
                     name="capacidad_kg" 
                     step="0.1"
-                    required 
                     className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-red-600/50"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-300">Precio Recarga ($)</label>
+                  <label className="text-sm font-medium text-gray-300">Precio Venta ($)</label>
                   <input 
                     type="number" 
                     name="precio_recarga" 

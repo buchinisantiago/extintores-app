@@ -26,8 +26,9 @@ export async function addStockTerminado(sku_id: string, currentCantidad: number,
 export async function createSku(formData: FormData) {
   const nombre = formData.get('nombre') as string;
   const tipo_agente = formData.get('tipo_agente') as string;
-  const capacidad_kg = parseFloat(formData.get('capacidad_kg') as string);
-  const precio_recarga = parseFloat(formData.get('precio_recarga') as string);
+  const capacidad_str = formData.get('capacidad_kg') as string;
+  const capacidad_kg = capacidad_str ? parseFloat(capacidad_str) : null;
+  const precio_recarga = parseFloat(formData.get('precio_recarga') as string) || 0;
 
   await supabase.from('skus').insert({
     nombre,
