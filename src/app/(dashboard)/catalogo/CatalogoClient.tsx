@@ -1,8 +1,26 @@
 'use client';
 
 import { useState } from 'react';
-import { PackageOpen, Plus, Trash2, Edit2, TrendingUp, X } from 'lucide-react';
-import { addSku, updateSku, deleteSku, aumentoMasivo } from './actions';
+import { PackageOpen, Plus, Trash2, Edit2, TrendingUp, X, FlaskConical, Beaker } from 'lucide-react';
+import { addSku, updateSku, deleteSku, aumentoMasivo, addRecetaItem, removeRecetaItem } from './actions';
+
+type MateriaPrima = {
+  id: string;
+  material: string;
+  unidad: string;
+  cantidad: number;
+};
+
+type RecetaItem = {
+  id: string;
+  sku_id: string;
+  mp_id: string;
+  cantidad_necesaria: number;
+  stock_mp: {
+    material: string;
+    unidad: string;
+  };
+};
 
 type SKU = {
   id: string;
@@ -13,10 +31,16 @@ type SKU = {
   costo: number;
 };
 
-export default function CatalogoClient({ initialData }: { initialData: SKU[] }) {
+export default function CatalogoClient({ initialData, materiasPrimas = [], recetas = [] }: { initialData: SKU[], materiasPrimas?: MateriaPrima[], recetas?: RecetaItem[] }) {
   const [isAdding, setIsAdding] = useState(false);
   const [editingSku, setEditingSku] = useState<SKU | null>(null);
   const [isAumentoModal, setIsAumentoModal] = useState(false);
+  const [recetaModalSku, setRecetaModalSku] = useState<SKU | null>(null);
+  const [newRecetaMpId, setNewRecetaMpId] = useState('');
+  const [newRecetaCantidad, setNewRecetaCantidad] = useState(1);
+  const [isSubmittingReceta, setIsSubmittingReceta] = useState(false);
+
+  const skuRecetas = recetaModalSku ? recetas.filter(r => r.sku_id === recetaModalSku.id) : [];
 
   const [aumentoData, setAumentoData] = useState({
     porcentaje: 0,
@@ -166,6 +190,114 @@ export default function CatalogoClient({ initialData }: { initialData: SKU[] }) 
         </div>
       )}
 
+      {recetaModalSku && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 flex flex-col max-h-[90vh]">
+            <div className="flex justify-between items-center p-6 border-b border-slate-800 shrink-0">
+              <div>
+                <h3 className="font-bold text-xl text-white flex items-center gap-2">
+                  <FlaskConical className="text-red-500" />
+                  Receta / Fórmula
+                </h3>
+                <p className="text-sm text-gray-400 mt-1">{recetaModalSku.nombre}</p>
+              </div>
+              <button onClick={() => setRecetaModalSku(null)} className="text-gray-400 hover:text-white bg-white/5 p-2 rounded-full hover:bg-red-500/20 hover:text-red-500 transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto flex-1 space-y-6">
+              <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
+                <h4 className="font-medium text-sm text-gray-300 mb-3 uppercase tracking-wider flex items-center gap-2">
+                  <Beaker size={16} /> 
+                  Ingredientes Actuales
+                </h4>
+                {skuRecetas.length === 0 ? (
+                  <p className="text-sm text-gray-500 italic py-2">No hay materias primas asignadas a esta receta. Se venderá sin descontar insumos.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {skuRecetas.map(rec => (
+                      <div key={rec.id} className="flex justify-between items-center bg-slate-900 p-3 rounded-lg border border-white/5">
+                        <div className="flex flex-col">
+                          <span className="font-medium text-white">{rec.stock_mp?.material}</span>
+                          <span className="text-xs text-gray-400">Descuenta: <strong className="text-red-400">{rec.cantidad_necesaria} {rec.stock_mp?.unidad}</strong> por unidad vendida</span>
+                        </div>
+                        <button 
+                          onClick={async () => {
+                            if(confirm('¿Quitar este ingrediente de la receta?')) {
+                              await removeRecetaItem(rec.id);
+                            }
+                          }}
+                          className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                          title="Quitar"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-2">
+                <h4 className="font-medium text-sm text-gray-300 mb-3 uppercase tracking-wider">Añadir Ingrediente</h4>
+                <div className="flex gap-3 items-end">
+                  <div className="flex-1">
+                    <label className="block text-xs text-gray-400 mb-1">Materia Prima</label>
+                    <select 
+                      value={newRecetaMpId}
+                      onChange={e => setNewRecetaMpId(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none text-white"
+                    >
+                      <option value="">Seleccionar material...</option>
+                      {materiasPrimas.map(mp => (
+                        <option key={mp.id} value={mp.id}>{mp.material} (Stock: {mp.cantidad} {mp.unidad})</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="w-32">
+                    <label className="block text-xs text-gray-400 mb-1">Cantidad req.</label>
+                    <input 
+                      type="number" 
+                      step="0.01" 
+                      min="0.01"
+                      value={newRecetaCantidad}
+                      onChange={e => setNewRecetaCantidad(Number(e.target.value))}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none text-white text-right" 
+                    />
+                  </div>
+                  <button 
+                    disabled={!newRecetaMpId || isSubmittingReceta}
+                    onClick={async () => {
+                      if (!newRecetaMpId) return;
+                      setIsSubmittingReceta(true);
+                      const res = await addRecetaItem(recetaModalSku.id, newRecetaMpId, newRecetaCantidad);
+                      setIsSubmittingReceta(false);
+                      if (!res.success) alert(res.error);
+                      else {
+                        setNewRecetaMpId('');
+                        setNewRecetaCantidad(1);
+                      }
+                    }}
+                    className="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-medium transition-colors h-[38px] flex items-center justify-center"
+                  >
+                    {isSubmittingReceta ? '...' : 'Añadir'}
+                  </button>
+                </div>
+                {newRecetaMpId && (
+                  <p className="text-xs text-gray-500 mt-2">
+                    Se descontarán <strong className="text-red-400">{newRecetaCantidad} {materiasPrimas.find(m => m.id === newRecetaMpId)?.unidad}</strong> de {materiasPrimas.find(m => m.id === newRecetaMpId)?.material} por cada venta de este producto.
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="p-4 border-t border-slate-800 shrink-0 bg-slate-900/50">
+               <button onClick={() => setRecetaModalSku(null)} className="w-full bg-slate-800 hover:bg-slate-700 text-white font-medium py-3 rounded-xl transition-colors">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="glass rounded-xl overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -192,7 +324,14 @@ export default function CatalogoClient({ initialData }: { initialData: SKU[] }) 
                 <td className="p-4 text-right font-bold font-mono text-white">${sku.precio_recarga?.toLocaleString() || 0}</td>
                 <td className="p-4 text-center">
                   <div className="flex justify-center gap-2">
-                    <button onClick={() => setEditingSku(sku)} className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+                    <button 
+                      onClick={() => setRecetaModalSku(sku)} 
+                      className="p-2 text-gray-400 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-colors"
+                      title="Configurar Receta (BOM)"
+                    >
+                      <FlaskConical size={16} />
+                    </button>
+                    <button onClick={() => setEditingSku(sku)} className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors" title="Editar Producto">
                       <Edit2 size={16} />
                     </button>
                     <button 

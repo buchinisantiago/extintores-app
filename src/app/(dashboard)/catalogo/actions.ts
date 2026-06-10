@@ -73,3 +73,23 @@ export async function aumentoMasivo(porcentaje: number, afectarCosto: boolean, a
   revalidatePath('/catalogo');
   return { success: true };
 }
+
+export async function addRecetaItem(sku_id: string, mp_id: string, cantidad: number) {
+  const { error } = await supabase.from('sku_recetas').insert([{
+    sku_id, mp_id, cantidad_necesaria: cantidad
+  }]);
+  
+  if (error) return { success: false, error: error.message };
+  
+  revalidatePath('/catalogo');
+  return { success: true };
+}
+
+export async function removeRecetaItem(id: string) {
+  const { error } = await supabase.from('sku_recetas').delete().eq('id', id);
+  
+  if (error) return { success: false, error: error.message };
+  
+  revalidatePath('/catalogo');
+  return { success: true };
+}
