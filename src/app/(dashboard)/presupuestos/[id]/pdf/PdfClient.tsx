@@ -86,13 +86,18 @@ export default function PdfClient({ presupuesto, items }: { presupuesto: any, it
 
         {/* Notes */}
         {presupuesto.observaciones && (
-          <div className="mb-8">
-            <h2 className="text-sm font-bold text-gray-700 mb-2">Observaciones y Condiciones:</h2>
+          <div className="mb-6">
+            <h2 className="text-sm font-bold text-gray-700 mb-2">Observaciones Adicionales:</h2>
             <div className="bg-gray-50 p-4 rounded-lg text-sm text-gray-600 border border-gray-200 whitespace-pre-wrap">
               {presupuesto.observaciones}
             </div>
           </div>
         )}
+
+        {/* Legal Footer */}
+        <div className="mb-8 text-xs text-gray-500 text-justify border-t border-gray-200 pt-4">
+          <span className="font-bold">Validez del presupuesto:</span> El presente presupuesto tiene una validez de 30 días corridos contados a partir de la fecha de emisión. Vencido dicho plazo, los valores podrán ser modificados sin previo aviso.
+        </div>
 
         {/* Footer Signature */}
         <div className="mt-auto pt-24 flex justify-between px-12 text-sm text-center text-gray-500">
