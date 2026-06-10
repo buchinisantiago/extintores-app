@@ -12,7 +12,8 @@ import {
   Banknote,
   LineChart,
   Clock,
-  LogOut
+  LogOut,
+  FileText
 } from 'lucide-react';
 import { logout } from '@/app/login/actions';
 
@@ -26,6 +27,7 @@ export default function Sidebar({ initialRole, email }: { initialRole: string, e
     { name: 'Stock Terminado', href: '/stock/terminado', icon: Flame },
     { name: 'Clientes', href: '/clientes', icon: Users },
     { name: 'Ventas', href: '/ventas', icon: ShoppingCart },
+    { name: 'Presupuestos', href: '/presupuestos', icon: FileText },
     { name: 'Catálogo / Precios', href: '/catalogo', icon: Flame, restricted: true },
     { name: 'Vendedores', href: '/vendedores', icon: Users, restricted: true },
     { name: 'Gastos', href: '/gastos', icon: Banknote, restricted: true },
