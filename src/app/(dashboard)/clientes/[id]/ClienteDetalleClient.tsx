@@ -10,6 +10,7 @@ import VentaRowActions from '../../ventas/VentaRowActions';
 import { updateCliente, deleteCliente } from '../actions';
 import { useRouter } from 'next/navigation';
 
+type Cliente = {
   id: string;
   nombre: string;
   documento?: string;
