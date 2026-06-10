@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Flame, Plus, Minus, Search, X, Save, Clock } from 'lucide-react';
+import { Flame, Plus, Minus, Search, X, Save, Clock, FileText } from 'lucide-react';
 import { addStockTerminado, createSku } from './actions';
 import { getHistorialKardex } from '../mp/actions';
 
@@ -195,6 +195,15 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
                       <div>
                         <p className="text-sm font-bold">{mov.tipo_movimiento}</p>
                         <p className="text-xs text-gray-400">{new Date(mov.fecha).toLocaleString()}</p>
+                        {mov.referencia_id && (mov.tipo_movimiento.includes('Venta') || mov.tipo_movimiento.includes('Consumo')) && (
+                          <a 
+                            href={`/ventas/${mov.referencia_id}`} 
+                            target="_blank" 
+                            className="inline-flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 mt-1"
+                          >
+                            <FileText size={12} /> Ver Remito
+                          </a>
+                        )}
                       </div>
                       <span className={`font-bold ${mov.cantidad > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                         {mov.cantidad > 0 ? '+' : ''}{mov.cantidad}

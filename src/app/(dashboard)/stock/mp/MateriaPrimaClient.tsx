@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Package, Plus, Trash2, Edit2, AlertCircle, Clock, X } from 'lucide-react';
+import { Package, Plus, Trash2, Edit2, AlertCircle, Clock, X, FileText } from 'lucide-react';
 import { addMateriaPrima, updateMateriaPrima, deleteMateriaPrima, getHistorialKardex } from './actions';
 
 type MP = {
@@ -119,6 +119,19 @@ export default function MateriaPrimaClient({ initialData }: { initialData: MP[] 
                           </div>
                           <div className="text-sm font-medium text-white mb-1">{mov.tipo_movimiento}</div>
                           {mov.observaciones && <div className="text-xs text-gray-400 italic">{mov.observaciones}</div>}
+                          
+                          {mov.referencia_id && (mov.tipo_movimiento.includes('Venta') || mov.tipo_movimiento.includes('Consumo')) && (
+                            <div className="mt-3 pt-3 border-t border-slate-700/50 flex justify-end">
+                              <a 
+                                href={`/ventas/${mov.referencia_id}`} 
+                                target="_blank" 
+                                className="inline-flex items-center gap-1.5 text-xs bg-slate-900/50 hover:bg-blue-500/20 text-blue-400 px-2 py-1 rounded border border-blue-500/20 transition-colors"
+                              >
+                                <FileText size={12} />
+                                Ver Remito de Venta
+                              </a>
+                            </div>
+                          )}
                         </div>
                       </div>
                     );
