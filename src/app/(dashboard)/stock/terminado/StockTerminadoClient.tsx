@@ -197,7 +197,7 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
               ) : kardexData.length === 0 ? (
                 <div className="text-center py-20 text-gray-500 italic flex-1 flex items-center justify-center">No hay movimientos registrados recientes para este producto.</div>
               ) : (
-                <div className="flex-1 min-h-[400px] w-full mt-4">
+                <div className="h-[400px] w-full mt-4">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart
                       data={(() => {
