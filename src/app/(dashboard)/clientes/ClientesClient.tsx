@@ -14,7 +14,6 @@ type Cliente = {
   email: string | null;
   direccion: string | null;
   ciudad: string | null;
-  localidad: string | null;
   provincia: string | null;
   extintores: [{ count: number }];
   ventas: { total: number, estado_pago: string }[];
@@ -92,15 +91,6 @@ export default function ClientesClient({ initialData }: { initialData: Cliente[]
             <div>
               <label className="block text-xs text-gray-400 mb-1">Ciudad</label>
               <input name="ciudad" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 focus:border-red-600 outline-none" />
-                <div>
-                  <label className="block text-xs text-gray-400 mb-1">Localidad</label>
-                  <input name="localidad" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 focus:border-red-600 outline-none" />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-400 mb-1">Provincia</label>
-                  <select name="provincia" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 focus:border-red-600 outline-none appearance-none">
-                    <option value="">Seleccionar...</option>
-                    <option value="Buenos Aires">Buenos Aires</option>
                     <option value="CABA">CABA</option>
                     <option value="Catamarca">Catamarca</option>
                     <option value="Chaco">Chaco</option>

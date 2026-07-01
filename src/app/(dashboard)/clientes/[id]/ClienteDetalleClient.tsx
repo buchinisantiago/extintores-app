@@ -18,7 +18,6 @@ type Cliente = {
   email: string | null;
   direccion: string | null;
   ciudad: string | null;
-  localidad: string | null;
   provincia: string | null;
 };
 
@@ -116,7 +115,6 @@ export default function ClienteDetalleClient({
                 <MapPin className="text-red-600 shrink-0 mt-0.5" size={18} />
                 <span>
                   {cliente.direccion}
-                  {cliente.localidad ? `, ${cliente.localidad}` : ''}
                   {cliente.ciudad ? `, ${cliente.ciudad}` : ''}
                   {cliente.provincia ? ` - ${cliente.provincia}` : ''}
                 </span>
@@ -361,10 +359,6 @@ export default function ClienteDetalleClient({
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Ciudad</label>
                 <input name="ciudad" defaultValue={cliente.ciudad || ''} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Localidad</label>
-                <input name="localidad" defaultValue={cliente.localidad || ''} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Provincia</label>

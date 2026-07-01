@@ -7,9 +7,10 @@ import { notificarCambioGerente } from '@/lib/email';
 export async function addCliente(formData: FormData) {
   const nombre = formData.get('nombre') as string;
   const documento = formData.get('documento') as string;
+  const telefono = formData.get('telefono') as string;
+  const email = formData.get('email') as string;
   const direccion = formData.get('direccion') as string;
   const ciudad = formData.get('ciudad') as string;
-  const localidad = formData.get('localidad') as string;
   const provincia = formData.get('provincia') as string;
 
   const { data, error } = await supabase.from('clientes').insert({
@@ -19,7 +20,6 @@ export async function addCliente(formData: FormData) {
     email,
     direccion,
     ciudad,
-    localidad,
     provincia
   }).select('id').single();
 
@@ -36,10 +36,10 @@ export async function updateCliente(id: string, formData: FormData) {
   const nombre = formData.get('nombre') as string;
   const documento = formData.get('documento') as string;
   const telefono = formData.get('telefono') as string;
+  const telefono = formData.get('telefono') as string;
   const email = formData.get('email') as string;
   const direccion = formData.get('direccion') as string;
   const ciudad = formData.get('ciudad') as string;
-  const localidad = formData.get('localidad') as string;
   const provincia = formData.get('provincia') as string;
 
   const { error } = await supabase.from('clientes').update({
@@ -49,7 +49,6 @@ export async function updateCliente(id: string, formData: FormData) {
     email,
     direccion,
     ciudad,
-    localidad,
     provincia
   }).eq('id', id);
 
