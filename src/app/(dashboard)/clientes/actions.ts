@@ -36,7 +36,6 @@ export async function updateCliente(id: string, formData: FormData) {
   const nombre = formData.get('nombre') as string;
   const documento = formData.get('documento') as string;
   const telefono = formData.get('telefono') as string;
-  const telefono = formData.get('telefono') as string;
   const email = formData.get('email') as string;
   const direccion = formData.get('direccion') as string;
   const ciudad = formData.get('ciudad') as string;
