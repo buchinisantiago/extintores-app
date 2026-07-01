@@ -31,7 +31,7 @@ export default function PresupuestoRowActions({ presupuesto }: { presupuesto: an
   };
 
   return (
-    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+    <div className="flex items-center justify-end gap-1 opacity-80 hover:opacity-100 transition-opacity">
       <a href={`/presupuestos/${presupuesto.id}/pdf`} target="_blank" className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Ver PDF">
         <FileText size={16} />
       </a>
