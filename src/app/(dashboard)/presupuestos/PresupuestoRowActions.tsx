@@ -31,36 +31,25 @@ export default function PresupuestoRowActions({ presupuesto }: { presupuesto: an
   };
 
   return (
-    <div className="relative">
-      <button onClick={() => setOpen(!open)} className="p-2 text-gray-400 hover:text-white rounded-lg transition-colors">
-        <MoreVertical size={18} />
-      </button>
-
-      {open && (
+    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      <a href={`/presupuestos/${presupuesto.id}/pdf`} target="_blank" className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Ver PDF">
+        <FileText size={16} />
+      </a>
+      
+      {presupuesto.estado === 'Pendiente' && (
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)}></div>
-          <div className="absolute right-0 top-full mt-1 w-48 glass rounded-xl border border-white/10 shadow-xl overflow-hidden z-50">
-            <a href={`/presupuestos/${presupuesto.id}/pdf`} target="_blank" className="w-full text-left px-4 py-3 text-sm flex items-center gap-2 hover:bg-white/5 transition-colors text-white">
-              <FileText size={16} /> Ver PDF
-            </a>
-            
-            {presupuesto.estado === 'Pendiente' && (
-              <>
-                <button onClick={handleAprobar} className="w-full text-left px-4 py-3 text-sm flex items-center gap-2 hover:bg-white/5 transition-colors text-green-400">
-                  <CheckCircle size={16} /> Aprobar (A Ventas)
-                </button>
-                <button onClick={handleRechazar} className="w-full text-left px-4 py-3 text-sm flex items-center gap-2 hover:bg-white/5 transition-colors text-red-400">
-                  <XCircle size={16} /> Rechazar
-                </button>
-              </>
-            )}
-
-            <button onClick={handleBorrar} className="w-full text-left px-4 py-3 text-sm flex items-center gap-2 hover:bg-white/5 transition-colors text-red-500 border-t border-white/5">
-              <Trash2 size={16} /> Borrar
-            </button>
-          </div>
+          <button onClick={handleAprobar} className="p-1.5 text-gray-400 hover:text-green-400 hover:bg-green-400/10 rounded transition-colors" title="Aprobar (A Ventas)">
+            <CheckCircle size={16} />
+          </button>
+          <button onClick={handleRechazar} className="p-1.5 text-gray-400 hover:text-orange-400 hover:bg-orange-400/10 rounded transition-colors" title="Rechazar">
+            <XCircle size={16} />
+          </button>
         </>
       )}
+
+      <button onClick={handleBorrar} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded transition-colors" title="Borrar">
+        <Trash2 size={16} />
+      </button>
     </div>
   );
 }
