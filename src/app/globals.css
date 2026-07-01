@@ -40,6 +40,10 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+.glass:has(table) {
+  overflow-x: auto;
+}
+
 /* Micro-animations */
 .btn-animate {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);

@@ -12,10 +12,10 @@ export default async function DashboardLayout({
   const role = user?.email === 'gerencia@tuempresa.com' ? 'Gerente' : 'Administrativo';
 
   return (
-    <div className="flex">
+    <div className="flex min-h-screen bg-black text-white">
       <Sidebar initialRole={role} email={user?.email || ''} />
-      <main className="flex-1 ml-64 p-8">
-        <div className="max-w-6xl mx-auto">
+      <main className="flex-1 w-full md:ml-64 p-4 pt-20 md:p-8 md:pt-8 overflow-x-hidden">
+        <div className="max-w-6xl mx-auto w-full">
           {children}
         </div>
       </main>

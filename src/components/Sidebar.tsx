@@ -13,12 +13,16 @@ import {
   LineChart,
   Clock,
   LogOut,
-  FileText
+  FileText,
+  Menu,
+  X
 } from 'lucide-react';
 import { logout } from '@/app/login/actions';
+import { useState } from 'react';
 
 export default function Sidebar({ initialRole, email }: { initialRole: string, email: string }) {
   const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -36,14 +40,44 @@ export default function Sidebar({ initialRole, email }: { initialRole: string, e
   ];
 
   return (
-    <aside className="w-64 h-screen fixed left-0 top-0 border-r border-white/5 glass flex flex-col">
-      <div className="p-6 flex flex-col items-center justify-center border-b border-white/5">
-        <div className="w-full bg-white rounded-xl p-3 mb-2 shadow-lg shadow-red-900/20">
-          <img src="/logo2.jpeg" alt="Menendez Seguridad Industrial" className="w-full h-auto object-contain" />
+    <>
+      {/* Mobile Top Bar */}
+      <div className="md:hidden fixed top-0 left-0 w-full h-16 glass z-40 flex items-center justify-between px-4 border-b border-white/5">
+        <div className="flex items-center gap-3">
+          <img src="/logo2.jpeg" alt="Logo" className="h-10 w-10 object-contain rounded-lg bg-white p-1" />
+          <span className="font-bold text-white text-lg">Menendez Seg. Ind.</span>
         </div>
+        <button 
+          onClick={() => setIsOpen(true)}
+          className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+        >
+          <Menu size={24} />
+        </button>
       </div>
 
-      <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
+      {/* Overlay */}
+      {isOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`w-64 h-[100dvh] fixed left-0 top-0 border-r border-white/5 glass flex flex-col z-50 transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+        <div className="p-4 md:p-6 flex flex-col items-center justify-center border-b border-white/5 relative">
+          <button 
+            className="md:hidden absolute top-4 right-4 p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg"
+            onClick={() => setIsOpen(false)}
+          >
+            <X size={20} />
+          </button>
+          <div className="w-full bg-white rounded-xl p-3 mb-2 shadow-lg shadow-red-900/20 mt-6 md:mt-0">
+            <img src="/logo2.jpeg" alt="Menendez Seguridad Industrial" className="w-full h-auto object-contain" />
+          </div>
+        </div>
+
+        <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
           const isDisabled = item.restricted && initialRole !== 'Gerente';
@@ -102,5 +136,6 @@ export default function Sidebar({ initialRole, email }: { initialRole: string, e
         )}
       </div>
     </aside>
+    </>
   );
 }
