@@ -170,7 +170,7 @@ export default function NuevaVentaClient({ clientes, stock, vendedores, currentU
                     />
                   </div>
                   {item.nro_serie && item.nro_serie.length > 0 && (
-                    <div className="flex items-center gap-3 mt-2 pl-1 animate-in fade-in slide-in-from-top-1">
+                    <div className="flex flex-wrap items-center gap-3 mt-2 pl-1 animate-in fade-in slide-in-from-top-1">
                       <div className="flex items-center gap-2">
                         <label className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Renueva Carga:</label>
                         <select
@@ -199,7 +199,7 @@ export default function NuevaVentaClient({ clientes, stock, vendedores, currentU
                   )}
                 </div>
                 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 flex-shrink-0">
                   <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800">
                     <button type="button" onClick={() => updateQuantity(item.sku_id, -1)} className="w-8 h-8 flex items-center justify-center rounded bg-slate-800 hover:bg-slate-700">-</button>
                     <span className="w-8 text-center font-bold">{item.cantidad}</span>

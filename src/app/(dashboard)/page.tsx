@@ -5,18 +5,34 @@ import Link from 'next/link';
 export const revalidate = 0; // Disable caching for realtime dashboard
 
 export default async function Dashboard() {
-  // Fetch stats concurrently
+  const hoy = new Date();
+  const en30Dias = new Date();
+  en30Dias.setDate(hoy.getDate() + 30);
+  const limiteStr = en30Dias.toISOString().split('T')[0];
+
   const [
     { count: extintoresVencidos },
     { count: extintoresPorVencer },
     { data: stockMateriaPrima },
-    { data: stockTerminado }
+    { data: stockTerminado },
+    { data: vencimientos }
   ] = await Promise.all([
     supabase.from('extintores_view').select('*', { count: 'exact', head: true }).eq('estado', 'vencido'),
     supabase.from('extintores_view').select('*', { count: 'exact', head: true }).eq('estado', 'por_vencer'),
     supabase.from('stock_mp').select('*'),
-    supabase.from('stock_terminado').select('*, skus(nombre)')
+    supabase.from('stock_terminado').select('*, skus(nombre)'),
+    supabase.from('extintores')
+      .select('id, nro_cilindro, vencimiento_carga, vencimiento_ph, clientes(id, nombre)')
+      .or(`vencimiento_carga.lte.${limiteStr},vencimiento_ph.lte.${limiteStr}`)
+      .limit(10)
   ]);
+
+  // Sort them manually since we are ordering by potentially two different fields
+  const vencimientosMes = (vencimientos || []).sort((a, b) => {
+    const minA = Math.min(new Date(a.vencimiento_carga).getTime(), new Date(a.vencimiento_ph).getTime());
+    const minB = Math.min(new Date(b.vencimiento_carga).getTime(), new Date(b.vencimiento_ph).getTime());
+    return minA - minB;
+  });
 
   const mpEnAlerta = stockMateriaPrima?.filter(mp => mp.cantidad <= (mp.alerta_minimo || 0)) || [];
   const stockTerminadoTotal = stockTerminado?.reduce((acc, curr) => acc + curr.cantidad, 0) || 0;
@@ -120,6 +136,61 @@ export default async function Dashboard() {
             </Link>
           </div>
         </div>
+      </div>
+
+      {/* Vencimientos Próximos */}
+      <div className="glass rounded-xl p-6 mt-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold flex items-center gap-2">
+            <Flame size={20} className="text-red-500" />
+            Vencimientos (Próximos 30 Días)
+          </h2>
+          <Link href="/vencimientos" className="text-sm text-red-400 hover:text-white transition-colors">
+            Ver Todos &rarr;
+          </Link>
+        </div>
+
+        {vencimientosMes.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {vencimientosMes.map((ext) => {
+              const cli = Array.isArray(ext.clientes) ? ext.clientes[0] : ext.clientes;
+              const dateCarga = new Date(ext.vencimiento_carga);
+              const datePH = new Date(ext.vencimiento_ph);
+              const venceCarga = dateCarga <= en30Dias;
+              const vencePH = datePH <= en30Dias;
+              
+              return (
+                <div key={ext.id} className="bg-slate-900/50 border border-red-500/20 rounded-xl p-4 flex flex-col justify-between hover:bg-slate-800 transition-colors">
+                  <div>
+                    <h4 className="font-bold text-white truncate" title={cli?.nombre}>{cli?.nombre || 'Desconocido'}</h4>
+                    <p className="text-xs text-gray-400 mt-1">Cilindro: <span className="font-mono text-white">{ext.nro_cilindro || 'N/A'}</span></p>
+                    <div className="mt-2 space-y-1">
+                      {venceCarga && (
+                        <p className={`text-xs flex justify-between ${dateCarga < hoy ? 'text-red-500 font-bold' : 'text-orange-400'}`}>
+                          <span>Venc. Carga:</span>
+                          <span>{new Date(ext.vencimiento_carga).toLocaleDateString()}</span>
+                        </p>
+                      )}
+                      {vencePH && (
+                        <p className={`text-xs flex justify-between ${datePH < hoy ? 'text-red-500 font-bold' : 'text-orange-400'}`}>
+                          <span>Venc. PH:</span>
+                          <span>{new Date(ext.vencimiento_ph).toLocaleDateString()}</span>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <Link href={`/clientes/${cli?.id}`} className="mt-4 text-center block w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 py-1.5 rounded-lg text-xs font-medium transition-colors">
+                    Ficha del Cliente
+                  </Link>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="text-center py-6 text-gray-400 border border-dashed border-slate-700 rounded-xl">
+            No hay matafuegos próximos a vencer en los siguientes 30 días. ¡Todo al día!
+          </div>
+        )}
       </div>
     </div>
   );
