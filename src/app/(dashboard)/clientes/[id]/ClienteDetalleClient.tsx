@@ -13,10 +13,11 @@ import { useRouter } from 'next/navigation';
 type Cliente = {
   id: string;
   nombre: string;
-  documento?: string;
-  telefono: string;
-  email: string;
-  direccion: string;
+  documento: string | null;
+  telefono: string | null;
+  email: string | null;
+  direccion: string | null;
+  ciudad: string | null;
 };
 
 type SKU = {
@@ -111,7 +112,7 @@ export default function ClienteDetalleClient({
             {cliente.direccion && (
               <div className="flex items-start gap-3 bg-slate-900/50 p-3 rounded-lg border border-white/5">
                 <MapPin className="text-red-600 shrink-0 mt-0.5" size={18} />
-                <span>{cliente.direccion}</span>
+                <span>{cliente.direccion}{cliente.ciudad ? `, ${cliente.ciudad}` : ''}</span>
               </div>
             )}
           </div>
@@ -336,19 +337,23 @@ export default function ClienteDetalleClient({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">DNI / CUIT / CUIL</label>
-                <input name="documento" defaultValue={cliente.documento} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white" />
+                <input name="documento" defaultValue={cliente.documento || ''} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Teléfono</label>
-                <input name="telefono" defaultValue={cliente.telefono} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white" />
+                <input name="telefono" defaultValue={cliente.telefono || ''} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Email</label>
-                <input name="email" type="email" defaultValue={cliente.email} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white" />
+                <input name="email" type="email" defaultValue={cliente.email || ''} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Dirección</label>
-                <input name="direccion" defaultValue={cliente.direccion} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white" />
+                <input name="direccion" defaultValue={cliente.direccion || ''} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">Ciudad</label>
+                <input name="ciudad" defaultValue={cliente.ciudad || ''} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white" />
               </div>
               <div className="pt-4 flex gap-3">
                 <button type="button" onClick={() => setIsEditing(false)} className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-medium py-2 rounded-lg transition-colors">Cancelar</button>

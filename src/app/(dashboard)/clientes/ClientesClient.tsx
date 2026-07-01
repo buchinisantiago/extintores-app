@@ -9,10 +9,11 @@ import { useRouter } from 'next/navigation';
 type Cliente = {
   id: string;
   nombre: string;
-  documento?: string;
-  telefono: string;
-  email: string;
-  direccion: string;
+  documento: string | null;
+  telefono: string | null;
+  email: string | null;
+  direccion: string | null;
+  ciudad: string | null;
   extintores: [{ count: number }];
   ventas: { total: number, estado_pago: string }[];
 };
@@ -84,7 +85,11 @@ export default function ClientesClient({ initialData }: { initialData: Cliente[]
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">Dirección</label>
-              <input name="direccion" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none" />
+              <input name="direccion" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 focus:border-red-600 outline-none" />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">Ciudad</label>
+              <input name="ciudad" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 focus:border-red-600 outline-none" />
             </div>
           </div>
           <div className="mt-5 flex gap-2">

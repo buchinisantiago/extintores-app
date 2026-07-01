@@ -10,13 +10,15 @@ export async function addCliente(formData: FormData) {
   const telefono = formData.get('telefono') as string;
   const email = formData.get('email') as string;
   const direccion = formData.get('direccion') as string;
+  const ciudad = formData.get('ciudad') as string;
 
   const { data, error } = await supabase.from('clientes').insert({
     nombre,
     documento: documento || null,
     telefono,
     email,
-    direccion
+    direccion,
+    ciudad
   }).select('id').single();
 
   if (error) {
@@ -34,13 +36,15 @@ export async function updateCliente(id: string, formData: FormData) {
   const telefono = formData.get('telefono') as string;
   const email = formData.get('email') as string;
   const direccion = formData.get('direccion') as string;
+  const ciudad = formData.get('ciudad') as string;
 
   const { error } = await supabase.from('clientes').update({
     nombre,
     documento: documento || null,
     telefono,
     email,
-    direccion
+    direccion,
+    ciudad
   }).eq('id', id);
 
   if (error) {
