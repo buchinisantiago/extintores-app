@@ -18,7 +18,7 @@ export default function NuevoPresupuestoClient({ clientes, stock, vendedores, cu
   const router = useRouter();
   const [clienteId, setClienteId] = useState('');
   const [vendedorId, setVendedorId] = useState(currentUserVendedorId || '');
-  const [cart, setCart] = useState<{sku_id: string, nombre: string, cantidad: number, precio: number, max: number, nro_serie: string}[]>([]);
+  const [cart, setCart] = useState<{sku_id: string, nombre: string, cantidad: number, precio: number, max: number, nro_serie: string, renovacion_carga_anios: number, renovacion_ph_anios: number}[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [observaciones, setObservaciones] = useState('');
   const [descuentoPorcentaje, setDescuentoPorcentaje] = useState(0);
@@ -39,7 +39,9 @@ export default function NuevoPresupuestoClient({ clientes, stock, vendedores, cu
       cantidad: 1,
       precio: itemStock.skus.precio_recarga,
       max: itemStock.cantidad,
-      nro_serie: ''
+      nro_serie: '',
+      renovacion_carga_anios: 1,
+      renovacion_ph_anios: itemStock.skus.nombre.toLowerCase().includes('hidráulica') || itemStock.skus.nombre.toLowerCase().includes('ph') ? 5 : 0
     }]);
   };
 
@@ -59,6 +61,17 @@ export default function NuevoPresupuestoClient({ clientes, stock, vendedores, cu
     setCart(cart.map(item => item.sku_id === sku_id ? { ...item, precio: newPrecio } : item));
   };
 
+  const updateNroSerie = (sku_id: string, nro_serie: string) => {
+    setCart(cart.map(item => item.sku_id === sku_id ? { ...item, nro_serie } : item));
+  };
+
+  const updateRenovacion = (sku_id: string, type: 'carga' | 'ph', value: number) => {
+    setCart(cart.map(item => item.sku_id === sku_id ? { 
+      ...item, 
+      [type === 'carga' ? 'renovacion_carga_anios' : 'renovacion_ph_anios']: value 
+    } : item));
+  };
+
   const removeItem = (sku_id: string) => {
     setCart(cart.filter(item => item.sku_id !== sku_id));
   };
@@ -75,7 +88,9 @@ export default function NuevoPresupuestoClient({ clientes, stock, vendedores, cu
       sku_id: c.sku_id,
       cantidad: c.cantidad,
       precio_unitario: c.precio,
-      nro_serie: c.nro_serie
+      nro_serie: c.nro_serie,
+      renovacion_carga_anios: c.renovacion_carga_anios,
+      renovacion_ph_anios: c.renovacion_ph_anios
     }));
 
     const finalObservaciones = descuentoPorcentaje > 0 
@@ -156,6 +171,43 @@ export default function NuevoPresupuestoClient({ clientes, stock, vendedores, cu
                     />
                     <span className="text-sm text-gray-400">c/u</span>
                   </div>
+                  <div className="mt-2 pl-1">
+                    <input 
+                      type="text"
+                      placeholder="N° Cilindro (Opcional)"
+                      value={item.nro_serie}
+                      onChange={(e) => updateNroSerie(item.sku_id, e.target.value)}
+                      className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs outline-none focus:border-red-600 text-white w-40"
+                    />
+                  </div>
+                  {item.nro_serie && item.nro_serie.length > 0 && (
+                    <div className="flex items-center gap-3 mt-2 pl-1 animate-in fade-in slide-in-from-top-1">
+                      <div className="flex items-center gap-2">
+                        <label className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Renueva Carga:</label>
+                        <select
+                          value={item.renovacion_carga_anios}
+                          onChange={(e) => updateRenovacion(item.sku_id, 'carga', Number(e.target.value))}
+                          className="bg-slate-800 border border-slate-700 rounded px-1.5 py-0.5 text-xs outline-none focus:border-red-600 text-white appearance-none"
+                        >
+                          <option value="0">No renueva</option>
+                          <option value="1">1 Año</option>
+                          <option value="2">2 Años</option>
+                        </select>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <label className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Renueva PH:</label>
+                        <select
+                          value={item.renovacion_ph_anios}
+                          onChange={(e) => updateRenovacion(item.sku_id, 'ph', Number(e.target.value))}
+                          className="bg-slate-800 border border-slate-700 rounded px-1.5 py-0.5 text-xs outline-none focus:border-red-600 text-white appearance-none"
+                        >
+                          <option value="0">No renueva</option>
+                          <option value="1">1 Año</option>
+                          <option value="5">5 Años</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="flex items-center gap-4">
