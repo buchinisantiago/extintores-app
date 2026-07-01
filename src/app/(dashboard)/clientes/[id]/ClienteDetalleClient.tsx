@@ -18,6 +18,8 @@ type Cliente = {
   email: string | null;
   direccion: string | null;
   ciudad: string | null;
+  localidad: string | null;
+  provincia: string | null;
 };
 
 type SKU = {
@@ -112,7 +114,12 @@ export default function ClienteDetalleClient({
             {cliente.direccion && (
               <div className="flex items-start gap-3 bg-slate-900/50 p-3 rounded-lg border border-white/5">
                 <MapPin className="text-red-600 shrink-0 mt-0.5" size={18} />
-                <span>{cliente.direccion}{cliente.ciudad ? `, ${cliente.ciudad}` : ''}</span>
+                <span>
+                  {cliente.direccion}
+                  {cliente.localidad ? `, ${cliente.localidad}` : ''}
+                  {cliente.ciudad ? `, ${cliente.ciudad}` : ''}
+                  {cliente.provincia ? ` - ${cliente.provincia}` : ''}
+                </span>
               </div>
             )}
           </div>
@@ -354,6 +361,41 @@ export default function ClienteDetalleClient({
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Ciudad</label>
                 <input name="ciudad" defaultValue={cliente.ciudad || ''} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">Localidad</label>
+                <input name="localidad" defaultValue={cliente.localidad || ''} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">Provincia</label>
+                <select name="provincia" defaultValue={cliente.provincia || ''} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white appearance-none">
+                  <option value="">Seleccionar...</option>
+                  <option value="Buenos Aires">Buenos Aires</option>
+                  <option value="CABA">CABA</option>
+                  <option value="Catamarca">Catamarca</option>
+                  <option value="Chaco">Chaco</option>
+                  <option value="Chubut">Chubut</option>
+                  <option value="Córdoba">Córdoba</option>
+                  <option value="Corrientes">Corrientes</option>
+                  <option value="Entre Ríos">Entre Ríos</option>
+                  <option value="Formosa">Formosa</option>
+                  <option value="Jujuy">Jujuy</option>
+                  <option value="La Pampa">La Pampa</option>
+                  <option value="La Rioja">La Rioja</option>
+                  <option value="Mendoza">Mendoza</option>
+                  <option value="Misiones">Misiones</option>
+                  <option value="Neuquén">Neuquén</option>
+                  <option value="Río Negro">Río Negro</option>
+                  <option value="Salta">Salta</option>
+                  <option value="San Juan">San Juan</option>
+                  <option value="San Luis">San Luis</option>
+                  <option value="Santa Cruz">Santa Cruz</option>
+                  <option value="Santa Fe">Santa Fe</option>
+                  <option value="Santiago del Estero">Santiago del Estero</option>
+                  <option value="Tierra del Fuego">Tierra del Fuego</option>
+                  <option value="Tucumán">Tucumán</option>
+                  <option value="Otro">Otro (Exterior)</option>
+                </select>
               </div>
               <div className="pt-4 flex gap-3">
                 <button type="button" onClick={() => setIsEditing(false)} className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-medium py-2 rounded-lg transition-colors">Cancelar</button>
