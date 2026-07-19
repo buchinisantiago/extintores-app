@@ -1,14 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { Users, Plus, Trash2, ArrowRight } from 'lucide-react';
-import { addVendedor, deleteVendedor } from './actions';
+import { Users, Plus, Trash2, ArrowRight, KeyRound, Mail } from 'lucide-react';
+import { addVendedor, deleteVendedor, resetVendedorPassword } from './actions';
 import Link from 'next/link';
 
 type Vendedor = {
   id: string;
   nombre: string;
   comision_porcentaje: number;
+  email?: string;
+  auth_user_id?: string;
 };
 
 export default function VendedoresClient({ initialData }: { initialData: Vendedor[] }) {
@@ -71,29 +73,56 @@ export default function VendedoresClient({ initialData }: { initialData: Vendedo
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {initialData.map((vendedor) => (
           <div key={vendedor.id} className="glass p-5 rounded-xl border border-white/5 hover:border-red-600/30 transition-all flex items-center justify-between group">
-            <Link href={`/vendedores/${vendedor.id}`} className="flex items-center gap-3 flex-1">
-              <div className="p-2.5 rounded-lg bg-red-600/10 text-red-600 group-hover:bg-red-600 group-hover:text-white transition-colors">
-                <Users size={20} />
-              </div>
-              <div>
-                <h3 className="font-bold text-white group-hover:text-red-400 transition-colors">{vendedor.nombre}</h3>
-                <div className="text-xs text-gray-400">Comisión: {vendedor.comision_porcentaje || 0}%</div>
-                <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">Ver dashboard y comisiones <ArrowRight size={12} /></p>
-              </div>
-            </Link>
-            <button 
-              onClick={async (e) => {
-                e.preventDefault();
-                if (confirm('¿Eliminar este vendedor?')) {
-                  const res = await deleteVendedor(vendedor.id);
-                  if (res && !res.success) alert(res.error);
-                }
-              }}
-              className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
-              title="Eliminar"
-            >
-              <Trash2 size={18} />
-            </button>
+            <div className="flex-1">
+              <Link href={`/vendedores/${vendedor.id}`} className="flex items-center gap-3">
+                <div className="p-2.5 rounded-lg bg-red-600/10 text-red-600 group-hover:bg-red-600 group-hover:text-white transition-colors">
+                  <Users size={20} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-white group-hover:text-red-400 transition-colors">{vendedor.nombre}</h3>
+                  <div className="text-xs text-gray-400 mt-1 flex flex-col gap-1">
+                    <span className="flex items-center gap-1"><Mail size={10} /> {vendedor.email}</span>
+                    <span>Comisión: {vendedor.comision_porcentaje || 0}%</span>
+                  </div>
+                  <p className="text-xs text-gray-500 flex items-center gap-1 mt-1.5">Ver dashboard y comisiones <ArrowRight size={12} /></p>
+                </div>
+              </Link>
+            </div>
+            
+            <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              {vendedor.auth_user_id && (
+                <button 
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    if (confirm(`¿Restablecer la contraseña de ${vendedor.nombre} a "1234"?`)) {
+                      const res = await resetVendedorPassword(vendedor.auth_user_id!);
+                      if (res.success) {
+                        alert('Contraseña restablecida exitosamente a "1234".');
+                      } else {
+                        alert(res.error);
+                      }
+                    }
+                  }}
+                  className="p-2 text-gray-500 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
+                  title="Restablecer Contraseña (1234)"
+                >
+                  <KeyRound size={18} />
+                </button>
+              )}
+              <button 
+                onClick={async (e) => {
+                  e.preventDefault();
+                  if (confirm('¿Eliminar este vendedor?')) {
+                    const res = await deleteVendedor(vendedor.id);
+                    if (res && !res.success) alert(res.error);
+                  }
+                }}
+                className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                title="Eliminar"
+              >
+                <Trash2 size={18} />
+              </button>
+            </div>
           </div>
         ))}
         {initialData.length === 0 && (

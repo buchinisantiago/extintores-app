@@ -23,6 +23,14 @@ export default async function VendedoresPage() {
       return <div>Error loading database: {error.message}</div>;
     }
 
+    const { data: usersData } = await supabaseAdmin.auth.admin.listUsers();
+    const usersMap = new Map((usersData?.users || []).map(u => [u.id, u.email]));
+
+    const vendedoresConEmail = (vendedores || []).map(v => ({
+      ...v,
+      email: usersMap.get(v.auth_user_id) || 'Sin correo'
+    }));
+
     return (
       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div>
@@ -30,7 +38,7 @@ export default async function VendedoresPage() {
           <p className="text-gray-400">Gestiona los vendedores para el cálculo de comisiones.</p>
         </div>
         
-        <VendedoresClient initialData={vendedores || []} />
+        <VendedoresClient initialData={vendedoresConEmail} />
       </div>
     );
   } catch (e: any) {

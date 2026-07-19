@@ -65,3 +65,13 @@ export async function deleteVendedor(id: string) {
   revalidatePath('/ventas/nueva');
   return { success: true };
 }
+export async function resetVendedorPassword(authUserId: string) {
+  const supabaseAdmin = getSupabaseAdmin();
+  const { error } = await supabaseAdmin.auth.admin.updateUserById(authUserId, {
+    password: '1234'
+  });
+  if (error) {
+    return { success: false, error: 'Error al resetear la contraseña: ' + error.message };
+  }
+  return { success: true };
+}
