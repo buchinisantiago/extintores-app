@@ -82,7 +82,7 @@ export default function ClienteDetalleClient({
       {/* Columna Izquierda: Datos del Cliente */}
       <div className="lg:col-span-1 space-y-6">
         <div className="glass p-6 rounded-xl border-t-4 border-t-red-600 relative group">
-          <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="absolute top-4 right-4 flex gap-2 transition-opacity">
             <button onClick={() => setIsEditing(true)} className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors" title="Editar Cliente">
               <Edit2 size={18} />
             </button>
