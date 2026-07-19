@@ -8,6 +8,7 @@ import Link from 'next/link';
 type Vendedor = {
   id: string;
   nombre: string;
+  comision_porcentaje: number;
 };
 
 export default function VendedoresClient({ initialData }: { initialData: Vendedor[] }) {
@@ -44,6 +45,10 @@ export default function VendedoresClient({ initialData }: { initialData: Vendedo
               <label className="block text-xs text-gray-400 mb-1">Correo para Login *</label>
               <input name="email" type="email" required placeholder="vendedor@empresa.com" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 focus:border-red-600 outline-none" />
             </div>
+            <div className="flex-none w-32">
+              <label className="block text-xs text-gray-400 mb-1">Comisión (%)</label>
+              <input name="comision_porcentaje" type="number" step="0.1" defaultValue={0} required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 focus:border-red-600 outline-none text-right" />
+            </div>
             <button type="submit" className="bg-red-700 hover:bg-red-800 px-6 py-2 rounded-lg font-medium transition-colors h-[42px]">Guardar</button>
             <button type="button" onClick={() => setIsAdding(false)} className="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg font-medium transition-colors h-[42px]">Cancelar</button>
           </div>
@@ -58,7 +63,8 @@ export default function VendedoresClient({ initialData }: { initialData: Vendedo
                 <Users size={20} />
               </div>
               <div>
-                <h3 className="font-bold text-lg group-hover:text-red-400 transition-colors">{vendedor.nombre}</h3>
+                <h3 className="font-bold text-white group-hover:text-red-400 transition-colors">{vendedor.nombre}</h3>
+                <div className="text-xs text-gray-400">Comisión: {vendedor.comision_porcentaje || 0}%</div>
                 <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">Ver dashboard y comisiones <ArrowRight size={12} /></p>
               </div>
             </Link>

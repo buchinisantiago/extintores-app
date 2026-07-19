@@ -205,8 +205,8 @@ export default function ClienteDetalleClient({
                   )}
                 </div>
                 <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-400">
-                  <span>Carga: <span className="text-gray-300">{format(new Date(ext.fecha_carga), 'dd/MM/yyyy')}</span></span>
-                  {ext.fecha_ph && <span>P.H.: <span className="text-gray-300">{format(new Date(ext.fecha_ph), 'dd/MM/yyyy')}</span></span>}
+                  <span>Últ. Carga: <span className="text-gray-300">{format(new Date(ext.fecha_carga), 'dd/MM/yyyy')}</span> <span className="text-gray-500 ml-1">(Vence: {format(new Date(ext.fecha_vence), 'dd/MM/yyyy')})</span></span>
+                  {ext.fecha_ph && <span>Últ. P.H.: <span className="text-gray-300">{format(new Date(ext.fecha_ph), 'dd/MM/yyyy')}</span> <span className="text-gray-500 ml-1">(Vence: {ext.vence_ph ? format(new Date(ext.vence_ph), 'dd/MM/yyyy') : 'N/A'})</span></span>}
                 </div>
               </div>
 
@@ -346,7 +346,7 @@ export default function ClienteDetalleClient({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Teléfono</label>
-                <input name="telefono" defaultValue={cliente.telefono || ''} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white" />
+                <input name="telefono" type="tel" pattern="[0-9+\-\s]+" title="Solo se permiten números, espacios, signos + y guiones -" defaultValue={cliente.telefono || ''} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Email</label>

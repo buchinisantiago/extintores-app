@@ -17,6 +17,7 @@ export default function MateriaPrimaClient({ initialData }: { initialData: MP[] 
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editCantidad, setEditCantidad] = useState<number>(0);
+  const [editingFullItem, setEditingFullItem] = useState<MP | null>(null);
 
   const [kardexModalItem, setKardexModalItem] = useState<MP | null>(null);
   const [kardexData, setKardexData] = useState<any[]>([]);
@@ -113,6 +114,46 @@ export default function MateriaPrimaClient({ initialData }: { initialData: MP[] 
             <button type="button" onClick={() => setIsAdding(false)} className="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium">Cancelar</button>
           </div>
         </form>
+      )}
+
+      {/* Modal Editar Completo */}
+      {editingFullItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95">
+            <div className="flex justify-between items-center p-4 border-b border-slate-800">
+              <h3 className="font-bold text-lg text-white">Editar Materia Prima</h3>
+              <button onClick={() => setEditingFullItem(null)} className="text-gray-400 hover:text-white">
+                <X size={20} />
+              </button>
+            </div>
+            <form action={async (formData) => {
+              const { editMateriaPrima } = await import('./actions');
+              await editMateriaPrima(editingFullItem.id, formData);
+              setEditingFullItem(null);
+            }} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">Nombre del Material</label>
+                <input name="material" defaultValue={editingFullItem.material} required className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">Unidad</label>
+                <select name="unidad" defaultValue={editingFullItem.unidad} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white">
+                  <option value="Kg">Kilogramos (Kg)</option>
+                  <option value="Litros">Litros (L)</option>
+                  <option value="Unidades">Unidades (Ud)</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">Alerta Mínima</label>
+                <input name="alerta_minimo" type="number" step="0.01" defaultValue={editingFullItem.alerta_minimo} required className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:border-red-600 outline-none text-white" />
+              </div>
+              <div className="pt-4 flex gap-3">
+                <button type="button" onClick={() => setEditingFullItem(null)} className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-medium py-2 rounded-lg transition-colors">Cancelar</button>
+                <button type="submit" className="flex-1 bg-red-700 hover:bg-red-800 text-white font-bold py-2 rounded-lg transition-colors">Guardar Cambios</button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
       {/* Modal de Kardex (Historial) */}
@@ -293,10 +334,9 @@ export default function MateriaPrimaClient({ initialData }: { initialData: MP[] 
                     </button>
                     <button 
                       onClick={() => {
-                        setEditingId(item.id);
-                        setEditCantidad(item.cantidad);
+                        setEditingFullItem(item);
                       }}
-                      className="p-2 text-gray-400 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-colors" title="Ajuste Manual">
+                      className="p-2 text-gray-400 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-colors" title="Editar Material">
                       <Edit2 size={18} />
                     </button>
                     <button 

@@ -8,8 +8,15 @@ export async function addVendedor(formData: FormData) {
   try {
     const nombre = formData.get('nombre') as string;
     const email = formData.get('email') as string;
+    const comision_porcentaje = Number(formData.get('comision_porcentaje')) || 0;
     
     if (!nombre || !email) return { success: false, error: 'Nombre y correo requeridos' };
+
+    // Chequear si el vendedor ya existe
+    const { data: existing } = await supabase.from('vendedores').select('id').ilike('nombre', `%${nombre}%`).limit(1);
+    if (existing && existing.length > 0) {
+      return { success: false, error: 'Ya existe un vendedor con este nombre.' };
+    }
 
     // 1. Crear usuario en Auth
     const supabaseAdmin = getSupabaseAdmin();
@@ -30,7 +37,8 @@ export async function addVendedor(formData: FormData) {
     // 2. Insertar vendedor
     const { error } = await supabaseAdmin.from('vendedores').insert([{ 
       nombre,
-      auth_user_id: authData.user.id
+      auth_user_id: authData.user.id,
+      comision_porcentaje
     }]);
 
     if (error) {

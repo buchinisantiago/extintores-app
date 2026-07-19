@@ -13,6 +13,12 @@ export async function addCliente(formData: FormData) {
   const ciudad = formData.get('ciudad') as string;
   const provincia = formData.get('provincia') as string;
 
+  // Check for duplicates
+  const { data: existing } = await supabase.from('clientes').select('id').ilike('nombre', `%${nombre}%`).limit(1);
+  if (existing && existing.length > 0) {
+    return { success: false, error: 'Ya existe un cliente con este mismo nombre.' };
+  }
+
   const { data, error } = await supabase.from('clientes').insert({
     nombre,
     documento: documento || null,

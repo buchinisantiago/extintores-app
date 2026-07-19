@@ -15,7 +15,8 @@ export default async function Dashboard() {
     { count: extintoresPorVencer },
     { data: stockMateriaPrima },
     { data: stockTerminado },
-    { data: vencimientos }
+    { data: vencimientos },
+    { data: ventasMes }
   ] = await Promise.all([
     supabase.from('extintores_view').select('*', { count: 'exact', head: true }).eq('estado', 'vencido'),
     supabase.from('extintores_view').select('*', { count: 'exact', head: true }).eq('estado', 'por_vencer'),
@@ -24,7 +25,9 @@ export default async function Dashboard() {
     supabase.from('extintores')
       .select('id, nro_cilindro, vencimiento_carga, vencimiento_ph, clientes(id, nombre)')
       .or(`vencimiento_carga.lte.${limiteStr},vencimiento_ph.lte.${limiteStr}`)
-      .limit(10)
+      .limit(10),
+    supabase.from('ventas').select('total, fecha, vendedores(nombre), venta_items(cantidad, skus(nombre))')
+      .gte('fecha', new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString())
   ]);
 
   // Sort them manually since we are ordering by potentially two different fields
@@ -37,11 +40,66 @@ export default async function Dashboard() {
   const mpEnAlerta = stockMateriaPrima?.filter(mp => mp.cantidad <= (mp.alerta_minimo || 0)) || [];
   const stockTerminadoTotal = stockTerminado?.reduce((acc, curr) => acc + curr.cantidad, 0) || 0;
 
+  // Calculos analíticos
+  const totalSalesThisMonth = (ventasMes || []).reduce((acc, v) => acc + Number(v.total), 0);
+  
+  const productCounts: Record<string, number> = {};
+  const sellerTotals: Record<string, number> = {};
+
+  (ventasMes || []).forEach(v => {
+    // Vendedores
+    const vends: any = v.vendedores;
+    const sellerName = (Array.isArray(vends) ? vends[0]?.nombre : vends?.nombre) || 'Sin Vendedor';
+    sellerTotals[sellerName] = (sellerTotals[sellerName] || 0) + Number(v.total);
+
+    // Productos
+    (v.venta_items || []).forEach((item: any) => {
+      const skus = item.skus;
+      const productName = (Array.isArray(skus) ? skus[0]?.nombre : skus?.nombre) || 'Producto Desconocido';
+      productCounts[productName] = (productCounts[productName] || 0) + item.cantidad;
+    });
+  });
+
+  const topProductEntry = Object.entries(productCounts).sort((a, b) => b[1] - a[1])[0];
+  const topProduct = topProductEntry ? { name: topProductEntry[0], count: topProductEntry[1] } : null;
+
+  const sellerRanking = Object.entries(sellerTotals)
+    .sort((a, b) => b[1] - a[1])
+    .map(([name, total]) => ({ name, total }));
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div>
         <h1 className="text-3xl font-bold tracking-tight mb-2">Dashboard</h1>
         <p className="text-gray-400">Resumen operativo del local y alertas del sistema.</p>
+      </div>
+
+      {/* Analytics Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="glass rounded-xl p-6 border-t-4 border-t-blue-500">
+          <p className="text-gray-400 text-sm font-medium mb-1">Ventas del Mes</p>
+          <h3 className="text-3xl font-black text-blue-400">${totalSalesThisMonth.toLocaleString()}</h3>
+        </div>
+        <div className="glass rounded-xl p-6 border-t-4 border-t-purple-500">
+          <p className="text-gray-400 text-sm font-medium mb-1">Producto Estrella</p>
+          <h3 className="text-xl font-bold text-white truncate" title={topProduct?.name || '-'}>{topProduct?.name || 'N/A'}</h3>
+          <p className="text-sm text-purple-400 mt-1">{topProduct?.count || 0} vendidos</p>
+        </div>
+        <div className="glass rounded-xl p-6 border-t-4 border-t-amber-500 overflow-hidden">
+          <p className="text-gray-400 text-sm font-medium mb-2">Top Vendedor (Mes)</p>
+          {sellerRanking.length > 0 ? (
+            <div className="space-y-2">
+              {sellerRanking.slice(0, 2).map((seller, idx) => (
+                <div key={seller.name} className="flex justify-between items-center text-sm">
+                  <span className="text-gray-300 truncate max-w-[120px]">{idx + 1}. {seller.name}</span>
+                  <span className="font-bold text-amber-400">${seller.total.toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500">Sin ventas aún</p>
+          )}
+        </div>
       </div>
 
       {/* Stats Grid */}

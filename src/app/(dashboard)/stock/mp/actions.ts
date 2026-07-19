@@ -54,8 +54,34 @@ export async function getHistorialKardex(entidad_id: string, tipo_entidad: 'MP' 
   return { success: true, data: data || [] };
 }
 
-export async function deleteMateriaPrima(id: string) {
-  await supabase.from('stock_mp').delete().eq('id', id);
+export async function editMateriaPrima(id: string, formData: FormData) {
+  const material = formData.get('material') as string;
+  const unidad = formData.get('unidad') as string;
+  const alerta_minimo = Number(formData.get('alerta_minimo'));
+
+  await supabase.from('stock_mp').update({
+    material,
+    unidad,
+    alerta_minimo
+  }).eq('id', id);
+
   revalidatePath('/stock/mp');
   revalidatePath('/');
+}
+
+export async function deleteMateriaPrima(id: string) {
+  // Eliminar referencias manuales por modo pruebas (ej. recetas y movimientos)
+  await supabase.from('sku_recetas').delete().eq('mp_id', id);
+  await supabase.from('movimientos_stock').delete().eq('entidad_id', id).eq('tipo_entidad', 'MP');
+  await supabase.from('reposicion_items').delete().eq('entidad_id', id).eq('tipo_entidad', 'MP');
+
+  const { error } = await supabase.from('stock_mp').delete().eq('id', id);
+  
+  if (error) {
+    return { success: false, error: error.message };
+  }
+  
+  revalidatePath('/stock/mp');
+  revalidatePath('/');
+  return { success: true };
 }

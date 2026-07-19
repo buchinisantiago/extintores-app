@@ -31,6 +31,23 @@ export default function ClientesClient({ initialData }: { initialData: Cliente[]
     (c.telefono && c.telefono.includes(search))
   );
 
+  const handleAddCliente = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const result = await addCliente(formData);
+    
+    if (result && typeof result === 'object' && result.error) {
+      alert(result.error);
+      return;
+    }
+    
+    if (typeof result === 'string') {
+      router.push(`/clientes/${result}`);
+    } else {
+      setIsAdding(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Cabecera de controles */}
@@ -58,14 +75,7 @@ export default function ClientesClient({ initialData }: { initialData: Cliente[]
 
       {/* Formulario Añadir */}
       {isAdding && (
-        <form action={async (formData) => {
-          const newId = await addCliente(formData);
-          if (newId) {
-            router.push(`/clientes/${newId}`);
-          } else {
-            setIsAdding(false);
-          }
-        }} className="glass p-6 rounded-xl border-l-4 border-l-red-600 animate-in slide-in-from-top-4">
+        <form onSubmit={handleAddCliente} className="glass p-6 rounded-xl border-l-4 border-l-red-600 animate-in slide-in-from-top-4">
           <h3 className="font-bold mb-4 text-lg">Registrar Nuevo Cliente</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -78,7 +88,7 @@ export default function ClientesClient({ initialData }: { initialData: Cliente[]
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">Teléfono</label>
-              <input name="telefono" type="tel" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none" />
+              <input name="telefono" type="tel" pattern="[0-9+\-\s]+" title="Solo se permiten números, espacios, signos + y guiones -" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none" />
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">Email</label>

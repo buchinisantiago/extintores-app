@@ -48,12 +48,18 @@ export default async function PresupuestosPage() {
                 <td colSpan={5} className="p-8 text-center text-gray-500 italic">No hay presupuestos registrados.</td>
               </tr>
             )}
-            {presupuestos?.map((presupuesto) => (
+            {presupuestos?.map((presupuesto) => {
+              const createdDate = new Date(presupuesto.created_at);
+              const expirationDate = new Date(createdDate.getTime() + (presupuesto.validez_dias * 24 * 60 * 60 * 1000));
+              const isExpired = presupuesto.estado === 'Pendiente' && expirationDate < new Date();
+              const displayState = isExpired ? 'Vencido' : presupuesto.estado;
+
+              return (
               <tr key={presupuesto.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                 <td className="p-4 text-gray-300">
                   <div className="flex items-center gap-2">
                     <Calendar size={16} className="text-gray-500" />
-                    {format(new Date(presupuesto.created_at), 'dd/MM/yyyy')}
+                    {format(createdDate, 'dd/MM/yyyy')}
                   </div>
                 </td>
                 <td className="p-4 font-medium">
@@ -67,21 +73,23 @@ export default async function PresupuestosPage() {
                 </td>
                 <td className="p-4">
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    presupuesto.estado === 'Aprobado' ? 'bg-green-500/20 text-green-400' : 
-                    presupuesto.estado === 'Rechazado' ? 'bg-red-500/20 text-red-400' : 
+                    displayState === 'Aprobado' ? 'bg-green-500/20 text-green-400' : 
+                    displayState === 'Rechazado' ? 'bg-red-500/20 text-red-400' : 
+                    displayState === 'Vencido' ? 'bg-orange-500/20 text-orange-400' :
                     'bg-slate-500/20 text-slate-400'
                   }`}>
-                    {presupuesto.estado}
+                    {displayState}
                   </span>
                 </td>
                 <td className="p-4 text-right font-bold text-red-400">
                   <div className="flex items-center justify-end gap-4">
                     <span>${Number(presupuesto.total).toLocaleString()}</span>
-                    <PresupuestoRowActions presupuesto={presupuesto} />
+                    {/* Modify row actions to receive displayState */}
+                    <PresupuestoRowActions presupuesto={{...presupuesto, estado: displayState}} />
                   </div>
                 </td>
               </tr>
-            ))}
+            )})}
             </tbody>
             </table>
           </div>

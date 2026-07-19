@@ -9,7 +9,17 @@ export default async function DashboardLayout({
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   
-  const role = user?.email === 'gerencia@tuempresa.com' ? 'Gerente' : 'Administrativo';
+  let role = 'Administrativo';
+  
+  if (user?.email === 'gerencia@tuempresa.com') {
+    role = 'Gerente';
+  } else if (user?.id) {
+    // Check if the user is a seller
+    const { data: vendedor } = await supabase.from('vendedores').select('id').eq('auth_user_id', user.id).single();
+    if (vendedor) {
+      role = 'Vendedor';
+    }
+  }
 
   return (
     <div className="flex min-h-screen bg-black text-white">
