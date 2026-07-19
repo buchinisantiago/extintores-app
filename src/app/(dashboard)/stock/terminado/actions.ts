@@ -69,7 +69,12 @@ export async function updateSku(sku_id: string, formData: FormData) {
 }
 
 export async function deleteSku(sku_id: string) {
-  // Primero intentamos borrar de stock_terminado
+  // Borramos manualmente las referencias para forzar la eliminación (modo pruebas)
+  await supabase.from('venta_items').delete().eq('sku_id', sku_id);
+  await supabase.from('presupuesto_items').delete().eq('sku_id', sku_id);
+  await supabase.from('sku_recetas').delete().eq('sku_id', sku_id);
+  await supabase.from('movimientos_stock').delete().eq('entidad_id', sku_id).eq('tipo_entidad', 'SKU');
+  await supabase.from('reposicion_items').delete().eq('entidad_id', sku_id).eq('tipo_entidad', 'SKU');
   await supabase.from('stock_terminado').delete().eq('sku_id', sku_id);
   
   // Luego borramos el SKU

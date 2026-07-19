@@ -92,10 +92,10 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
 
   const handleDeleteSku = async () => {
     if (!editModalItem) return;
-    if (confirm(`¿Estás seguro de que deseas eliminar "${editModalItem.sku.nombre}"? Esto no se podrá deshacer.`)) {
+    if (confirm(`¿Estás seguro de que deseas eliminar "${editModalItem.sku.nombre}"? Esto borrará el producto de las ventas pasadas (Modo Pruebas).`)) {
       const result = await deleteSku(editModalItem.sku.id);
       if (!result.success) {
-        alert('No se puede eliminar porque este producto está siendo utilizado en ventas o remitos existentes. Error: ' + result.error);
+        alert('Hubo un error al eliminar el producto: ' + result.error);
       } else {
         setEditModalItem(null);
       }
