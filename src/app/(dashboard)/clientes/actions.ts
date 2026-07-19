@@ -13,6 +13,10 @@ export async function addCliente(formData: FormData) {
   const ciudad = formData.get('ciudad') as string;
   const provincia = formData.get('provincia') as string;
 
+  if (telefono && !/^[0-9+\-\s]+$/.test(telefono)) {
+    return { success: false, error: 'El teléfono solo puede contener números, espacios, guiones y el signo +.' };
+  }
+
   // Check for duplicates
   const { data: existing } = await supabase.from('clientes').select('id').ilike('nombre', `%${nombre}%`).limit(1);
   if (existing && existing.length > 0) {
@@ -30,8 +34,7 @@ export async function addCliente(formData: FormData) {
   }).select('id').single();
 
   if (error) {
-    console.error(error);
-    return null;
+    return { success: false, error: 'Error al crear cliente: ' + error.message };
   }
 
   revalidatePath('/clientes');
@@ -46,6 +49,10 @@ export async function updateCliente(id: string, formData: FormData) {
   const direccion = formData.get('direccion') as string;
   const ciudad = formData.get('ciudad') as string;
   const provincia = formData.get('provincia') as string;
+
+  if (telefono && !/^[0-9+\-\s]+$/.test(telefono)) {
+    return { success: false, error: 'El teléfono solo puede contener números, espacios, guiones y el signo +.' };
+  }
 
   const { error } = await supabase.from('clientes').update({
     nombre,
