@@ -7,7 +7,9 @@ import { ArrowLeft, UserCircle } from 'lucide-react';
 
 export const revalidate = 0;
 
-export default async function VendedorDashboardPage({ params }: { params: { id: string } }) {
+export default async function VendedorDashboardPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  
   const supabaseServer = await createClient();
   const { data: { user } } = await supabaseServer.auth.getUser();
 
@@ -21,7 +23,7 @@ export default async function VendedorDashboardPage({ params }: { params: { id: 
   const { data: vendedor, error: vendError } = await supabaseAdmin
     .from('vendedores')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .single();
 
   if (vendError || !vendedor) {
@@ -32,7 +34,7 @@ export default async function VendedorDashboardPage({ params }: { params: { id: 
   const { data: ventas, error: ventasError } = await supabaseAdmin
     .from('ventas')
     .select('*, venta_items(cantidad, costo_unitario)')
-    .eq('vendedor_id', params.id);
+    .eq('vendedor_id', id);
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">

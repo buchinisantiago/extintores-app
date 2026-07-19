@@ -13,6 +13,21 @@ type Vendedor = {
 
 export default function VendedoresClient({ initialData }: { initialData: Vendedor[] }) {
   const [isAdding, setIsAdding] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const handleAddVendedor = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setErrorMsg(null);
+    const formData = new FormData(e.currentTarget);
+    const result = await addVendedor(formData);
+    
+    if (result && typeof result === 'object' && result.error) {
+      setErrorMsg(result.error);
+      return;
+    }
+    
+    setIsAdding(false);
+  };
 
   return (
     <div className="space-y-6">
@@ -27,15 +42,13 @@ export default function VendedoresClient({ initialData }: { initialData: Vendedo
       </div>
 
       {isAdding && (
-        <form action={async (formData) => {
-          const res = await addVendedor(formData);
-          if (res && !res.success) {
-            alert(res.error);
-          } else {
-            setIsAdding(false);
-          }
-        }} className="glass p-6 rounded-xl border-l-4 border-l-red-600 animate-in slide-in-from-top-4">
+        <form onSubmit={handleAddVendedor} className="glass p-6 rounded-xl border-l-4 border-l-red-600 animate-in slide-in-from-top-4">
           <h3 className="font-bold mb-4 text-lg">Registrar Nuevo Vendedor</h3>
+          {errorMsg && (
+            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg text-sm">
+              {errorMsg}
+            </div>
+          )}
           <div className="flex gap-4 items-end flex-wrap">
             <div className="flex-1 min-w-[200px]">
               <label className="block text-xs text-gray-400 mb-1">Nombre Completo *</label>

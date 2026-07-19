@@ -12,14 +12,15 @@ export async function addVendedor(formData: FormData) {
     
     if (!nombre || !email) return { success: false, error: 'Nombre y correo requeridos' };
 
+    const supabaseAdmin = getSupabaseAdmin();
+
     // Chequear si el vendedor ya existe
-    const { data: existing } = await supabase.from('vendedores').select('id').ilike('nombre', `%${nombre}%`).limit(1);
+    const { data: existing } = await supabaseAdmin.from('vendedores').select('id').ilike('nombre', `%${nombre}%`).limit(1);
     if (existing && existing.length > 0) {
       return { success: false, error: 'Ya existe un vendedor con este nombre.' };
     }
 
     // 1. Crear usuario en Auth
-    const supabaseAdmin = getSupabaseAdmin();
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password: '1234',

@@ -31,13 +31,16 @@ export default function ClientesClient({ initialData }: { initialData: Cliente[]
     (c.telefono && c.telefono.includes(search))
   );
 
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
   const handleAddCliente = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setErrorMsg(null);
     const formData = new FormData(e.currentTarget);
     const result = await addCliente(formData);
     
     if (result && typeof result === 'object' && result.error) {
-      alert(result.error);
+      setErrorMsg(result.error);
       return;
     }
     
@@ -77,6 +80,11 @@ export default function ClientesClient({ initialData }: { initialData: Cliente[]
       {isAdding && (
         <form onSubmit={handleAddCliente} className="glass p-6 rounded-xl border-l-4 border-l-red-600 animate-in slide-in-from-top-4">
           <h3 className="font-bold mb-4 text-lg">Registrar Nuevo Cliente</h3>
+          {errorMsg && (
+            <div className="mb-4 p-3 bg-red-900/50 border border-red-500 rounded-lg text-red-200 text-sm">
+              {errorMsg}
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs text-gray-400 mb-1">Nombre, Apellido o Empresa *</label>
