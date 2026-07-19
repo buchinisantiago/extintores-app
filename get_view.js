@@ -11,14 +11,33 @@ envLocal.split('\n').forEach(line => {
 const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
 async function run() {
-  const { data, error } = await supabase.from('vendedores').select('*').ilike('nombre', '%Santiago%');
-  if (data) {
-    for (const v of data) {
-      if (v.id !== '12431e80-fe91-4a79-978c-ec784df7565c' && v.id !== '310eb21d-6859-4648-bbae-14a663afb25a') {
-        console.log("Deleting id:", v.id);
-        await supabase.from('vendedores').delete().eq('id', v.id);
-      }
+  console.log("Fetching MP and SKU...");
+  const { data: mps } = await supabase.from('stock_mp').select('id');
+  const { data: skus } = await supabase.from('skus').select('id');
+  
+  const validMpIds = new Set(mps.map(m => m.id));
+  const validSkuIds = new Set(skus.map(s => s.id));
+
+  console.log("Fetching reposicion_items...");
+  const { data: items } = await supabase.from('reposicion_items').select('*');
+
+  let orphanedReposicionIds = new Set();
+  
+  for (const item of items) {
+    if (item.tipo_entidad === 'MP' && !validMpIds.has(item.entidad_id)) {
+      orphanedReposicionIds.add(item.reposicion_id);
+    }
+    if (item.tipo_entidad === 'SKU' && !validSkuIds.has(item.entidad_id)) {
+      orphanedReposicionIds.add(item.reposicion_id);
     }
   }
+
+  console.log(`Found ${orphanedReposicionIds.size} orphaned reposiciones.`);
+
+  for (const repId of orphanedReposicionIds) {
+    console.log(`Deleting reposicion ${repId}`);
+    await supabase.from('reposiciones').delete().eq('id', repId);
+  }
+  console.log("Done.");
 }
 run();

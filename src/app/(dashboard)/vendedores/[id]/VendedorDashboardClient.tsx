@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { DollarSign, CheckCircle2, AlertCircle, FileText, TrendingUp, Calendar } from 'lucide-react';
+import { DollarSign, CheckCircle2, AlertCircle, FileText, TrendingUp, Calendar, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { deleteVendedor } from '../actions';
 
 type Venta = {
   id: string;
@@ -21,7 +23,19 @@ export default function VendedorDashboardClient({
   vendedor: { id: string, nombre: string, email: string | null };
   ventas: Venta[];
 }) {
+  const router = useRouter();
   const [comisionPorcentaje, setComisionPorcentaje] = useState(10); // Default 10%
+
+  const handleDelete = async () => {
+    if (confirm('¿Eliminar definitivamente a este vendedor y todas sus ventas?')) {
+      const res = await deleteVendedor(vendedor.id);
+      if (res.success) {
+        router.push('/vendedores');
+      } else {
+        alert(res.error);
+      }
+    }
+  };
 
   const ventasPagadas = ventas.filter(v => v.estado_pago === 'Pagado');
   const ventasPendientes = ventas.filter(v => v.estado_pago === 'Pendiente');
@@ -33,6 +47,15 @@ export default function VendedorDashboardClient({
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-end">
+        <button 
+          onClick={handleDelete}
+          className="bg-red-900/50 hover:bg-red-600 text-red-200 hover:text-white border border-red-500/50 px-4 py-2 rounded-xl font-medium flex items-center gap-2 transition-colors"
+        >
+          <Trash2 size={18} />
+          Eliminar Vendedor
+        </button>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="glass p-6 rounded-2xl border-t-4 border-t-emerald-500">
           <div className="flex items-center gap-2 text-emerald-400 mb-2">

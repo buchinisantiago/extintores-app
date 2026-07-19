@@ -89,7 +89,7 @@ export default function VendedoresClient({ initialData }: { initialData: Vendedo
               </Link>
             </div>
             
-            <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="flex flex-col gap-2 transition-opacity">
               {vendedor.auth_user_id && (
                 <button 
                   onClick={async (e) => {
