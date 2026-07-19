@@ -49,3 +49,37 @@ export async function createSku(formData: FormData) {
   revalidatePath('/stock/terminado');
   revalidatePath('/ventas/nueva');
 }
+
+export async function updateSku(sku_id: string, formData: FormData) {
+  const nombre = formData.get('nombre') as string;
+  const tipo_agente = formData.get('tipo_agente') as string;
+  const capacidad_str = formData.get('capacidad_kg') as string;
+  const capacidad_kg = capacidad_str ? parseFloat(capacidad_str) : null;
+  const precio_recarga = parseFloat(formData.get('precio_recarga') as string) || 0;
+
+  await supabase.from('skus').update({
+    nombre,
+    tipo_agente,
+    capacidad_kg,
+    precio_recarga
+  }).eq('id', sku_id);
+
+  revalidatePath('/stock/terminado');
+  revalidatePath('/ventas/nueva');
+}
+
+export async function deleteSku(sku_id: string) {
+  // Primero intentamos borrar de stock_terminado
+  await supabase.from('stock_terminado').delete().eq('sku_id', sku_id);
+  
+  // Luego borramos el SKU
+  const { error } = await supabase.from('skus').delete().eq('id', sku_id);
+  
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath('/stock/terminado');
+  revalidatePath('/ventas/nueva');
+  return { success: true };
+}

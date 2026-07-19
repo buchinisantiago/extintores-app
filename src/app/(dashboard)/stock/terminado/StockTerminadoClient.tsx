@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Flame, Plus, Minus, Search, X, Save, Clock, FileText, TrendingUp } from 'lucide-react';
+import { Flame, Plus, Minus, Search, X, Save, Clock, FileText, TrendingUp, Edit2, Trash2 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
-import { addStockTerminado, createSku } from './actions';
+import { addStockTerminado, createSku, updateSku, deleteSku } from './actions';
 import { getHistorialKardex } from '../mp/actions';
 
 type SKU = {
@@ -26,6 +26,7 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
   const [search, setSearch] = useState('');
   const [loadingSku, setLoadingSku] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [editModalItem, setEditModalItem] = useState<StockData | null>(null);
   const [kardexModalItem, setKardexModalItem] = useState<SKU | null>(null);
   const [kardexData, setKardexData] = useState<any[]>([]);
   const [isLoadingKardex, setIsLoadingKardex] = useState(false);
@@ -79,6 +80,26 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
     const formData = new FormData(e.currentTarget);
     await createSku(formData);
     setShowModal(false);
+  };
+
+  const handleUpdateSku = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editModalItem) return;
+    const formData = new FormData(e.currentTarget);
+    await updateSku(editModalItem.sku.id, formData);
+    setEditModalItem(null);
+  };
+
+  const handleDeleteSku = async () => {
+    if (!editModalItem) return;
+    if (confirm(`¿Estás seguro de que deseas eliminar "${editModalItem.sku.nombre}"? Esto no se podrá deshacer.`)) {
+      const result = await deleteSku(editModalItem.sku.id);
+      if (!result.success) {
+        alert('No se puede eliminar porque este producto está siendo utilizado en ventas o remitos existentes. Error: ' + result.error);
+      } else {
+        setEditModalItem(null);
+      }
+    }
   };
 
   const filteredData = initialData.filter(d => 
@@ -157,25 +178,11 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
                   </td>
                   <td className="p-4">
                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800 mr-2">
-                        <button 
-                          onClick={() => handleUpdate(item.sku.id, item.stock.cantidad, -1)}
-                          disabled={item.stock.cantidad <= 0 || loadingSku === item.sku.id}
-                          className="p-1 rounded-md text-gray-400 hover:text-white hover:bg-white/10 disabled:opacity-50 transition-colors"
-                          title="Restar 1"
-                        >
-                          <Minus size={14} />
-                        </button>
-                        <button 
-                          onClick={() => handleUpdate(item.sku.id, item.stock.cantidad, 1)}
-                          disabled={loadingSku === item.sku.id}
-                          className="p-1 rounded-md text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-50 transition-colors"
-                          title="Sumar 1"
-                        >
-                          <Plus size={14} />
-                        </button>
-                      </div>
-
+                      <button 
+                        onClick={() => setEditModalItem(item)}
+                        className="p-2 text-gray-400 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-colors" title="Editar Producto">
+                        <Edit2 size={18} />
+                      </button>
                       <button 
                         onClick={() => handleOpenKardex(item.sku)}
                         className="p-2 text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors" title="Ver Historial (Kardex)">
@@ -207,6 +214,72 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
                 <input type="number" name="precio_recarga" step="0.01" placeholder="Precio" required className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white" />
               </div>
               <button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white p-3 rounded-xl font-medium">Crear Producto</button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {editModalItem && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-full max-w-md shadow-2xl animate-in zoom-in-95">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-bold text-lg">Editar Producto / Stock</h3>
+              <button onClick={() => setEditModalItem(null)} className="text-gray-500 hover:text-white">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="mb-6 p-4 bg-slate-800/50 rounded-xl border border-slate-700 flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-400">Stock Actual</p>
+                <p className="text-3xl font-mono font-bold">{initialData.find(d => d.sku.id === editModalItem.sku.id)?.stock.cantidad || editModalItem.stock.cantidad}</p>
+              </div>
+              <div className="flex items-center gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800">
+                <button 
+                  onClick={() => handleUpdate(editModalItem.sku.id, initialData.find(d => d.sku.id === editModalItem.sku.id)?.stock.cantidad || editModalItem.stock.cantidad, -1)}
+                  disabled={loadingSku === editModalItem.sku.id}
+                  className="w-10 h-10 flex items-center justify-center rounded-lg text-red-400 hover:text-white hover:bg-red-500/20 disabled:opacity-50 transition-colors"
+                  title="Restar 1"
+                >
+                  <Minus size={20} />
+                </button>
+                <button 
+                  onClick={() => handleUpdate(editModalItem.sku.id, initialData.find(d => d.sku.id === editModalItem.sku.id)?.stock.cantidad || editModalItem.stock.cantidad, 1)}
+                  disabled={loadingSku === editModalItem.sku.id}
+                  className="w-10 h-10 flex items-center justify-center rounded-lg text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-50 transition-colors"
+                  title="Sumar 1"
+                >
+                  <Plus size={20} />
+                </button>
+              </div>
+            </div>
+
+            <form onSubmit={handleUpdateSku} className="space-y-4">
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Nombre</label>
+                <input type="text" name="nombre" defaultValue={editModalItem.sku.nombre} required className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white" />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Categoría</label>
+                <input type="text" name="tipo_agente" defaultValue={editModalItem.sku.tipo_agente} className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Capacidad</label>
+                  <input type="number" name="capacidad_kg" defaultValue={editModalItem.sku.capacidad_kg} step="0.1" className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white" />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Precio Recarga</label>
+                  <input type="number" name="precio_recarga" defaultValue={editModalItem.sku.precio_recarga} step="0.01" required className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white" />
+                </div>
+              </div>
+              
+              <div className="flex gap-3 pt-2">
+                <button type="submit" className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white p-3 rounded-xl font-medium transition-colors">Guardar</button>
+                <button type="button" onClick={handleDeleteSku} className="flex-none bg-red-600/10 hover:bg-red-600 border border-red-600/20 text-red-500 hover:text-white p-3 rounded-xl transition-all" title="Eliminar Producto">
+                  <Trash2 size={20} />
+                </button>
+              </div>
             </form>
           </div>
         </div>
