@@ -69,9 +69,23 @@ export default async function Dashboard() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Dashboard</h1>
-        <p className="text-gray-400">Resumen operativo del local y alertas del sistema.</p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight mb-2">Dashboard</h1>
+          <p className="text-gray-400">Resumen operativo del local y alertas del sistema.</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/reposiciones" className="bg-red-600/10 text-red-500 border border-red-600/20 px-4 py-2 rounded-lg font-medium hover:bg-red-600 hover:text-white transition-colors flex items-center gap-2">
+            <Package size={18} />
+            Ingresar Mercadería
+          </Link>
+          <Link href="/stock/mp" className="bg-white/5 text-gray-300 border border-white/10 px-4 py-2 rounded-lg font-medium hover:bg-white/10 transition-colors">
+            Stock M.P.
+          </Link>
+          <Link href="/stock/terminado" className="bg-white/5 text-gray-300 border border-white/10 px-4 py-2 rounded-lg font-medium hover:bg-white/10 transition-colors">
+            Prod. Terminados
+          </Link>
+        </div>
       </div>
 
       {/* Analytics Grid */}
