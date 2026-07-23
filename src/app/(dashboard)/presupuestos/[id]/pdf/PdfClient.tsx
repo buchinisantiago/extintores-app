@@ -24,14 +24,14 @@ export default function PdfClient({ presupuesto, items }: { presupuesto: any, it
         
         {/* Header */}
         <div className="flex items-center justify-between border-b-2 border-red-600 pb-6 mb-8 gap-6">
-          <div className="w-[450px] shrink-0">
+          <div className="w-[380px] shrink-0">
             <img src="/logo2.jpeg" alt="Menendez" className="w-full h-auto object-contain" />
           </div>
           <div className="text-right flex-1">
-            <h1 className="text-4xl font-black text-red-600 uppercase mb-2">Presupuesto</h1>
-            <p className="text-gray-600 font-bold text-xl">Nº {presupuesto.id.split('-')[0].toUpperCase()}</p>
-            <p className="text-gray-500 mt-2 text-lg">Fecha: {format(new Date(presupuesto.created_at), 'dd/MM/yyyy')}</p>
-            <p className="text-gray-500 text-lg">Validez: {presupuesto.validez_dias} días</p>
+            <h1 className="text-3xl font-black text-red-600 uppercase mb-2">Presupuesto</h1>
+            <p className="text-gray-600 font-bold text-lg">Nº {presupuesto.id.split('-')[0].toUpperCase()}</p>
+            <p className="text-gray-500 mt-1 text-base">Fecha: {format(new Date(presupuesto.created_at), 'dd/MM/yyyy')}</p>
+            <p className="text-gray-500 text-base">Validez: {presupuesto.validez_dias} días</p>
           </div>
         </div>
 
@@ -108,7 +108,7 @@ export default function PdfClient({ presupuesto, items }: { presupuesto: any, it
 
         {/* Legal Footer */}
         <div className="mb-8 text-xs text-gray-500 text-justify border-t border-gray-200 pt-4">
-          <span className="font-bold">Validez del presupuesto:</span> El presente presupuesto tiene una validez de 30 días corridos contados a partir de la fecha de emisión. Vencido dicho plazo, los valores podrán ser modificados sin previo aviso.
+          <span className="font-bold">Validez del presupuesto:</span> El presente presupuesto tiene una validez de {presupuesto.validez_dias} días corridos contados a partir de la fecha de emisión. Vencido dicho plazo, los valores podrán ser modificados sin previo aviso.
         </div>
 
         {/* Footer Signature */}

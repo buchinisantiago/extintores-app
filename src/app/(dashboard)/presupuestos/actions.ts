@@ -18,6 +18,7 @@ export async function crearPresupuesto(
       cliente_id: clienteId,
       vendedor_id: vendedorId || null,
       total,
+      validez_dias: 30,
       observaciones: observaciones || null
     })
     .select('id')
