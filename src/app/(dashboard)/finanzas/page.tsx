@@ -1,10 +1,13 @@
 import { createClient } from '@/lib/supabase/server';
 import { TrendingUp, TrendingDown, DollarSign, Activity, Users, Package } from 'lucide-react';
 import { redirect } from 'next/navigation';
+import FinanzasHeaderClient from './FinanzasHeaderClient';
+import { format } from 'date-fns';
 
 export const revalidate = 0;
 
-export default async function FinanzasPage() {
+export default async function FinanzasPage({ searchParams }: { searchParams: Promise<{ mes?: string }> }) {
+  const params = await searchParams;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -12,9 +15,25 @@ export default async function FinanzasPage() {
     redirect('/');
   }
 
-  // Fetch Ventas and Gastos
-  const { data: ventas, error: errVentas } = await supabase.from('ventas').select('total, estado_pago, vendedor_id, vendedores(nombre), venta_items(cantidad, costo_unitario)');
-  const { data: gastos, error: errGastos } = await supabase.from('gastos').select('monto, estado_pago');
+  // Get selected month from URL, default to current month (YYYY-MM)
+  const selectedMonthStr = params.mes || format(new Date(), 'yyyy-MM');
+  const [year, month] = selectedMonthStr.split('-');
+  
+  // Create first day of month and first day of next month for filtering
+  const startDate = new Date(Number(year), Number(month) - 1, 1).toISOString();
+  const endDate = new Date(Number(year), Number(month), 1).toISOString();
+
+  // Fetch Ventas and Gastos filtered by date
+  const { data: ventas, error: errVentas } = await supabase.from('ventas')
+    .select('total, estado_pago, vendedor_id, vendedores(nombre), venta_items(cantidad, costo_unitario)')
+    .gte('fecha', startDate)
+    .lt('fecha', endDate);
+    
+  const { data: gastos, error: errGastos } = await supabase.from('gastos')
+    .select('monto, estado_pago')
+    .gte('fecha', startDate)
+    .lt('fecha', endDate);
+    
   const { data: stock_terminado, error: errStock } = await supabase.from('stock_terminado').select('cantidad, skus(costo)');
   const { data: vendedoresList } = await supabase.from('vendedores').select('id, nombre');
 
@@ -65,10 +84,9 @@ export default async function FinanzasPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Panel de Finanzas</h1>
-        <p className="text-gray-400">Resumen contable exclusivo para Gerencia.</p>
-      </div>
+      
+      {/* Header and Controls */}
+      <FinanzasHeaderClient />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Tarjeta de Ingresos */}
