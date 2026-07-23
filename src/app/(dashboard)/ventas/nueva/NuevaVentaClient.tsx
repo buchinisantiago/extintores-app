@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ShoppingCart, Plus, Trash2, CheckCircle2 } from 'lucide-react';
-import { crearVenta } from './actions';
+import { crearVenta, getClientExtinguishers } from './actions';
 import ProductSearchSelect from '@/components/ProductSearchSelect';
 
 type Cliente = { id: string, nombre: string };
@@ -12,14 +12,24 @@ type StockItem = {
   cantidad: number;
   skus: { id: string, nombre: string, precio_recarga: number };
 };
+type Extintor = { id: string, nro_cilindro: string, skus: { nombre: string } };
 
 export default function NuevaVentaClient({ clientes, stock, vendedores, currentUserVendedorId }: { clientes: Cliente[], stock: StockItem[], vendedores: Vendedor[], currentUserVendedorId?: string }) {
   const router = useRouter();
   const [clienteId, setClienteId] = useState('');
+  const [clientExtintores, setClientExtintores] = useState<Extintor[]>([]);
   const [vendedorId, setVendedorId] = useState(currentUserVendedorId || '');
-  const [cart, setCart] = useState<{sku_id: string, nombre: string, cantidad: number, precio: number, max: number, nro_serie: string, renovacion_carga_anios: number, renovacion_ph_anios: number}[]>([]);
+  const [cart, setCart] = useState<{sku_id: string, nombre: string, cantidad: number, precio: number, max: number, nro_serie: string, renovacion_carga_anios: number, renovacion_ph_anios: number, nro_serie_mode?: 'select' | 'otro'}[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  useEffect(() => {
+    if (clienteId) {
+      getClientExtinguishers(clienteId).then(data => setClientExtintores(data || []));
+    } else {
+      setClientExtintores([]);
+    }
+  }, [clienteId]);
+
   // Accounting fields
   const [nroFactura, setNroFactura] = useState('');
   const [estadoPago, setEstadoPago] = useState('Pagado');
@@ -44,6 +54,7 @@ export default function NuevaVentaClient({ clientes, stock, vendedores, currentU
       precio: itemStock.skus.precio_recarga,
       max: itemStock.cantidad,
       nro_serie: '',
+      nro_serie_mode: 'select',
       renovacion_carga_anios: 1,
       renovacion_ph_anios: itemStock.skus.nombre.toLowerCase().includes('hidráulica') || itemStock.skus.nombre.toLowerCase().includes('ph') ? 5 : 0
     }]);
@@ -65,11 +76,18 @@ export default function NuevaVentaClient({ clientes, stock, vendedores, currentU
     setCart(cart.map(item => item.sku_id === sku_id ? { ...item, nro_serie } : item));
   };
 
-  const updateRenovacion = (sku_id: string, type: 'carga' | 'ph', value: number) => {
-    setCart(cart.map(item => item.sku_id === sku_id ? { 
-      ...item, 
-      [type === 'carga' ? 'renovacion_carga_anios' : 'renovacion_ph_anios']: value 
-    } : item));
+  const updateNroSerieMode = (sku_id: string, mode: 'select' | 'otro') => {
+    setCart(cart.map(item => item.sku_id === sku_id ? { ...item, nro_serie_mode: mode } : item));
+  };
+
+  const updateRenovacion = (sku_id: string, field: 'carga' | 'ph', anios: number) => {
+    setCart(cart.map(item => {
+      if (item.sku_id === sku_id) {
+        if (field === 'carga') return { ...item, renovacion_carga_anios: anios };
+        if (field === 'ph') return { ...item, renovacion_ph_anios: anios };
+      }
+      return item;
+    }));
   };
 
   const removeItem = (sku_id: string) => {
@@ -80,22 +98,26 @@ export default function NuevaVentaClient({ clientes, stock, vendedores, currentU
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!clienteId || cart.length === 0) return;
+    if (!clienteId) return alert('Debes seleccionar un cliente.');
+    if (cart.length === 0) return alert('Debes agregar al menos un producto.');
+    if (!nroFactura) return alert('Debes ingresar el N° de factura/remito.');
+    
     setIsSubmitting(true);
     
-    const items = cart.map(c => ({
-      sku_id: c.sku_id,
-      cantidad: c.cantidad,
-      precio_unitario: c.precio,
-      nro_serie: c.nro_serie,
-      renovacion_carga_anios: c.renovacion_carga_anios,
-      renovacion_ph_anios: c.renovacion_ph_anios
+    const itemsData = cart.map(item => ({
+      sku_id: item.sku_id,
+      cantidad: item.cantidad,
+      costo_unitario: stock.find(s => s.skus.id === item.sku_id)?.skus.precio_recarga || 0,
+      precio_unitario: item.precio,
+      nro_serie: item.nro_serie,
+      renovacion_carga_anios: item.renovacion_carga_anios,
+      renovacion_ph_anios: item.renovacion_ph_anios
     }));
 
     const result = await crearVenta(
       clienteId, 
       total, 
-      items, 
+      itemsData, 
       nroFactura, 
       estadoPago, 
       observaciones,
@@ -113,12 +135,17 @@ export default function NuevaVentaClient({ clientes, stock, vendedores, currentU
   };
 
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      
-      <div className="lg:col-span-2 space-y-6">
-        <div className="glass p-6 rounded-xl border-t-4 border-t-red-600">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+    <form onSubmit={handleSubmit} className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight mb-2">Nueva Venta / Remito</h1>
+        <p className="text-gray-400">Registra una venta, descuenta stock y programa renovaciones.</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div className="lg:col-span-2 space-y-6">
+          <div className="glass p-6 rounded-xl flex flex-col md:flex-row gap-6">
+            <div className="flex-1">
               <label className="block text-sm font-bold mb-2">1. Seleccionar Cliente *</label>
               <select 
                 required 
@@ -130,50 +157,109 @@ export default function NuevaVentaClient({ clientes, stock, vendedores, currentU
                 {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-bold mb-2">Vendedor (Comisiones)</label>
-              {currentUserVendedorId ? (
-                <div className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-base text-gray-400">
-                  {vendedores.find(v => v.id === currentUserVendedorId)?.nombre || 'Vendedor Actual'}
+          </div>
+
+          <div className="glass p-6 rounded-xl">
+            <label className="block text-sm font-bold mb-2">2. Añadir Productos al Remito</label>
+            <ProductSearchSelect stock={stock} onSelect={addItem} placeholder="+ Buscar producto por nombre..." />
+
+            <div className="space-y-3">
+              {cart.map(item => (
+                <div key={item.sku_id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-slate-900/50 border border-white/5">
+                  <div className="flex-1">
+                    <h4 className="font-bold">{item.nombre}</h4>
+                    <div className="flex items-center gap-3 mt-1">
+                      <p className="text-sm text-gray-400">${item.precio} c/u</p>
+                      {item.nro_serie_mode === 'otro' ? (
+                        <div className="flex items-center gap-1">
+                          <input 
+                            type="text"
+                            placeholder="Nuevo N° Cilindro"
+                            value={item.nro_serie}
+                            onChange={(e) => updateNroSerie(item.sku_id, e.target.value)}
+                            className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs outline-none focus:border-red-600 text-white w-40"
+                            autoFocus
+                          />
+                          <button type="button" onClick={() => {
+                            updateNroSerieMode(item.sku_id, 'select');
+                            updateNroSerie(item.sku_id, '');
+                          }} className="text-gray-500 hover:text-white px-1">✕</button>
+                        </div>
+                      ) : (
+                        <select
+                          value={item.nro_serie}
+                          onChange={(e) => {
+                            if (e.target.value === 'otro') {
+                              updateNroSerieMode(item.sku_id, 'otro');
+                              updateNroSerie(item.sku_id, '');
+                            } else {
+                              updateNroSerie(item.sku_id, e.target.value);
+                            }
+                          }}
+                          className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs outline-none focus:border-red-600 text-white w-56 appearance-none truncate"
+                        >
+                          <option value="">Seleccionar Matafuego (Opcional)...</option>
+                          {clientExtintores.map(ext => (
+                            <option key={ext.id} value={ext.nro_cilindro}>
+                              {ext.skus?.nombre} - N° {ext.nro_cilindro}
+                            </option>
+                          ))}
+                          <option value="otro">Otro / Nuevo matafuego...</option>
+                        </select>
+                      )}
+                    </div>
+                    {item.nro_serie && item.nro_serie.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-3 mt-2 pl-1 animate-in fade-in slide-in-from-top-1">
+                        <div className="flex items-center gap-2">
+                          <label className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Renueva Carga:</label>
+                          <select
+                            value={item.renovacion_carga_anios}
+                            onChange={(e) => updateRenovacion(item.sku_id, 'carga', Number(e.target.value))}
+                            className="bg-slate-800 border border-slate-700 rounded px-1.5 py-0.5 text-xs outline-none focus:border-red-600 text-white appearance-none"
+                          >
+                            <option value="0">No renueva</option>
+                            <option value="1">1 Año</option>
+                            <option value="2">2 Años</option>
+                          </select>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <label className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Renueva PH:</label>
+                          <select
+                            value={item.renovacion_ph_anios}
+                            onChange={(e) => updateRenovacion(item.sku_id, 'ph', Number(e.target.value))}
+                            className="bg-slate-800 border border-slate-700 rounded px-1.5 py-0.5 text-xs outline-none focus:border-red-600 text-white appearance-none"
+                          >
+                            <option value="0">No renueva</option>
+                            <option value="1">1 Año</option>
+                            <option value="5">5 Años</option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center gap-4 flex-shrink-0">
+                    <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800">
+                      <button type="button" onClick={() => updateQuantity(item.sku_id, -1)} className="w-8 h-8 flex items-center justify-center rounded bg-slate-800 hover:bg-slate-700">-</button>
+                      <span className="w-8 text-center font-bold">{item.cantidad}</span>
+                      <button type="button" onClick={() => updateQuantity(item.sku_id, 1)} className="w-8 h-8 flex items-center justify-center rounded bg-slate-800 hover:bg-slate-700">+</button>
+                    </div>
+                    <div className="w-24 text-right font-bold text-red-400">
+                      ${item.cantidad * item.precio}
+                    </div>
+                    <button type="button" onClick={() => removeItem(item.sku_id)} className="p-2 text-gray-500 hover:text-red-500 transition-colors">
+                      <Trash2 size={20} />
+                    </button>
+                  </div>
                 </div>
-              ) : (
-                <select 
-                  value={vendedorId}
-                  onChange={e => setVendedorId(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-base focus:border-red-600 outline-none"
-                >
-                  <option value="">Ninguno / Local</option>
-                  {vendedores.map(v => <option key={v.id} value={v.id}>{v.nombre}</option>)}
-                </select>
+              ))}
+              {cart.length === 0 && (
+                <div className="text-center py-8 text-gray-500 border border-dashed border-slate-700 rounded-xl">
+                  No has añadido ningún producto.
+                </div>
               )}
             </div>
           </div>
-        </div>
-
-        <div className="glass p-6 rounded-xl">
-          <label className="block text-sm font-bold mb-2">2. Añadir Productos al Remito</label>
-          <ProductSearchSelect stock={stock} onSelect={addItem} placeholder="+ Buscar producto por nombre..." />
-
-          <div className="space-y-3">
-            {cart.map(item => (
-              <div key={item.sku_id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-slate-900/50 border border-white/5">
-                <div className="flex-1">
-                  <h4 className="font-bold">{item.nombre}</h4>
-                  <div className="flex items-center gap-3 mt-1">
-                    <p className="text-sm text-gray-400">${item.precio} c/u</p>
-                    <input 
-                      type="text"
-                      placeholder="N° Cilindro (Opcional)"
-                      value={item.nro_serie}
-                      onChange={(e) => updateNroSerie(item.sku_id, e.target.value)}
-                      className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs outline-none focus:border-red-600 text-white w-40"
-                    />
-                  </div>
-                  {item.nro_serie && item.nro_serie.length > 0 && (
-                    <div className="flex flex-wrap items-center gap-3 mt-2 pl-1 animate-in fade-in slide-in-from-top-1">
-                      <div className="flex items-center gap-2">
-                        <label className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Renueva Carga:</label>
-                        <select
                           value={item.renovacion_carga_anios}
                           onChange={(e) => updateRenovacion(item.sku_id, 'carga', Number(e.target.value))}
                           className="bg-slate-800 border border-slate-700 rounded px-1.5 py-0.5 text-xs outline-none focus:border-red-600 text-white appearance-none"

@@ -173,8 +173,8 @@ export default function ClienteDetalleClient({
                 </select>
               </div>
               <div>
-                <label className="block text-xs text-gray-400 mb-1">Número de Serie</label>
-                <input name="nro_serie" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none" />
+                <label className="block text-xs text-gray-400 mb-1">Número de Serie *</label>
+                <input name="nro_serie" required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none" />
               </div>
               <div>
                 <label className="block text-xs text-gray-400 mb-1">Fecha de Carga *</label>

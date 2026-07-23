@@ -41,3 +41,17 @@ export async function crearVenta(
   revalidatePath('/');
   return { success: true, venta_id: venta_id };
 }
+
+export async function getClientExtinguishers(cliente_id: string) {
+  if (!cliente_id) return [];
+  const { data, error } = await supabase
+    .from('extintores')
+    .select('id, nro_cilindro, skus(nombre)')
+    .eq('cliente_id', cliente_id);
+    
+  if (error) {
+    console.error("Error fetching client extinguishers:", error);
+    return [];
+  }
+  return data || [];
+}
