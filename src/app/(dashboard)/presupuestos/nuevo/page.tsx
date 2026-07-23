@@ -1,8 +1,10 @@
 import { supabase } from '@/lib/supabase';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
-import NuevoPresupuestoClient from './NuevoPresupuestoClient';
+import NuevaOperacionClient from '@/components/NuevaOperacionClient';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import { crearPresupuesto } from '../actions';
+import { crearVenta } from '../../ventas/nueva/actions';
 
 export const revalidate = 0;
 
@@ -38,15 +40,18 @@ export default async function NuevoPresupuestoPage() {
         <Link href="/presupuestos" className="inline-flex items-center gap-2 text-sm text-red-400 hover:text-red-300 mb-4 transition-colors">
           <ArrowLeft size={16} /> Volver a Presupuestos
         </Link>
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Crear Presupuesto</h1>
-        <p className="text-gray-400">Arma una cotización formal para tu cliente.</p>
+        <h1 className="text-3xl font-bold tracking-tight mb-2">Crear Presupuesto o Venta</h1>
+        <p className="text-gray-400">Arma una cotización formal para tu cliente o carga una venta directa.</p>
       </div>
       
-      <NuevoPresupuestoClient 
+      <NuevaOperacionClient 
         clientes={clientes || []} 
         stock={sellableItems} 
         vendedores={vendedores || []}
         currentUserVendedorId={currentUserVendedorId}
+        crearPresupuestoAction={crearPresupuesto}
+        crearVentaAction={crearVenta}
+        defaultMode="presupuesto"
       />
     </div>
   );

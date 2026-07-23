@@ -223,6 +223,13 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
                   <input type="number" name="costo" step="0.01" placeholder="Costo de Compra (Opcional)" className="w-full bg-black/40 border border-white/5 rounded-lg p-2.5 text-sm text-white focus:border-red-600 outline-none transition-colors" />
                 </div>
               </div>
+              <div className="bg-black/20 border border-white/10 rounded-xl p-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" name="es_servicio" className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-red-600 focus:ring-red-600 focus:ring-offset-gray-900" />
+                  <span className="text-sm font-medium text-white">Es un Servicio (Ej: Mantenimiento, Prueba Hidráulica)</span>
+                </label>
+                <p className="text-xs text-gray-400 ml-6 mt-1">Los servicios no controlan stock físico. Siempre tendrás disponibilidad ilimitada.</p>
+              </div>
               <button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white p-3 rounded-xl font-medium">Crear Producto</button>
             </form>
           </div>

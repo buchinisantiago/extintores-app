@@ -1,9 +1,10 @@
 import { supabase } from '@/lib/supabase';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
-import { createClient } from '@/lib/supabase/server';
-import NuevaVentaClient from './NuevaVentaClient';
+import NuevaOperacionClient from '@/components/NuevaOperacionClient';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import { crearVenta } from './actions';
+import { crearPresupuesto } from '../../presupuestos/actions';
 
 export const revalidate = 0;
 
@@ -11,17 +12,19 @@ export default async function NuevaVentaPage() {
   const supabaseAdmin = getSupabaseAdmin();
   
   const { data: clientes } = await supabase.from('clientes').select('id, nombre').order('nombre');
-  // Fetch all SKUs (products and services)
-  const { data: allSkus } = await supabase.from('skus').select('*');
+  const { data: stockItems } = await supabase.from('stock_terminado').select('cantidad, skus(id, nombre, precio_recarga, es_servicio)').gt('cantidad', 0);
   
-  // Fetch stock to get quantities
-  const { data: stockData } = await supabase.from('stock_terminado').select('sku_id, cantidad');
-  const stockMap = new Map((stockData || []).map(s => [s.sku_id, s.cantidad]));
-
-  const sellableItems = (allSkus || []).map(sku => ({
-    skus: sku,
-    cantidad: sku.es_servicio ? 9999 : (stockMap.get(sku.id) || 0)
-  }));
+  // Incluir servicios que no tienen control de stock
+  const { data: servicios } = await supabase.from('skus').select('id, nombre, precio_recarga, es_servicio').eq('es_servicio', true);
+  
+  let combinedStock: any[] = [...(stockItems || [])];
+  if (servicios) {
+    const serviciosAdaptados = servicios.map(s => ({
+      cantidad: 9999, // Stock ilimitado para servicios
+      skus: s
+    }));
+    combinedStock = [...combinedStock, ...serviciosAdaptados];
+  }
 
   const { data: vendedores } = await supabaseAdmin.from('vendedores').select('*').order('nombre');
 
@@ -40,18 +43,21 @@ export default async function NuevaVentaPage() {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto">
       <div>
-        <Link href="/ventas" className="inline-flex items-center gap-2 text-sm text-red-400 hover:text-blue-300 mb-4 transition-colors">
+        <Link href="/ventas" className="inline-flex items-center gap-2 text-sm text-green-500 hover:text-green-400 mb-4 transition-colors">
           <ArrowLeft size={16} /> Volver a Ventas
         </Link>
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Registrar Venta</h1>
-        <p className="text-gray-400">Selecciona el cliente y los productos o servicios a facturar.</p>
+        <h1 className="text-3xl font-bold tracking-tight mb-2">Crear Venta o Presupuesto</h1>
+        <p className="text-gray-400">Carga una venta directa o genera un presupuesto formal.</p>
       </div>
       
-      <NuevaVentaClient 
+      <NuevaOperacionClient 
         clientes={clientes || []} 
-        stock={sellableItems} 
+        stock={combinedStock} 
         vendedores={vendedores || []}
         currentUserVendedorId={currentUserVendedorId}
+        crearPresupuestoAction={crearPresupuesto}
+        crearVentaAction={crearVenta}
+        defaultMode="venta"
       />
     </div>
   );

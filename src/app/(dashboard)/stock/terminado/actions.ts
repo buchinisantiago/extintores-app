@@ -40,6 +40,7 @@ export async function createSku(formData: FormData) {
   const precio_recarga = parseFloat(formData.get('precio_recarga') as string) || 0;
   
   const es_reventa = formData.get('es_reventa') === 'on';
+  const es_servicio = formData.get('es_servicio') === 'on';
   const costo_str = formData.get('costo') as string;
   const costo = costo_str ? parseFloat(costo_str) : null;
 
@@ -48,7 +49,8 @@ export async function createSku(formData: FormData) {
     tipo_agente,
     capacidad_kg,
     precio_recarga,
-    costo
+    costo,
+    es_servicio
   }).select('id').single();
 
   if (newSku && es_reventa) {

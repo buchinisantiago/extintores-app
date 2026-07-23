@@ -114,7 +114,8 @@ export async function convertirPresupuesto(
   id: string,
   estado_pago: string,
   metodo_pago: string,
-  comprobante: string
+  comprobante: string,
+  nro_factura: string = ''
 ) {
   const { data: pItems, error: itemsErr } = await supabase.from('presupuesto_items').select('sku_id, cantidad').eq('presupuesto_id', id);
   if (!itemsErr && pItems) {
@@ -130,6 +131,10 @@ export async function convertirPresupuesto(
   });
 
   if (error) return { success: false, error: error.message };
+
+  if (nro_factura) {
+    await supabase.from('ventas').update({ nro_factura }).eq('id', data);
+  }
 
   revalidatePath('/presupuestos');
   revalidatePath('/ventas');
