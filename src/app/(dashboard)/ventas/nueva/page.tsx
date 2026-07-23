@@ -11,24 +11,17 @@ export default async function NuevaVentaPage() {
   const supabaseAdmin = getSupabaseAdmin();
   
   const { data: clientes } = await supabase.from('clientes').select('id, nombre').order('nombre');
-  const { data: stock_terminado } = await supabase
-    .from('stock_terminado')
-    .select('cantidad, skus(id, nombre, precio_recarga)')
-    .gt('cantidad', 0); // Solo traer lo que tiene stock
+  // Fetch all SKUs (products and services)
+  const { data: allSkus } = await supabase.from('skus').select('*');
+  
+  // Fetch stock to get quantities
+  const { data: stockData } = await supabase.from('stock_terminado').select('sku_id, cantidad');
+  const stockMap = new Map((stockData || []).map(s => [s.sku_id, s.cantidad]));
 
-  // Fetch servicios que no requieren stock
-  const { data: servicios } = await supabase
-    .from('skus')
-    .select('id, nombre, precio_recarga')
-    .eq('es_servicio', true);
-
-  const sellableItems = [
-    ...(stock_terminado as any || []),
-    ...(servicios as any || []).map((s: any) => ({
-      cantidad: 9999, // Stock "infinito" para los servicios
-      skus: s
-    }))
-  ];
+  const sellableItems = (allSkus || []).map(sku => ({
+    skus: sku,
+    cantidad: sku.es_servicio ? 9999 : (stockMap.get(sku.id) || 0)
+  }));
 
   const { data: vendedores } = await supabaseAdmin.from('vendedores').select('*').order('nombre');
 

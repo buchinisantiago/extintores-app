@@ -8,36 +8,18 @@ envLocal.split('\n').forEach(line => {
   if (match) env[match[1]] = match[2];
 });
 
-const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 
 async function run() {
-  console.log("Fetching MP and SKU...");
-  const { data: mps } = await supabase.from('stock_mp').select('id');
-  const { data: skus } = await supabase.from('skus').select('id');
-  
-  const validMpIds = new Set(mps.map(m => m.id));
-  const validSkuIds = new Set(skus.map(s => s.id));
-
-  console.log("Fetching reposicion_items...");
-  const { data: items } = await supabase.from('reposicion_items').select('*');
-
-  let orphanedReposicionIds = new Set();
-  
-  for (const item of items) {
-    if (item.tipo_entidad === 'MP' && !validMpIds.has(item.entidad_id)) {
-      orphanedReposicionIds.add(item.reposicion_id);
-    }
-    if (item.tipo_entidad === 'SKU' && !validSkuIds.has(item.entidad_id)) {
-      orphanedReposicionIds.add(item.reposicion_id);
-    }
+  const sql = `
+    DROP FUNCTION IF EXISTS crear_venta(uuid, numeric, jsonb);
+  `;
+  const { data, error } = await supabase.rpc('exec_sql', { sql_string: sql });
+  if (error) {
+    // If exec_sql doesn't exist, we can't run raw SQL from client directly without an RPC.
+    console.error("RPC error:", error);
+  } else {
+    console.log("Success:", data);
   }
-
-  console.log(`Found ${orphanedReposicionIds.size} orphaned reposiciones.`);
-
-  for (const repId of orphanedReposicionIds) {
-    console.log(`Deleting reposicion ${repId}`);
-    await supabase.from('reposiciones').delete().eq('id', repId);
-  }
-  console.log("Done.");
 }
 run();
