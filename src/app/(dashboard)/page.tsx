@@ -198,9 +198,9 @@ export default async function Dashboard() {
         <div className="glass rounded-xl p-6">
           <h2 className="text-xl font-bold mb-4">Acciones Rápidas</h2>
           <div className="grid grid-cols-2 gap-3">
-            <Link href="/ventas/nueva" className="p-4 rounded-xl bg-red-600/10 border border-red-600/20 hover:bg-red-600/20 transition-all text-center btn-animate">
-              <span className="block text-red-400 font-bold mb-1">Nueva Venta</span>
-              <span className="text-xs text-gray-400">Registrar salida de stock</span>
+            <Link href="/presupuestos/nuevo" className="p-4 rounded-xl bg-red-600/10 border border-red-600/20 hover:bg-red-600/20 transition-all text-center btn-animate flex flex-col justify-center">
+              <span className="block text-red-400 font-bold mb-1 leading-tight">Nueva Operación</span>
+              <span className="text-xs text-gray-400">Venta Directa o Presupuesto</span>
             </Link>
             <Link href="/clientes" className="p-4 rounded-xl bg-red-600/10 border border-red-600/20 hover:bg-red-600/20 transition-all text-center btn-animate">
               <span className="block text-red-400 font-bold mb-1">Nuevo Cliente</span>
