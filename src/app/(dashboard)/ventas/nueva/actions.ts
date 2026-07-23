@@ -35,6 +35,45 @@ export async function crearVenta(
     return { success: false, error: error.message };
   }
 
+  // Register any "otro" extinguishers for the client
+  for (const item of items) {
+    if (item.nro_serie && item.nro_serie.trim() !== '') {
+      const nroSerie = item.nro_serie.trim();
+      const { data: existing } = await supabase
+        .from('extintores')
+        .select('id')
+        .eq('cliente_id', cliente_id)
+        .or(`nro_serie.eq.${nroSerie},nro_cilindro.eq.${nroSerie}`)
+        .maybeSingle();
+
+      if (!existing) {
+        const cargaAnios = item.renovacion_carga_anios || 1;
+        const phAnios = item.renovacion_ph_anios || 0;
+        const now = new Date();
+        const nextCarga = new Date(now);
+        nextCarga.setFullYear(now.getFullYear() + cargaAnios);
+        
+        let nextPh = null;
+        if (phAnios > 0) {
+          nextPh = new Date(now);
+          nextPh.setFullYear(now.getFullYear() + phAnios);
+        }
+
+        await supabase.from('extintores').insert({
+          cliente_id: cliente_id,
+          sku_id: item.sku_id,
+          nro_serie: nroSerie,
+          fecha_carga: now.toISOString(),
+          fecha_vence: nextCarga.toISOString(),
+          estado: 'vigente',
+          fecha_ph: phAnios > 0 ? now.toISOString() : null,
+          vence_ph: nextPh ? nextPh.toISOString() : null,
+          estado_ph: phAnios > 0 ? 'vigente' : 'sin_datos'
+        });
+      }
+    }
+  }
+
   revalidatePath('/ventas');
   revalidatePath('/stock/terminado');
   revalidatePath('/finanzas');

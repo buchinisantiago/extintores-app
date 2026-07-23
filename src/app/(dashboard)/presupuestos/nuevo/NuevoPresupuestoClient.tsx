@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FileText, Trash2, CheckCircle2 } from 'lucide-react';
 import { crearPresupuesto } from '../actions';
+import { getClientExtinguishers } from '../../ventas/nueva/actions';
 
 type Cliente = { id: string, nombre: string };
 type Vendedor = { id: string, nombre: string };
@@ -11,17 +12,27 @@ type StockItem = {
   cantidad: number;
   skus: { id: string, nombre: string, precio_recarga: number };
 };
+type Extintor = { id: string, nro_cilindro: string, skus: { nombre: string } };
 
 import ProductSearchSelect from '@/components/ProductSearchSelect';
 
 export default function NuevoPresupuestoClient({ clientes, stock, vendedores, currentUserVendedorId }: { clientes: Cliente[], stock: StockItem[], vendedores: Vendedor[], currentUserVendedorId?: string }) {
   const router = useRouter();
   const [clienteId, setClienteId] = useState('');
+  const [clientExtintores, setClientExtintores] = useState<Extintor[]>([]);
   const [vendedorId, setVendedorId] = useState(currentUserVendedorId || '');
-  const [cart, setCart] = useState<{sku_id: string, nombre: string, cantidad: number, precio: number, max: number, nro_serie: string, renovacion_carga_anios: number, renovacion_ph_anios: number}[]>([]);
+  const [cart, setCart] = useState<{sku_id: string, nombre: string, cantidad: number, precio: number, max: number, nro_serie: string, renovacion_carga_anios: number, renovacion_ph_anios: number, nro_serie_mode?: 'select' | 'otro'}[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [observaciones, setObservaciones] = useState('');
   const [descuentoPorcentaje, setDescuentoPorcentaje] = useState(0);
+
+  useEffect(() => {
+    if (clienteId) {
+      getClientExtinguishers(clienteId).then(data => setClientExtintores(data || []));
+    } else {
+      setClientExtintores([]);
+    }
+  }, [clienteId]);
 
   const addItem = (sku_id: string) => {
     if (!sku_id) return;
@@ -40,6 +51,7 @@ export default function NuevoPresupuestoClient({ clientes, stock, vendedores, cu
       precio: itemStock.skus.precio_recarga,
       max: itemStock.cantidad,
       nro_serie: '',
+      nro_serie_mode: 'select',
       renovacion_carga_anios: 1,
       renovacion_ph_anios: itemStock.skus.nombre.toLowerCase().includes('hidráulica') || itemStock.skus.nombre.toLowerCase().includes('ph') ? 5 : 0
     }]);
@@ -63,6 +75,10 @@ export default function NuevoPresupuestoClient({ clientes, stock, vendedores, cu
 
   const updateNroSerie = (sku_id: string, nro_serie: string) => {
     setCart(cart.map(item => item.sku_id === sku_id ? { ...item, nro_serie } : item));
+  };
+
+  const updateNroSerieMode = (sku_id: string, mode: 'select' | 'otro') => {
+    setCart(cart.map(item => item.sku_id === sku_id ? { ...item, nro_serie_mode: mode } : item));
   };
 
   const updateRenovacion = (sku_id: string, type: 'carga' | 'ph', value: number) => {
@@ -172,13 +188,43 @@ export default function NuevoPresupuestoClient({ clientes, stock, vendedores, cu
                     <span className="text-sm text-gray-400">c/u</span>
                   </div>
                   <div className="mt-2 pl-1">
-                    <input 
-                      type="text"
-                      placeholder="N° Cilindro (Opcional)"
-                      value={item.nro_serie}
-                      onChange={(e) => updateNroSerie(item.sku_id, e.target.value)}
-                      className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs outline-none focus:border-red-600 text-white w-40"
-                    />
+                    {item.nro_serie_mode === 'otro' ? (
+                      <div className="flex items-center gap-1">
+                        <input 
+                          type="text"
+                          placeholder="Nuevo N° Cilindro"
+                          value={item.nro_serie}
+                          onChange={(e) => updateNroSerie(item.sku_id, e.target.value)}
+                          className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs outline-none focus:border-red-600 text-white w-40"
+                          autoFocus
+                        />
+                        <button type="button" onClick={() => {
+                          updateNroSerieMode(item.sku_id, 'select');
+                          updateNroSerie(item.sku_id, '');
+                        }} className="text-gray-500 hover:text-white px-1">✕</button>
+                      </div>
+                    ) : (
+                      <select
+                        value={item.nro_serie}
+                        onChange={(e) => {
+                          if (e.target.value === 'otro') {
+                            updateNroSerieMode(item.sku_id, 'otro');
+                            updateNroSerie(item.sku_id, '');
+                          } else {
+                            updateNroSerie(item.sku_id, e.target.value);
+                          }
+                        }}
+                        className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs outline-none focus:border-red-600 text-white w-56 appearance-none truncate"
+                      >
+                        <option value="">Seleccionar Matafuego (Opcional)...</option>
+                        {clientExtintores.map(ext => (
+                          <option key={ext.id} value={ext.nro_cilindro}>
+                            {ext.skus?.nombre} - N° {ext.nro_cilindro}
+                          </option>
+                        ))}
+                        <option value="otro">Otro / Nuevo matafuego...</option>
+                      </select>
+                    )}
                   </div>
                   {item.nro_serie && item.nro_serie.length > 0 && (
                     <div className="flex flex-wrap items-center gap-3 mt-2 pl-1 animate-in fade-in slide-in-from-top-1">
