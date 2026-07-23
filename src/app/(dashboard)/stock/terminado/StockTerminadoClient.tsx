@@ -214,14 +214,8 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
                 <input type="number" name="precio_recarga" step="0.01" placeholder="Precio Venta" required className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white" />
               </div>
               <div className="bg-black/20 border border-white/10 rounded-xl p-4 space-y-3">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" name="es_reventa" className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-red-600 focus:ring-red-600 focus:ring-offset-gray-900" />
-                  <span className="text-sm font-medium text-white">Es artículo de reventa 1:1</span>
-                </label>
-                <p className="text-xs text-gray-400 ml-6">Al marcar esto, se creará el insumo en Materia Prima y se sincronizarán automáticamente sus stocks.</p>
-                <div className="ml-6 mt-2">
-                  <input type="number" name="costo" step="0.01" placeholder="Costo de Compra (Opcional)" className="w-full bg-black/40 border border-white/5 rounded-lg p-2.5 text-sm text-white focus:border-red-600 outline-none transition-colors" />
-                </div>
+                <p className="text-sm font-medium text-white mb-2">Información de Compra</p>
+                <input type="number" name="costo" step="0.01" placeholder="Costo de Compra (Opcional)" className="w-full bg-black/40 border border-white/5 rounded-lg p-2.5 text-sm text-white focus:border-red-600 outline-none transition-colors" />
               </div>
               <div className="bg-black/20 border border-white/10 rounded-xl p-4">
                 <label className="flex items-center gap-2 cursor-pointer">

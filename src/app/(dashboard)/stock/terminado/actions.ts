@@ -39,7 +39,6 @@ export async function createSku(formData: FormData) {
   const capacidad_kg = capacidad_str ? parseFloat(capacidad_str) : null;
   const precio_recarga = parseFloat(formData.get('precio_recarga') as string) || 0;
   
-  const es_reventa = formData.get('es_reventa') === 'on';
   const es_servicio = formData.get('es_servicio') === 'on';
   const costo_str = formData.get('costo') as string;
   const costo = costo_str ? parseFloat(costo_str) : null;
@@ -53,17 +52,17 @@ export async function createSku(formData: FormData) {
     es_servicio
   }).select('id').single();
 
-  if (newSku && es_reventa) {
-    // Crear el insumo en Materia Prima
+  if (newSku && !es_servicio) {
+    // Crear automáticamente el insumo equivalente en Materia Prima 1:1
     const { data: newMp } = await supabase.from('stock_mp').insert({
-      material: nombre,
+      material: `${nombre} MP`,
       cantidad: 0,
       unidad: 'Unidad',
       alerta_minimo: 5
     }).select('id').single();
 
     if (newMp) {
-      // Crear la receta 1:1
+      // Crear receta 1:1
       await supabase.from('sku_recetas').insert({
         sku_id: newSku.id,
         mp_id: newMp.id,
