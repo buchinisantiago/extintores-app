@@ -23,15 +23,15 @@ export default function PdfClient({ presupuesto, items }: { presupuesto: any, it
       <div className="max-w-[210mm] mx-auto w-full my-8 p-[20mm] bg-white text-black shadow-2xl print:my-0 print:p-0 print:w-full print:max-w-none print:shadow-none flex flex-col min-h-[297mm]">
         
         {/* Header */}
-        <div className="flex justify-between items-start border-b-2 border-red-600 pb-6 mb-8">
-          <div className="w-64">
+        <div className="flex items-center justify-between border-b-2 border-red-600 pb-6 mb-8 gap-6">
+          <div className="w-[450px] shrink-0">
             <img src="/logo2.jpeg" alt="Menendez" className="w-full h-auto object-contain" />
           </div>
-          <div className="text-right">
-            <h1 className="text-3xl font-black text-red-600 uppercase mb-2">Presupuesto</h1>
-            <p className="text-gray-600 font-bold text-lg">Nº {presupuesto.id.split('-')[0].toUpperCase()}</p>
-            <p className="text-gray-500 mt-1">Fecha: {format(new Date(presupuesto.created_at), 'dd/MM/yyyy')}</p>
-            <p className="text-gray-500">Validez: {presupuesto.validez_dias} días</p>
+          <div className="text-right flex-1">
+            <h1 className="text-4xl font-black text-red-600 uppercase mb-2">Presupuesto</h1>
+            <p className="text-gray-600 font-bold text-xl">Nº {presupuesto.id.split('-')[0].toUpperCase()}</p>
+            <p className="text-gray-500 mt-2 text-lg">Fecha: {format(new Date(presupuesto.created_at), 'dd/MM/yyyy')}</p>
+            <p className="text-gray-500 text-lg">Validez: {presupuesto.validez_dias} días</p>
           </div>
         </div>
 
