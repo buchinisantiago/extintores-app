@@ -109,6 +109,17 @@ export default function MateriaPrimaClient({ initialData }: { initialData: MP[] 
               <input name="alerta_minimo" type="number" step="0.01" required className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none" />
             </div>
           </div>
+          <div className="mt-4 bg-slate-900/50 border border-slate-700 rounded-xl p-4 space-y-3">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" name="es_reventa" className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-red-600 focus:ring-red-600 focus:ring-offset-gray-900" />
+              <span className="text-sm font-medium text-white">Es artículo de reventa 1:1</span>
+            </label>
+            <p className="text-xs text-gray-400 ml-6">Al marcar esto, se creará el producto en Stock Terminado para que puedas venderlo y se sincronizarán automáticamente sus stocks.</p>
+            <div className="ml-6 mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input type="number" name="precio_venta" step="0.01" placeholder="Precio de Venta Sugerido (Opcional)" className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:border-red-600 outline-none transition-colors" />
+              <input type="number" name="costo" step="0.01" placeholder="Costo de Compra (Opcional)" className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:border-red-600 outline-none transition-colors" />
+            </div>
+          </div>
           <div className="mt-4 flex gap-2">
             <button type="submit" className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm font-medium">Guardar</button>
             <button type="button" onClick={() => setIsAdding(false)} className="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium">Cancelar</button>

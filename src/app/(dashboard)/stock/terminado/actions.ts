@@ -38,15 +38,40 @@ export async function createSku(formData: FormData) {
   const capacidad_str = formData.get('capacidad_kg') as string;
   const capacidad_kg = capacidad_str ? parseFloat(capacidad_str) : null;
   const precio_recarga = parseFloat(formData.get('precio_recarga') as string) || 0;
+  
+  const es_reventa = formData.get('es_reventa') === 'on';
+  const costo_str = formData.get('costo') as string;
+  const costo = costo_str ? parseFloat(costo_str) : null;
 
-  await supabase.from('skus').insert({
+  const { data: newSku, error } = await supabase.from('skus').insert({
     nombre,
     tipo_agente,
     capacidad_kg,
-    precio_recarga
-  });
+    precio_recarga,
+    costo
+  }).select('id').single();
+
+  if (newSku && es_reventa) {
+    // Crear el insumo en Materia Prima
+    const { data: newMp } = await supabase.from('stock_mp').insert({
+      material: nombre,
+      cantidad: 0,
+      unidad: 'Unidad',
+      alerta_minimo: 5
+    }).select('id').single();
+
+    if (newMp) {
+      // Crear la receta 1:1
+      await supabase.from('sku_recetas').insert({
+        sku_id: newSku.id,
+        mp_id: newMp.id,
+        cantidad_necesaria: 1
+      });
+    }
+  }
 
   revalidatePath('/stock/terminado');
+  revalidatePath('/stock/mp');
   revalidatePath('/ventas/nueva');
 }
 

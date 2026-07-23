@@ -9,14 +9,47 @@ export async function addMateriaPrima(formData: FormData) {
   const unidad = formData.get('unidad') as string;
   const alerta_minimo = Number(formData.get('alerta_minimo'));
 
-  await supabase.from('stock_mp').insert({
+  const es_reventa = formData.get('es_reventa') === 'on';
+  const precio_venta_str = formData.get('precio_venta') as string;
+  const precio_venta = precio_venta_str ? parseFloat(precio_venta_str) : 0;
+  const costo_str = formData.get('costo') as string;
+  const costo = costo_str ? parseFloat(costo_str) : null;
+
+  const { data: newMp, error } = await supabase.from('stock_mp').insert({
     material,
     cantidad,
     unidad,
     alerta_minimo
-  });
+  }).select('id').single();
+
+  if (newMp && es_reventa) {
+    // Crear el producto en SKUs
+    const { data: newSku } = await supabase.from('skus').insert({
+      nombre: material,
+      tipo_agente: 'Reventa',
+      precio_recarga: precio_venta,
+      costo: costo
+    }).select('id').single();
+
+    if (newSku) {
+      // Crear la receta 1:1
+      await supabase.from('sku_recetas').insert({
+        sku_id: newSku.id,
+        mp_id: newMp.id,
+        cantidad_necesaria: 1
+      });
+
+      // Crear el registro inicial en stock_terminado
+      await supabase.from('stock_terminado').insert({
+        sku_id: newSku.id,
+        cantidad: cantidad
+      });
+    }
+  }
 
   revalidatePath('/stock/mp');
+  revalidatePath('/stock/terminado');
+  revalidatePath('/ventas/nueva');
   revalidatePath('/');
 }
 
