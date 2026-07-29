@@ -181,8 +181,8 @@ export default function ClienteDetalleClient({
                 <input name="fecha_carga" type="date" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none" />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-xs text-gray-400 mb-1">Fecha Prueba Hidráulica (opcional)</label>
-                <input name="fecha_ph" type="date" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none" />
+                <label className="block text-xs text-gray-400 mb-1">Vencimiento Prueba Hidráulica (opcional)</label>
+                <input name="vencimiento_ph" type="date" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-red-600 outline-none" />
               </div>
             </div>
             <div className="mt-4 flex gap-2">
@@ -206,7 +206,7 @@ export default function ClienteDetalleClient({
                 </div>
                 <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-400">
                   <span>Últ. Carga: <span className="text-gray-300">{format(new Date(ext.fecha_carga), 'dd/MM/yyyy')}</span> <span className="text-gray-500 ml-1">(Vence: {format(new Date(ext.fecha_vence), 'dd/MM/yyyy')})</span></span>
-                  {ext.fecha_ph && <span>Últ. P.H.: <span className="text-gray-300">{format(new Date(ext.fecha_ph), 'dd/MM/yyyy')}</span> <span className="text-gray-500 ml-1">(Vence: {ext.vence_ph ? format(new Date(ext.vence_ph), 'dd/MM/yyyy') : 'N/A'})</span></span>}
+                  {ext.fecha_ph && <span>P.H. Vence: <span className="text-gray-300">{ext.vence_ph ? format(new Date(ext.vence_ph), 'dd/MM/yyyy') : 'N/A'}</span></span>}
                 </div>
               </div>
 
