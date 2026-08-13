@@ -95,6 +95,20 @@ export async function updateSku(sku_id: string, formData: FormData) {
 }
 
 export async function deleteSku(sku_id: string) {
+  // Obtener nombre del SKU para buscar su MP equivalente
+  const { data: sku } = await supabase.from('skus').select('nombre').eq('id', sku_id).single();
+  
+  if (sku) {
+    const mpName = `${sku.nombre} MP`;
+    const { data: mp } = await supabase.from('stock_mp').select('id').eq('material', mpName).single();
+    if (mp) {
+      await supabase.from('sku_recetas').delete().eq('mp_id', mp.id);
+      await supabase.from('movimientos_stock').delete().eq('entidad_id', mp.id).eq('tipo_entidad', 'MP');
+      await supabase.from('reposicion_items').delete().eq('entidad_id', mp.id).eq('tipo_entidad', 'MP');
+      await supabase.from('stock_mp').delete().eq('id', mp.id);
+    }
+  }
+
   // Borramos manualmente las referencias para forzar la eliminación (modo pruebas)
   await supabase.from('venta_items').delete().eq('sku_id', sku_id);
   await supabase.from('presupuesto_items').delete().eq('sku_id', sku_id);

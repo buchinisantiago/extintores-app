@@ -103,6 +103,23 @@ export async function editMateriaPrima(id: string, formData: FormData) {
 }
 
 export async function deleteMateriaPrima(id: string) {
+  // Buscar si es un insumo 1:1 generado automáticamente y borrar el SKU asociado
+  const { data: mp } = await supabase.from('stock_mp').select('material').eq('id', id).single();
+  
+  if (mp && mp.material.endsWith(' MP')) {
+    const skuName = mp.material.substring(0, mp.material.length - 3);
+    const { data: sku } = await supabase.from('skus').select('id').eq('nombre', skuName).single();
+    if (sku) {
+      await supabase.from('venta_items').delete().eq('sku_id', sku.id);
+      await supabase.from('presupuesto_items').delete().eq('sku_id', sku.id);
+      await supabase.from('sku_recetas').delete().eq('sku_id', sku.id);
+      await supabase.from('movimientos_stock').delete().eq('entidad_id', sku.id).eq('tipo_entidad', 'SKU');
+      await supabase.from('reposicion_items').delete().eq('entidad_id', sku.id).eq('tipo_entidad', 'SKU');
+      await supabase.from('stock_terminado').delete().eq('sku_id', sku.id);
+      await supabase.from('skus').delete().eq('id', sku.id);
+    }
+  }
+
   // Eliminar referencias manuales por modo pruebas (ej. recetas y movimientos)
   await supabase.from('sku_recetas').delete().eq('mp_id', id);
   await supabase.from('movimientos_stock').delete().eq('entidad_id', id).eq('tipo_entidad', 'MP');
