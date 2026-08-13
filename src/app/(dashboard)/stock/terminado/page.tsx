@@ -5,7 +5,7 @@ export const revalidate = 0;
 
 export default async function StockTerminadoPage() {
   // Obtenemos todos los SKUs que NO son servicios y cruzamos con el stock actual
-  const { data: skus, error: skusError } = await supabase.from('skus').select('*').eq('es_servicio', false).order('nombre');
+  const { data: skus, error: skusError } = await supabase.from('skus').select('*').order('nombre');
   const { data: stock, error: stockError } = await supabase.from('stock_terminado').select('*');
 
   // Mapeamos para que cada SKU tenga su cantidad (0 si no existe en stock_terminado aún)

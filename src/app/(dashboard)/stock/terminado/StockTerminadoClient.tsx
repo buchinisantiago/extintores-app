@@ -12,6 +12,7 @@ type SKU = {
   tipo_agente: string;
   capacidad_kg: number;
   precio_recarga: number;
+  es_servicio: boolean;
 };
 
 type StockData = {
@@ -23,6 +24,7 @@ type StockData = {
 };
 
 export default function StockTerminadoClient({ initialData }: { initialData: StockData[] }) {
+  const [activeTab, setActiveTab] = useState<'productos' | 'servicios'>('productos');
   const [search, setSearch] = useState('');
   const [loadingSku, setLoadingSku] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -103,8 +105,9 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
   };
 
   const filteredData = initialData.filter(d => 
-    d.sku.nombre.toLowerCase().includes(search.toLowerCase()) ||
-    d.sku.tipo_agente.toLowerCase().includes(search.toLowerCase())
+    (activeTab === 'servicios' ? d.sku.es_servicio : !d.sku.es_servicio) &&
+    (d.sku.nombre.toLowerCase().includes(search.toLowerCase()) ||
+    (d.sku.tipo_agente || '').toLowerCase().includes(search.toLowerCase()))
   );
 
   const handleUpdate = async (sku_id: string, current: number, change: number) => {
@@ -138,14 +141,29 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
         </button>
       </div>
 
+      <div className="flex border-b border-white/10">
+        <button 
+          onClick={() => setActiveTab('productos')}
+          className={`px-6 py-3 font-medium text-sm transition-colors border-b-2 ${activeTab === 'productos' ? 'border-red-600 text-red-500' : 'border-transparent text-gray-400 hover:text-white'}`}
+        >
+          Productos Físicos
+        </button>
+        <button 
+          onClick={() => setActiveTab('servicios')}
+          className={`px-6 py-3 font-medium text-sm transition-colors border-b-2 ${activeTab === 'servicios' ? 'border-red-600 text-red-500' : 'border-transparent text-gray-400 hover:text-white'}`}
+        >
+          Servicios
+        </button>
+      </div>
+
       <div className="glass rounded-xl overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-black/20 border-b border-white/5">
               <th className="p-4 font-medium text-gray-400">Producto</th>
               <th className="p-4 font-medium text-gray-400">Categoría</th>
-              <th className="p-4 font-medium text-gray-400 text-right">Precio Recarga</th>
-              <th className="p-4 font-medium text-gray-400 text-center">Stock Actual</th>
+              <th className="p-4 font-medium text-gray-400 text-right">Precio Venta</th>
+              {activeTab === 'productos' && <th className="p-4 font-medium text-gray-400 text-center">Stock Actual</th>}
               <th className="p-4 font-medium text-gray-400 text-right">Acciones</th>
             </tr>
           </thead>
@@ -171,11 +189,13 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
                   <td className="p-4 text-right font-mono text-gray-400">
                     ${item.sku.precio_recarga}
                   </td>
-                  <td className="p-4 text-center font-mono">
-                    <span className={`text-lg ${isLowStock ? 'text-red-400 font-bold' : 'text-white'}`}>
-                      {item.stock.cantidad}
-                    </span>
-                  </td>
+                  {activeTab === 'productos' && (
+                    <td className="p-4 text-center font-mono">
+                      <span className={`text-lg ${isLowStock ? 'text-red-400 font-bold' : 'text-white'}`}>
+                        {item.stock.cantidad}
+                      </span>
+                    </td>
+                  )}
                   <td className="p-4">
                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button 
@@ -183,11 +203,13 @@ export default function StockTerminadoClient({ initialData }: { initialData: Sto
                         className="p-2 text-gray-400 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-colors" title="Editar Producto">
                         <Edit2 size={18} />
                       </button>
-                      <button 
-                        onClick={() => handleOpenKardex(item.sku)}
-                        className="p-2 text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors" title="Ver Historial (Kardex)">
-                        <Clock size={18} />
-                      </button>
+                      {activeTab === 'productos' && (
+                        <button 
+                          onClick={() => handleOpenKardex(item.sku)}
+                          className="p-2 text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors" title="Ver Historial (Kardex)">
+                          <Clock size={18} />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
