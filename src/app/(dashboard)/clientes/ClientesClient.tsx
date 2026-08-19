@@ -37,6 +37,23 @@ export default function ClientesClient({ initialData }: { initialData: Cliente[]
     e.preventDefault();
     setErrorMsg(null);
     const formData = new FormData(e.currentTarget);
+    
+    const email = formData.get('email') as string;
+    const telefono = formData.get('telefono') as string;
+    const documento = formData.get('documento') as string;
+
+    const exists = initialData.find(c => 
+      (email && c.email?.toLowerCase() === email.toLowerCase()) || 
+      (telefono && c.telefono === telefono) ||
+      (documento && c.documento === documento)
+    );
+
+    if (exists) {
+      if (!window.confirm(`Parece que ya existe un cliente con esos datos (${exists.nombre}). ¿Estás seguro de que querés crear uno nuevo igual?`)) {
+        return;
+      }
+    }
+
     const result = await addCliente(formData);
     
     if (result && typeof result === 'object' && result.error) {
