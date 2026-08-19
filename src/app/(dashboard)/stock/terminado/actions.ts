@@ -36,12 +36,16 @@ export async function createSku(formData: FormData) {
   const nombre = formData.get('nombre') as string;
   const tipo_agente = formData.get('tipo_agente') as string;
   const capacidad_str = formData.get('capacidad_kg') as string;
-  const capacidad_kg = capacidad_str ? parseFloat(capacidad_str) : null;
+  let capacidad_kg = capacidad_str ? parseFloat(capacidad_str) : null;
   const precio_recarga = parseFloat(formData.get('precio_recarga') as string) || 0;
   
   const es_servicio = formData.get('es_servicio') === 'on';
   const costo_str = formData.get('costo') as string;
   const costo = costo_str ? parseFloat(costo_str) : null;
+
+  if (es_servicio && capacidad_kg === null) {
+    capacidad_kg = 0;
+  }
 
   const { data: newSku, error } = await supabase.from('skus').insert({
     nombre,
@@ -51,6 +55,10 @@ export async function createSku(formData: FormData) {
     costo,
     es_servicio
   }).select('id').single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
 
   if (newSku && !es_servicio) {
     // Crear automáticamente el insumo equivalente en Materia Prima 1:1
@@ -83,12 +91,14 @@ export async function updateSku(sku_id: string, formData: FormData) {
   const capacidad_kg = capacidad_str ? parseFloat(capacidad_str) : null;
   const precio_recarga = parseFloat(formData.get('precio_recarga') as string) || 0;
 
-  await supabase.from('skus').update({
+  const { error } = await supabase.from('skus').update({
     nombre,
     tipo_agente,
     capacidad_kg,
     precio_recarga
   }).eq('id', sku_id);
+
+  if (error) throw new Error(error.message);
 
   revalidatePath('/stock/terminado');
   revalidatePath('/ventas/nueva');
